@@ -7,10 +7,10 @@ using Bunnypro.GeneticAlgorithm.Primitives;
 
 namespace Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions
 {
-    public interface IMultiObjectiveGeneticOperation<T> where T : Enum
+    public interface IDistinctMultiObjectiveGeneticOperation<T> where T : Enum
     {
-        Task<IEnumerable<IChromosome<T>>> Operate(
-            IEnumerable<IChromosome<T>> chromosomes,
+         Task<ImmutableHashSet<IChromosome<T>>> Operate(
+            IEnumerable<IChromosome<T>> parents,
             PopulationCapacity capacity,
             CancellationToken token = default);
     }

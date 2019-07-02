@@ -6,9 +6,9 @@ namespace Bunnypro.GeneticAlgorithm.MultiObjective.Primitives
 {
     public struct ObjectiveValues<T> : IReadOnlyDictionary<T, double> where T : Enum
     {
-        private readonly IDictionary<T, double> _values;
+        private readonly IReadOnlyDictionary<T, double> _values;
 
-        public ObjectiveValues(IDictionary<T, double> values)
+        public ObjectiveValues(IReadOnlyDictionary<T, double> values)
         {
             _values = values;
         }
@@ -18,24 +18,12 @@ namespace Bunnypro.GeneticAlgorithm.MultiObjective.Primitives
         public IEnumerable<double> Values => _values.Values;
         public int Count => _values.Count;
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public IEnumerator<KeyValuePair<T, double>> GetEnumerator()
-        {
-            return _values.GetEnumerator();
-        }
+        public IEnumerator<KeyValuePair<T, double>> GetEnumerator() =>_values.GetEnumerator();
         
-        public bool ContainsKey(T key)
-        {
-            return _values.ContainsKey(key);
-        }
+        public bool ContainsKey(T key) => _values.ContainsKey(key);
 
-        public bool TryGetValue(T key, out double value)
-        {
-            return _values.TryGetValue(key, out value);
-        }
+        public bool TryGetValue(T key, out double value) =>_values.TryGetValue(key, out value);
     }
 }

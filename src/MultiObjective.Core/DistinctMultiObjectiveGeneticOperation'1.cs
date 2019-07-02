@@ -10,7 +10,7 @@ using Bunnypro.GeneticAlgorithm.Primitives;
 
 namespace Bunnypro.GeneticAlgorithm.MultiObjective.Core
 {
-    public abstract class MultiObjectiveGeneticOperation<T> : IGeneticOperation, IMultiObjectiveGeneticOperation<T> where T : Enum
+    public abstract class DistinctMultiObjectiveGeneticOperation<T> : IGeneticOperation, IDistinctMultiObjectiveGeneticOperation<T> where T : Enum
     {
         public async Task<ImmutableHashSet<IChromosome>> Operate(ImmutableHashSet<IChromosome> chromosomes, PopulationCapacity capacity, CancellationToken token = default)
         {
@@ -18,7 +18,7 @@ namespace Bunnypro.GeneticAlgorithm.MultiObjective.Core
             return offspring.Cast<IChromosome>().ToImmutableHashSet();
         }
 
-        public abstract Task<IEnumerable<IChromosome<T>>> Operate(
+        public abstract Task<ImmutableHashSet<IChromosome<T>>> Operate(
             IEnumerable<IChromosome<T>> parents,
             PopulationCapacity capacity,
             CancellationToken token = default);

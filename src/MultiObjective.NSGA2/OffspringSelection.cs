@@ -10,16 +10,17 @@ using Bunnypro.GeneticAlgorithm.Primitives;
 
 namespace Bunnypro.GeneticAlgorithm.MultiObjective.NSGA2
 {
-    public class OffspringSelection<T> : MultiObjectiveGeneticOperation<T> where T : Enum
+    public class OffspringSelection<T> : IDistinctMultiObjectiveGeneticOperation<T> where T : Enum
     {
         private readonly IParetoSort<T> _sorter = new FastNonDominatedSort<T>();
-        
-        public override Task<ImmutableHashSet<IChromosome<T>>> Operate(ImmutableHashSet<IChromosome<T>> chromosomes, PopulationCapacity capacity, CancellationToken token = default)
+
+        public Task<ImmutableHashSet<IChromosome<T>>> Operate(IEnumerable<IChromosome<T>> parents,
+            PopulationCapacity capacity, CancellationToken token = default)
         {
             //    TODO: Take Front by Front
             var elite = ImmutableHashSet.CreateBuilder<IChromosome<T>>();
             ImmutableArray<IChromosome<T>> lastFront;
-            using (var enumerator = _sorter.Sort(chromosomes).GetEnumerator())
+            using (var enumerator = _sorter.Sort(parents).GetEnumerator())
             {
                 lastFront = enumerator.Current;
                 while (elite.Count < capacity.Minimum && elite.Count + lastFront.Length <= capacity.Maximum)
@@ -31,7 +32,7 @@ namespace Bunnypro.GeneticAlgorithm.MultiObjective.NSGA2
             }
 
             if (elite.Count >= capacity.Minimum) return Task.FromResult(elite.ToImmutable());
-            
+
             token.ThrowIfCancellationRequested();
 
             //    TODO: Use Crowding Distance Diversity Selection to The Last Over-Capacity Front
