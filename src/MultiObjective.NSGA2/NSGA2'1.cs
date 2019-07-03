@@ -14,16 +14,16 @@ namespace Bunnypro.GeneticAlgorithm.MultiObjective.NSGA2
     {
         private readonly IMultiObjectiveGeneticOperation<T> _crossover;
         private readonly IMultiObjectiveGeneticOperation<T> _mutation;
-        private readonly IObjectiveEvaluators<T> _objectiveValuesEvaluator;
+        private readonly IObjectiveEvaluator<T> _objectiveValuesEvaluator;
         private readonly IDistinctMultiObjectiveGeneticOperation<T> _offspringSelection = new OffspringSelection<T>();
 
         public NSGA2(IMultiObjectiveGeneticOperation<T> crossover,
             IMultiObjectiveGeneticOperation<T> mutation,
-            IObjectiveEvaluators<T> evaluators)
+            IObjectiveEvaluator<T> evaluator)
         {
             _crossover = crossover;
             _mutation = mutation;
-            _objectiveValuesEvaluator = evaluators;
+            _objectiveValuesEvaluator = evaluator;
         }
 
         public override async Task<ImmutableHashSet<IChromosome<T>>> Operate(IEnumerable<IChromosome<T>> chromosomes,
