@@ -37,24 +37,15 @@ namespace Bunnypro.GeneticAlgorithm.MultiObjective.NSGA2
             var remains = capacity.Minimum - elite.Count;
             var crowdingDistance = lastFront.ToDictionary(c => c, c => 0d);
 
-            void AddDistance(IChromosome<T> chromosome, double value)
-            {
-                crowdingDistance[chromosome] =
-                    value == double.MaxValue || double.MaxValue - crowdingDistance[chromosome] < value
-                        ? double.MaxValue
-                        : crowdingDistance[chromosome] + value;
-            }
-
             foreach (var objective in Enum.GetValues(typeof(T)).Cast<T>())
             {
-                var sorted = lastFront.OrderBy(c => c.ObjectiveValues[objective]).ToList();
-                AddDistance(sorted[0], double.MaxValue);
-                AddDistance(sorted[sorted.Count - 1], double.MaxValue);
-                for (var i = 1; i < sorted.Count - 1; i++)
+                var sorted = lastFront.OrderBy(c => c.ObjectiveValues[objective]).ToArray();
+                for (var i = 0; i < sorted.Length; i++)
                 {
-                    var distance = Math.Abs(sorted[i - 1].ObjectiveValues[objective] -
-                                            sorted[i + 1].ObjectiveValues[objective]);
-                    AddDistance(sorted[i], distance);
+                    var lowerValue = i == 0 ? 0 : sorted[i - 1].ObjectiveValues[objective];
+                    var upperValue = i == sorted.Length - 1 ? 0 : sorted[i + 1].ObjectiveValues[objective];
+                    var distance = Math.Abs(upperValue - lowerValue);
+                    crowdingDistance[sorted[i]] += distance;
                 }
             }
 

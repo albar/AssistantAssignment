@@ -13,17 +13,17 @@ namespace Bunnypro.GeneticAlgorithm.MultiObjective.NSGA2
     public class NSGA2<T> : DistinctMultiObjectiveGeneticOperation<T> where T : Enum
     {
         private readonly IMultiObjectiveGeneticOperation<T> _reproduction;
-        private readonly IObjectiveEvaluator<T> _objectiveValuesEvaluator;
+        private readonly IObjectiveValuesEvaluator<T> _evaluator;
         private readonly IDistinctMultiObjectiveGeneticOperation<T> _offspringSelection = new OffspringSelection<T>();
 
-        public NSGA2(IMultiObjectiveGeneticOperation<T> reproduction,
-            IObjectiveEvaluator<T> evaluator)
+        public NSGA2(IMultiObjectiveGeneticOperation<T> reproduction, IObjectiveValuesEvaluator<T> evaluator)
         {
             _reproduction = reproduction;
-            _objectiveValuesEvaluator = evaluator;
+            _evaluator = evaluator;
         }
 
-        public override async Task<ImmutableHashSet<IChromosome<T>>> Operate(IEnumerable<IChromosome<T>> chromosomes,
+        public override async Task<ImmutableHashSet<IChromosome<T>>> Operate(
+            IEnumerable<IChromosome<T>> chromosomes,
             PopulationCapacity capacity,
             CancellationToken token = default)
         {
@@ -37,7 +37,7 @@ namespace Bunnypro.GeneticAlgorithm.MultiObjective.NSGA2
                 offspring.UnionWith(await _reproduction.Operate(parents, capacity, token));
 
                 // Evaluate Offspring Objective Values
-                foreach (var child in offspring) child.ObjectiveValues = _objectiveValuesEvaluator.Evaluate(child);
+                foreach (var child in offspring) child.ObjectiveValues = _evaluator.Evaluate(child);
 
                 // Reinsert Parent for Elitism
                 offspring.UnionWith(parents);
