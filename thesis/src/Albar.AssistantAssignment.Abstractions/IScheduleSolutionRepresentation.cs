@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using Albar.AssistantAssignment.Data.Abstraction;
 
 namespace Albar.AssistantAssignment.Abstractions
