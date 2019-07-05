@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Bunnypro.Enumerable.Chunk
 {
@@ -12,7 +13,14 @@ namespace Bunnypro.Enumerable.Chunk
             }
         }
         
+        public static T[][] ToArray<T>(this IEnumerable<EnumerableChunk<T>> source)
         {
+            return source.Select(c => c.ToArray()).ToArray();
+        }
+
+        public static List<List<T>> ToList<T>(this IEnumerable<EnumerableChunk<T>> source)
+        {
+            return source.Select(c => c.ToList()).ToList();
         }
     }
 }
