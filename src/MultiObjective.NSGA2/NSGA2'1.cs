@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Bunnypro.GeneticAlgorithm.Abstractions;
 using Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions;
 using Bunnypro.GeneticAlgorithm.MultiObjective.Core;
 using Bunnypro.GeneticAlgorithm.Primitives;
@@ -13,13 +14,17 @@ namespace Bunnypro.GeneticAlgorithm.MultiObjective.NSGA2
     public class NSGA2<T> : DistinctMultiObjectiveGeneticOperation<T> where T : Enum
     {
         private readonly IMultiObjectiveGeneticOperation<T> _reproduction;
-        private readonly IObjectiveValuesEvaluator<T> _evaluator;
+        private readonly IObjectiveValuesEvaluator<T> _objectiveEvaluator;
+        private readonly IFitnessEvaluator _fitnessEvaluator;
         private readonly IDistinctMultiObjectiveGeneticOperation<T> _offspringSelection = new OffspringSelection<T>();
 
-        public NSGA2(IMultiObjectiveGeneticOperation<T> reproduction, IObjectiveValuesEvaluator<T> evaluator)
+        public NSGA2(IMultiObjectiveGeneticOperation<T> reproduction,
+            IObjectiveValuesEvaluator<T> objectiveEvaluator,
+            IFitnessEvaluator fitnessEvaluator)
         {
             _reproduction = reproduction;
-            _evaluator = evaluator;
+            _objectiveEvaluator = objectiveEvaluator;
+            _fitnessEvaluator = fitnessEvaluator;
         }
 
         public override async Task<ImmutableHashSet<IChromosome<T>>> Operate(
@@ -37,7 +42,11 @@ namespace Bunnypro.GeneticAlgorithm.MultiObjective.NSGA2
                 offspring.UnionWith(await _reproduction.Operate(parents, capacity, token));
 
                 // Evaluate Offspring Objective Values
-                foreach (var child in offspring) child.ObjectiveValues = _evaluator.Evaluate(child);
+                foreach (var child in offspring)
+                {
+                    child.ObjectiveValues = _objectiveEvaluator.Evaluate(child);
+                    child.Fitness = _fitnessEvaluator.Evaluate(child);
+                }
 
                 // Reinsert Parent for Elitism
                 offspring.UnionWith(parents);

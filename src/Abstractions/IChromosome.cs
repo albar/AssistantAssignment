@@ -4,7 +4,7 @@ namespace Bunnypro.GeneticAlgorithm.Abstractions
 {
     public interface IChromosome
     {
-        double Fitness { get; }
+        double Fitness { get; set; }
         ImmutableArray<object> Genotype { get; }
         object Phenotype { get; }
     }
