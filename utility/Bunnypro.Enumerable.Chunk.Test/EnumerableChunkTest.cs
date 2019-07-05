@@ -19,7 +19,7 @@ namespace Bunnypro.Enumerable.Chunk.Test
                 new[] {9}
             };
 
-            var actual = items.Chunk(size).ToArray();
+            var actual = items.Chunk(size).ToAllArray();
             Assert.Equal(expected, actual);
         }
     }

@@ -12,15 +12,35 @@ namespace Bunnypro.Enumerable.Chunk
                 while (enumerator.MoveNext()) yield return new EnumerableChunk<T>(enumerator, size);
             }
         }
-        
-        public static T[][] ToArray<T>(this IEnumerable<EnumerableChunk<T>> source)
+
+        public static IEnumerable<T[]> ToInnerArray<T>(this IEnumerable<EnumerableChunk<T>> source)
         {
-            return source.Select(c => c.ToArray()).ToArray();
+            return source.Select(c => c.ToArray());
         }
 
-        public static List<List<T>> ToList<T>(this IEnumerable<EnumerableChunk<T>> source)
+        public static IEnumerable<List<T>> ToInnerList<T>(this IEnumerable<EnumerableChunk<T>> source)
         {
-            return source.Select(c => c.ToList()).ToList();
+            return source.Select(c => c.ToList());
+        }
+        
+        public static T[][] ToAllArray<T>(this IEnumerable<EnumerableChunk<T>> source)
+        {
+            return source.ToInnerArray().ToArray();
+        }
+
+        public static List<List<T>> ToAllList<T>(this IEnumerable<EnumerableChunk<T>> source)
+        {
+            return source.ToInnerList().ToList();
+        }
+
+        public static IEnumerable<T>[] ToArray<T>(this IEnumerable<EnumerableChunk<T>> source)
+        {
+            return source.Select(c => c.AsEnumerable()).ToArray();
+        }
+
+        public static List<IEnumerable<T>> ToList<T>(this IEnumerable<EnumerableChunk<T>> source)
+        {
+            return source.Select(c => c.AsEnumerable()).ToList();
         }
     }
 }
