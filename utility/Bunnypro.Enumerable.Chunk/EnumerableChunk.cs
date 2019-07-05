@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Bunnypro.Enumerable.Chunk
 {
@@ -25,10 +24,7 @@ namespace Bunnypro.Enumerable.Chunk
             } while (i < _size && _enumerator.MoveNext());
         }
 
-        public IEnumerator<T> GetEnumerator()
-        {
-            return AsEnumerable().GetEnumerator();
-        }
+        public IEnumerator<T> GetEnumerator() => AsEnumerable().GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
