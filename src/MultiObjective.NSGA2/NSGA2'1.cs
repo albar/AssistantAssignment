@@ -12,17 +12,14 @@ namespace Bunnypro.GeneticAlgorithm.MultiObjective.NSGA2
 {
     public class NSGA2<T> : DistinctMultiObjectiveGeneticOperation<T> where T : Enum
     {
-        private readonly IMultiObjectiveGeneticOperation<T> _crossover;
-        private readonly IMultiObjectiveGeneticOperation<T> _mutation;
+        private readonly IMultiObjectiveGeneticOperation<T> _reproduction;
         private readonly IObjectiveEvaluator<T> _objectiveValuesEvaluator;
         private readonly IDistinctMultiObjectiveGeneticOperation<T> _offspringSelection = new OffspringSelection<T>();
 
-        public NSGA2(IMultiObjectiveGeneticOperation<T> crossover,
-            IMultiObjectiveGeneticOperation<T> mutation,
+        public NSGA2(IMultiObjectiveGeneticOperation<T> reproduction,
             IObjectiveEvaluator<T> evaluator)
         {
-            _crossover = crossover;
-            _mutation = mutation;
+            _reproduction = reproduction;
             _objectiveValuesEvaluator = evaluator;
         }
 
@@ -36,11 +33,8 @@ namespace Bunnypro.GeneticAlgorithm.MultiObjective.NSGA2
             {
                 var parents = chromosomes.ToList();
 
-                // Crossover
-                offspring.UnionWith(await _crossover.Operate(parents, capacity, token));
-
-                // Mutation
-                offspring.UnionWith(await _mutation.Operate(parents, capacity, token));
+                // Reproduction
+                offspring.UnionWith(await _reproduction.Operate(parents, capacity, token));
 
                 // Evaluate Offspring Objective Values
                 foreach (var child in offspring) child.ObjectiveValues = _objectiveValuesEvaluator.Evaluate(child);

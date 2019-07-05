@@ -30,10 +30,9 @@ namespace Bunnypro.GeneticAlgorithm.MultiObjective.NSGA2
                     frontBuilder.Add(chromosomeList[i]);
             }
 
-            ImmutableArray<IChromosome<T>> previousFront;
             while (frontBuilder.Count > 0)
             {
-                previousFront = frontBuilder.ToImmutable();
+                var previousFront = frontBuilder.ToImmutable();
                 yield return previousFront;
                 frontBuilder.Clear();
                 foreach (var dominatingChromosome in previousFront)
