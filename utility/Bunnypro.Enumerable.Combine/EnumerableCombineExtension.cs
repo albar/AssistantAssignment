@@ -15,7 +15,7 @@ namespace Bunnypro.Enumerable.Combine
             for (var i = 0; i < count - 1; i++)
             {
                 yield return state.Select(index => items[index]);
-                state = UpgradeState(state.ToList(), items.Length - 1).ToArray();
+                state = UpgradeState(state, items.Length - 1);
             }
             yield return state.Select(index => items[index]);
         }
@@ -26,16 +26,17 @@ namespace Bunnypro.Enumerable.Combine
             return n * Factorial(n - 1);
         }
 
-        private static List<int> UpgradeState(List<int> state, int max)
+        private static int[] UpgradeState(int[] state, int max, int pos = 1)
         {
-            if (state[state.Count - 1] < max)
+            var realPos = state.Length - pos;
+            if (state[realPos] < max)
             {
-                state[state.Count - 1]++;
+                state[realPos]++;
                 return state;
             }
 
-            var upgraded = UpgradeState(state.Take(state.Count - 1).ToList(), max - 1);
-            upgraded.Add(upgraded[upgraded.Count - 1] + 1);
+            var upgraded = UpgradeState(state, max - 1, pos + 1);
+            upgraded[realPos] = upgraded[realPos - 1] + 1;
             return upgraded;
         }
     }
