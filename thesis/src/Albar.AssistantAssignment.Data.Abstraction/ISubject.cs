@@ -8,6 +8,6 @@ namespace Albar.AssistantAssignment.Data.Abstraction
         byte[] Id { get; }
         ImmutableArray<byte[]> Assistants { get; }
         ImmutableArray<byte[]> Schedules { get; }
-        int AssistantCountRequirement { get; }
+        int AssistantCountPerScheduleRequirement { get; }
     }
 }
