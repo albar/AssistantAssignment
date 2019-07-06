@@ -11,6 +11,5 @@ namespace Albar.AssistantAssignment.Abstractions
         IEnumerable<IScheduleSolutionRepresentation> ToSolution(byte[] genotype);
         IAssignmentChromosome<T> ToChromosome(IEnumerable<IScheduleSolutionRepresentation> solution);
         IAssignmentChromosome<T> ToChromosome(byte[] genotype);
-        byte[] NormalizeGene(byte[] bytes);
     }
 }
