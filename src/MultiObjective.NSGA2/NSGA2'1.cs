@@ -45,7 +45,7 @@ namespace Bunnypro.GeneticAlgorithm.MultiObjective.NSGA2
                 // Reproduction
                 offspring.UnionWith(await _reproduction.Operate(parents, capacity, token));
 
-                foreach (var child in offspring) _objectiveEvaluator.Evaluate(child);
+                foreach (var child in offspring) child.ObjectiveValues = _objectiveEvaluator.Evaluate(child);
                 _fitnessEvaluator.EvaluateAll(offspring);
 
                 // Reinsert Parent for Elitism
