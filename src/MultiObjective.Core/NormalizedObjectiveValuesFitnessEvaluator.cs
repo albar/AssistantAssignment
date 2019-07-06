@@ -41,14 +41,12 @@ namespace Bunnypro.GeneticAlgorithm.MultiObjective.Core
 
                     var boundary = new Dictionary<Optimum, double>
                     {
-                        {Optimum.Maximum, ordered.Last()},
-                        {Optimum.Minimum, ordered.First()}
+                        {Optimum.Maximum, ordered.First()},
+                        {Optimum.Minimum, ordered.Last()}
                     };
 
                     var range = Math.Abs(boundary[Optimum.Maximum] - boundary[Optimum.Minimum]);
-                    var low = boundary[_optimum[key]];
-
-                    return value => _coefficient[key] * Math.Abs(value - low) / range;
+                    return value => _coefficient[key] * Math.Abs(value - boundary[_optimum[key]]) / range;
                 });
 
             foreach (var chromosome in chromosomesArray)
