@@ -3,7 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Albar.AssistantAssignment.Algorithm\Albar.AssistantAssignment.Algorithm.csproj" />
     <ProjectReference Include="..\Albar.AssistantAssignment.ThesisSpecificImplementation\Albar.AssistantAssignment.ThesisSpecificImplementation.csproj" />
-    <ProjectReference Include="..\Albar.AssistantAssignment.Data.Abstraction\Albar.AssistantAssignment.Data.Abstraction.csproj" />
+    <ProjectReference Include="..\Albar.AssistantAssignment.DataAbstractions\Albar.AssistantAssignment.DataAbstractions.csproj" />
   </ItemGroup>
 
   <ItemGroup>

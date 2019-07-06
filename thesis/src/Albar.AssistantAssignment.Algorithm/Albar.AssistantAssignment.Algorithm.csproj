@@ -3,7 +3,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\Core\Bunnypro.GeneticAlgorithm.Core.csproj" />
     <ProjectReference Include="..\..\..\src\MultiObjective.NSGA2\Bunnypro.GeneticAlgorithm.MultiObjective.NSGA2.csproj" />
-    <ProjectReference Include="..\Albar.AssistantAssignment.Data.Abstraction\Albar.AssistantAssignment.Data.Abstraction.csproj" />
     <ProjectReference Include="..\Albar.AssistantAssignment.Abstractions\Albar.AssistantAssignment.Abstractions.csproj" />
     <ProjectReference Include="..\..\..\utility\Bunnypro.Enumerable.Chunk\Bunnypro.Enumerable.Chunk.csproj" />
     <ProjectReference Include="..\..\..\utility\Bunnypro.Enumerable.Combine\Bunnypro.Enumerable.Combine.csproj" />

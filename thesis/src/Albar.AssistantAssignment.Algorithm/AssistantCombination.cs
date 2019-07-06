@@ -1,10 +1,9 @@
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Albar.AssistantAssignment.Abstractions;
 using Albar.AssistantAssignment.Algorithm.Utilities;
-using Albar.AssistantAssignment.Data.Abstraction;
+using Albar.AssistantAssignment.DataAbstractions;
 
 namespace Albar.AssistantAssignment.Algorithm
 {

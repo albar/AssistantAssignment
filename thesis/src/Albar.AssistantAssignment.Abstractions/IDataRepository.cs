@@ -1,5 +1,5 @@
 using System.Collections.Immutable;
-using Albar.AssistantAssignment.Data.Abstraction;
+using Albar.AssistantAssignment.DataAbstractions;
 
 namespace Albar.AssistantAssignment.Abstractions
 {

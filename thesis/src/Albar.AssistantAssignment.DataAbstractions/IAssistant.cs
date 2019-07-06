@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Immutable;
 
-namespace Albar.AssistantAssignment.Data.Abstraction
+namespace Albar.AssistantAssignment.DataAbstractions
 {
     public interface IAssistant : IEquatable<IAssistant>
     {

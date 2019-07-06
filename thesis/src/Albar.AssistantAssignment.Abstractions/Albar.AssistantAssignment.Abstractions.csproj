@@ -2,7 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\MultiObjective.Abstractions\Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions.csproj" />
-    <ProjectReference Include="..\Albar.AssistantAssignment.Data.Abstraction\Albar.AssistantAssignment.Data.Abstraction.csproj" />
+    <ProjectReference Include="..\Albar.AssistantAssignment.DataAbstractions\Albar.AssistantAssignment.DataAbstractions.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

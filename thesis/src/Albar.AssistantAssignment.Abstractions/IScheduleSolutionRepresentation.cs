@@ -1,4 +1,4 @@
-using Albar.AssistantAssignment.Data.Abstraction;
+using Albar.AssistantAssignment.DataAbstractions;
 
 namespace Albar.AssistantAssignment.Abstractions
 {

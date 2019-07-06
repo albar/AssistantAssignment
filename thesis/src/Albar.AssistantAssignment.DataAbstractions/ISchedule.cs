@@ -1,6 +1,6 @@
 using System;
 
-namespace Albar.AssistantAssignment.Data.Abstraction
+namespace Albar.AssistantAssignment.DataAbstractions
 {
     public interface ISchedule : IEquatable<ISchedule>
     {
