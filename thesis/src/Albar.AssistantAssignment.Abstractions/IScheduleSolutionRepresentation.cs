@@ -5,6 +5,6 @@ namespace Albar.AssistantAssignment.Abstractions
     public interface IScheduleSolutionRepresentation
     {
         ISchedule Schedule { get; }
-        IAssistantCombination Assistants { get; }
+        IAssistantCombination AssistantCombination { get; }
     }
 }
