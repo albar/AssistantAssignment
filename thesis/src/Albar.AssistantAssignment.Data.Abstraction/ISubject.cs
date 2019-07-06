@@ -1,8 +1,9 @@
+using System;
 using System.Collections.Immutable;
 
 namespace Albar.AssistantAssignment.Data.Abstraction
 {
-    public interface ISubject
+    public interface ISubject : IEquatable<ISubject>
     {
         byte[] Id { get; }
         ImmutableArray<byte[]> Assistants { get; }
