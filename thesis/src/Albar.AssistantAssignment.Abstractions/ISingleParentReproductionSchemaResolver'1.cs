@@ -5,6 +5,6 @@ namespace Albar.AssistantAssignment.Abstractions
 {
     public interface ISingleParentReproductionSchemaResolver<in T> where T : IChromosome
     {
-        ImmutableArray<bool> Resolve(T chromosomes);
+        ImmutableArray<bool> Resolve(T chromosome);
     }
 }
