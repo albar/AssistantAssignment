@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions
 {
-    public interface IFitnessEvaluator<T> where T : Enum
+    public interface IChromosomeEvaluator<T> where T : Enum
     {
         void EvaluateAll(IEnumerable<IChromosome<T>> chromosomes);
     }

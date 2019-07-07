@@ -5,7 +5,7 @@ using Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions;
 
 namespace Bunnypro.GeneticAlgorithm.MultiObjective.Core
 {
-    public class NormalizedObjectiveValuesFitnessEvaluator<T> : IFitnessEvaluator<T> where T : Enum
+    public class NormalizedObjectiveValuesFitnessEvaluator<T> : IChromosomeEvaluator<T> where T : Enum
     {
         private readonly IDictionary<T, Optimum> _optimum;
         private readonly IDictionary<T, double> _coefficient;
@@ -32,6 +32,7 @@ namespace Bunnypro.GeneticAlgorithm.MultiObjective.Core
         public void EvaluateAll(IEnumerable<IChromosome<T>> chromosomes)
         {
             var chromosomesArray = chromosomes.ToArray();
+            EvaluateObjectiveValuesAll(chromosomesArray);
             var normalizer = Enum.GetValues(typeof(T)).Cast<T>()
                 .ToDictionary<T, T, Func<double, double>>(key => key, key =>
                 {
@@ -55,6 +56,10 @@ namespace Bunnypro.GeneticAlgorithm.MultiObjective.Core
                     0d, (fitness, objective) => fitness + normalizer[objective.Key].Invoke(objective.Value)
                 );
             }
+        }
+
+        protected virtual void EvaluateObjectiveValuesAll(IEnumerable<IChromosome<T>> chromosomes)
+        {
         }
 
         public enum Optimum

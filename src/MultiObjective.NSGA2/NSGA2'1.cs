@@ -13,22 +13,13 @@ namespace Bunnypro.GeneticAlgorithm.MultiObjective.NSGA2
     public class NSGA2<T> : DistinctMultiObjectiveGeneticOperation<T> where T : Enum
     {
         private readonly IMultiObjectiveGeneticOperation<T> _reproduction;
-        private readonly IObjectiveValuesEvaluator<T> _objectiveEvaluator;
-        private readonly IFitnessEvaluator<T> _fitnessEvaluator;
+        private readonly IChromosomeEvaluator<T> _chromosomeEvaluator;
         private readonly IDistinctMultiObjectiveGeneticOperation<T> _offspringSelection = new OffspringSelection<T>();
 
-        public NSGA2(IMultiObjectiveGeneticOperation<T> reproduction, IObjectiveValuesEvaluator<T> objectiveEvaluator)
-            : this(reproduction, objectiveEvaluator, new NormalizedObjectiveValuesFitnessEvaluator<T>())
-        {
-        }
-
-        public NSGA2(IMultiObjectiveGeneticOperation<T> reproduction,
-            IObjectiveValuesEvaluator<T> objectiveEvaluator,
-            IFitnessEvaluator<T> fitnessEvaluator)
+        public NSGA2(IMultiObjectiveGeneticOperation<T> reproduction, IChromosomeEvaluator<T> chromosomeEvaluator)
         {
             _reproduction = reproduction;
-            _objectiveEvaluator = objectiveEvaluator;
-            _fitnessEvaluator = fitnessEvaluator;
+            _chromosomeEvaluator = chromosomeEvaluator;
         }
 
         public override async Task<ImmutableHashSet<IChromosome<T>>> Operate(
@@ -37,18 +28,10 @@ namespace Bunnypro.GeneticAlgorithm.MultiObjective.NSGA2
             CancellationToken token = default)
         {
             var offspring = ImmutableHashSet.CreateBuilder<IChromosome<T>>();
-
-            // Genetic Operations (Selection, Crossover, Mutation) <-- Parent Chromosomes with Evaluated Objective Values --> Offspring
             {
                 var parents = chromosomes.ToList();
-
-                // Reproduction
                 offspring.UnionWith(await _reproduction.Operate(parents, capacity, token));
-
-                foreach (var child in offspring) child.ObjectiveValues = _objectiveEvaluator.Evaluate(child);
-                _fitnessEvaluator.EvaluateAll(offspring);
-
-                // Reinsert Parent for Elitism
+                _chromosomeEvaluator.EvaluateAll(offspring);
                 offspring.UnionWith(parents);
             }
 
