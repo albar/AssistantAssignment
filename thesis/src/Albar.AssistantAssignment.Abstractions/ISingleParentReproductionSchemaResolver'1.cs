@@ -3,8 +3,8 @@ using Bunnypro.GeneticAlgorithm.Abstractions;
 
 namespace Albar.AssistantAssignment.Abstractions
 {
-    public interface IReproductionSchemaResolver<in T> where T : IChromosome
+    public interface ISingleParentReproductionSchemaResolver<in T> where T : IChromosome
     {
-        ImmutableArray<bool> Resolve(params T[] chromosomes);
+        ImmutableArray<bool> Resolve(T chromosomes);
     }
 }

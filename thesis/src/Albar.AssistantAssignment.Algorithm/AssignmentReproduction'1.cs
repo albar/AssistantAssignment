@@ -16,8 +16,8 @@ namespace Albar.AssistantAssignment.Algorithm
         
         public AssignmentReproduction(
             IGenotypePhenotypeMapper<T> genotypePhenotypeMapper,
-            IReproductionSchemaResolver<IAssignmentChromosome<T>> crossoverSchemaResolver,
-            IReproductionSchemaResolver<IAssignmentChromosome<T>> mutationSchemaResolver)
+            IMultiParentReproductionSchemaResolver<IAssignmentChromosome<T>> crossoverSchemaResolver,
+            ISingleParentReproductionSchemaResolver<IAssignmentChromosome<T>> mutationSchemaResolver)
         {
             _operations = new IMultiObjectiveGeneticOperation<T>[]
             {

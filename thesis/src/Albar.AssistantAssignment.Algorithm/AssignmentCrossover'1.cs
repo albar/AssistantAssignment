@@ -13,10 +13,10 @@ namespace Albar.AssistantAssignment.Algorithm
 {
     public class AssignmentCrossover<T> : IMultiObjectiveGeneticOperation<T> where T : Enum
     {
-        private readonly IReproductionSchemaResolver<IAssignmentChromosome<T>> _schema;
+        private readonly IMultiParentReproductionSchemaResolver<IAssignmentChromosome<T>> _schema;
         private readonly IGenotypePhenotypeMapper<T> _mapper;
 
-        public AssignmentCrossover(IReproductionSchemaResolver<IAssignmentChromosome<T>> schema,
+        public AssignmentCrossover(IMultiParentReproductionSchemaResolver<IAssignmentChromosome<T>> schema,
             IGenotypePhenotypeMapper<T> mapper)
         {
             _schema = schema;

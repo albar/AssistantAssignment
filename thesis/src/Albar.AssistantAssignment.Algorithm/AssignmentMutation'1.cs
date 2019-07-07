@@ -13,11 +13,11 @@ namespace Albar.AssistantAssignment.Algorithm
 {
     public class AssignmentMutation<T> : IMultiObjectiveGeneticOperation<T> where T : Enum
     {
-        private readonly IReproductionSchemaResolver<IAssignmentChromosome<T>> _schema;
+        private readonly ISingleParentReproductionSchemaResolver<IAssignmentChromosome<T>> _schema;
         private readonly IGenotypePhenotypeMapper<T> _mapper;
 
         public AssignmentMutation(
-            IReproductionSchemaResolver<IAssignmentChromosome<T>> schema,
+            ISingleParentReproductionSchemaResolver<IAssignmentChromosome<T>> schema,
             IGenotypePhenotypeMapper<T> mapper)
         {
             _schema = schema;
