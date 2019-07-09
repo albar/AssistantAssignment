@@ -8,7 +8,7 @@ using Bunnypro.Enumerable.Chunk;
 
 namespace Albar.AssistantAssignment.ThesisSpecificImplementation
 {
-    public class GenotypePhenotypeMapper : IGenotypePhenotypeMapper<AssignmentObjectives>
+    public class GenotypePhenotypeMapper : IGenotypePhenotypeMapper<AssignmentObjective>
     {
         public IDataRepository DataRepository { get; }
 
@@ -18,7 +18,7 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
         }
 
         public IEnumerable<IScheduleSolutionRepresentation> ToSolution(
-            IAssignmentChromosome<AssignmentObjectives> chromosome)
+            IAssignmentChromosome<AssignmentObjective> chromosome)
         {
             return chromosome.Phenotype ?? ToSolution(chromosome.Genotype.ToArray());
         }
@@ -32,21 +32,21 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
             });
         }
 
-        public IAssignmentChromosome<AssignmentObjectives> ToChromosome(
+        public IAssignmentChromosome<AssignmentObjective> ToChromosome(
             IEnumerable<IScheduleSolutionRepresentation> solution)
         {
             var scheduleSolution = solution as IScheduleSolutionRepresentation[] ?? solution.ToArray();
             var genotype = scheduleSolution.SelectMany(schedule => schedule.AssistantCombination.Id);
 
-            return new AssignmentChromosome<AssignmentObjectives>(genotype.ToImmutableArray())
+            return new AssignmentChromosome<AssignmentObjective>(genotype.ToImmutableArray())
             {
                 Phenotype = scheduleSolution
             };
         }
 
-        public IAssignmentChromosome<AssignmentObjectives> ToChromosome(byte[] genotype)
+        public IAssignmentChromosome<AssignmentObjective> ToChromosome(byte[] genotype)
         {
-            return new AssignmentChromosome<AssignmentObjectives>(genotype.ToImmutableArray());
+            return new AssignmentChromosome<AssignmentObjective>(genotype.ToImmutableArray());
         }
     }
 }
