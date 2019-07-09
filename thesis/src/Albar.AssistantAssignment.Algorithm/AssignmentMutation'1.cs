@@ -13,14 +13,14 @@ namespace Albar.AssistantAssignment.Algorithm
 {
     public class AssignmentMutation<T> : IMultiObjectiveGeneticOperation<T> where T : Enum
     {
-        private readonly ISingleParentReproductionSchemaResolver<IAssignmentChromosome<T>> _schema;
+        private readonly IMutationSelection<T> _selection;
         private readonly IGenotypePhenotypeMapper<T> _mapper;
 
         public AssignmentMutation(
-            ISingleParentReproductionSchemaResolver<IAssignmentChromosome<T>> schema,
+            IMutationSelection<T> selection,
             IGenotypePhenotypeMapper<T> mapper)
         {
-            _schema = schema;
+            _selection = selection;
             _mapper = mapper;
         }
 
@@ -29,24 +29,16 @@ namespace Albar.AssistantAssignment.Algorithm
             PopulationCapacity capacity,
             CancellationToken token = default)
         {
-            var badChromosomes = SelectChromosomes(chromosomes.Cast<IAssignmentChromosome<T>>());
-            var mutationTasks = badChromosomes.Select(c => Task.Run(() => Mutate(c), token));
+            var mutationTasks = _selection
+                .SelectMutationParent(chromosomes.Cast<IAssignmentChromosome<T>>(), capacity)
+                .Select(selection => Task.Run(() => Mutate(selection.Schema, selection.Parent), token));
             token.ThrowIfCancellationRequested();
             var result = await Task.WhenAll(mutationTasks);
             return result.Select(_mapper.ToChromosome);
         }
 
-        private static IEnumerable<IAssignmentChromosome<T>> SelectChromosomes(
-            IEnumerable<IAssignmentChromosome<T>> chromosomes)
+        private byte[] Mutate(ImmutableArray<bool> schema, IAssignmentChromosome<T> chromosome)
         {
-            return Enum.GetValues(typeof(T)).Cast<T>().Select(
-                objective => chromosomes.OrderBy(c => c.ObjectiveValues[objective]).First()
-            ).Distinct();
-        }
-
-        private byte[] Mutate(IAssignmentChromosome<T> chromosome)
-        {
-            var schema = _schema.Resolve(chromosome);
             return chromosome.Genotype.Chunk(_mapper.DataRepository.GeneSize).SelectMany((gene, locus) =>
             {
                 if (!schema[locus]) return gene.ToArray();

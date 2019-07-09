@@ -16,20 +16,20 @@ namespace Albar.AssistantAssignment.Algorithm
 
         public AssignmentReproduction(
             IGenotypePhenotypeMapper<T> mapper,
-            IParentSchemaResolver<IAssignmentChromosome<T>> schemaResolver)
-            : this(mapper, schemaResolver, schemaResolver)
+            IReproductionSelection<T> parentSelection)
+            : this(mapper, parentSelection, parentSelection)
         {
         }
 
         public AssignmentReproduction(
             IGenotypePhenotypeMapper<T> mapper,
-            IMultiParentReproductionSchemaResolver<IAssignmentChromosome<T>> crossoverSchemaResolver,
-            ISingleParentReproductionSchemaResolver<IAssignmentChromosome<T>> mutationSchemaResolver)
+            ICrossoverSelection<T> crossoverSelection,
+            IMutationSelection<T> mutationSelection)
         {
             _operations = new IMultiObjectiveGeneticOperation<T>[]
             {
-                new AssignmentCrossover<T>(crossoverSchemaResolver, mapper),
-                new AssignmentMutation<T>(mutationSchemaResolver, mapper)
+                new AssignmentCrossover<T>(crossoverSelection, mapper),
+                new AssignmentMutation<T>(mutationSelection, mapper)
             };
         }
 
