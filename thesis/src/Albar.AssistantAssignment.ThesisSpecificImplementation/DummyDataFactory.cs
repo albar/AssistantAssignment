@@ -13,8 +13,12 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
         public static HashSet<ISubject> CreateSubject(int count)
         {
             var byteSize = (byte) Math.Ceiling(Math.Log(count, 256));
+            var assessments = Enum.GetValues(typeof(AssistantAssessment)).Cast<AssistantAssessment>().ToArray();
             var subjects = Enumerable.Range(1, count).Select(
-                id => new Subject(ByteConverter.GetByte(byteSize, id), 3)
+                id => new Subject(
+                    ByteConverter.GetByte(byteSize, id), 3,
+                    assessments.ToDictionary(assessment => assessment, _ => 3d)
+                )
             );
             return new HashSet<ISubject>(subjects);
         }
@@ -65,7 +69,6 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
             do
             {
                 var subjectIds = subjectAssistantsCount
-//                    .Where(s => s.Value[1] < s.Value[0])
                     .OrderBy(s => s.Value[1])
                     .Take(2).Select(s =>
                     {
@@ -77,6 +80,8 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
 
             var subjectStorage = subjectArray.ToDictionary(s => s, _ => new HashSet<byte[]>());
             var byteSize = (byte) Math.Ceiling(Math.Log(assistantStorage.Count, 256));
+            var randomize = new Random();
+            var assessments = Enum.GetValues(typeof(AssistantAssessment)).Cast<AssistantAssessment>().ToArray();
             var assistants = assistantStorage.Select((subjectIds, id) =>
             {
                 var assistantId = ByteConverter.GetByte(byteSize, id);
@@ -84,7 +89,10 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
                 {
                     subject.Value.Add(assistantId);
                 }
-                return new Assistant(assistantId, subjectIds);
+
+                var assistantAssessments = subjectIds.ToImmutableDictionary(subjectId => subjectId, subjectId =>
+                    assessments.ToDictionary(assessment => assessment, _ => randomize.NextDouble()));
+                return new Assistant(assistantId, subjectIds, assistantAssessments);
             }).ToArray();
             foreach (var subject in subjectStorage)
             {

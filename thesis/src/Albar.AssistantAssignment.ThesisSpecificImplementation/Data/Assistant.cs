@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using Albar.AssistantAssignment.DataAbstractions;
 
@@ -5,14 +6,18 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation.Data
 {
     public sealed class Assistant : IAssistant
     {
-        public Assistant(byte[] id, ImmutableArray<byte[]> subjects)
+        public Assistant(
+            byte[] id, ImmutableArray<byte[]> subjects,
+            ImmutableDictionary<byte[], Dictionary<AssistantAssessment, double>> subjectAssessments)
         {
             Id = id;
             Subjects = subjects;
+            SubjectAssessments = subjectAssessments;
         }
 
         public byte[] Id { get; }
         public ImmutableArray<byte[]> Subjects { get; }
+        public ImmutableDictionary<byte[], Dictionary<AssistantAssessment, double>> SubjectAssessments { get; }
 
         private bool Equals(Assistant other)
         {
