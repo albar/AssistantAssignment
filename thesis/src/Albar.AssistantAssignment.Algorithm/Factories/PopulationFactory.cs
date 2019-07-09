@@ -11,11 +11,11 @@ namespace Albar.AssistantAssignment.Algorithm.Factories
 {
     public class PopulationFactory<T> where T : Enum
     {
-        private readonly IGenotypePhenotypeMapper<T> _mapper;
+        private readonly IDataRepository _repository;
 
-        public PopulationFactory(IGenotypePhenotypeMapper<T> mapper)
+        public PopulationFactory(IDataRepository repository)
         {
-            _mapper = mapper;
+            _repository = repository;
         }
 
         public IPopulation Create(PopulationCapacity capacity)
@@ -24,8 +24,8 @@ namespace Albar.AssistantAssignment.Algorithm.Factories
             var randomize = new Random();
             while (chromosomes.Count < capacity.Minimum)
             {
-                var genotype = _mapper.DataRepository.Schedules.SelectMany(schedule =>
-                    _mapper.DataRepository.AssistantCombinations
+                var genotype = _repository.Schedules.SelectMany(schedule =>
+                    _repository.AssistantCombinations
                         .Where(c => c.Subject == schedule.Subject)
                         .OrderBy(_ => randomize.Next())
                         .First().Id
