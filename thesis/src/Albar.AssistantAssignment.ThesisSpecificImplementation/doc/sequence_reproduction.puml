@@ -1,0 +1,17 @@
+@startuml
+[-> ReproductionOperation: Previous Chromosomes
+ReproductionOperation -> CrossoverSelection: Crossover Parents Selection
+ReproductionOperation -> MutationSelection: Mutation Parent Selection
+CrossoverSelection --> ReproductionOperation: Selected Chromosomes for Crossover
+MutationSelection --> ReproductionOperation: Selected Chromosome for Mutation
+ReproductionOperation -> CrossoverOperation: Crossover
+ReproductionOperation -> MutationOperation: Mutation
+CrossoverOperation --> ReproductionOperation: New Offspring
+MutationOperation --> ReproductionOperation: New Offspring
+ReproductionOperation -> ChromosomeEvaluator: Evaluate All Offspring
+ChromosomeEvaluator --> ReproductionOperation: All Evaluated Offspring
+ReproductionOperation -> ReproductionOperation: Merge Offspring with Previous Chromosomes
+ReproductionOperation -> OffspringSelection: Select Next Generation Offspring
+OffspringSelection --> ReproductionOperation: Selected Next Generation Offspring
+[<-- ReproductionOperation: Offspring
+@enduml

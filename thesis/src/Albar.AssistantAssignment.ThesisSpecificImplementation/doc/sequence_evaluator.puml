@@ -1,0 +1,13 @@
+@startuml
+[-> ChromosomeEvaluator: Evaluate All Chromosomes
+loop chromosomes count times
+    ChromosomeEvaluator -> ObjectiveEvaluator: Evaluate Chromosome Objective
+    ObjectiveEvaluator --> ChromosomeEvaluator: Chromosome with evaluated Objective
+end
+ChromosomeEvaluator -> FitnessEvaluator: Evaluate All Chromosome Fitness
+loop chromosomes count times
+    FitnessEvaluator -> FitnessEvaluator: Evaluate Chromosome Fitness
+end
+FitnessEvaluator --> ChromosomeEvaluator: All Chromosomes with Evaluated Fitness
+[<-- ChromosomeEvaluator: All Evaluated Chromosome
+@enduml

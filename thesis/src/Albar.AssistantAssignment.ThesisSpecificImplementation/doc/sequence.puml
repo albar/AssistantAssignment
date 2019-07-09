@@ -1,7 +1,10 @@
 @startuml
-Alice -> Bob: Authentication Request
-Bob --> Alice: Authentication Response
-
-Alice -> Bob: Another authentication Request
-Alice <-- Bob: another authentication Response
+Implementation -> PopulationInitialization: Initialize Population with specific Capacity
+PopulationInitialization --> Implementation: Population contains Chromosomes with specific Capacity
+Implementation -> ChromosomeEvaluator: Evaluate All Chromosomes
+ChromosomeEvaluator --> Implementation: All Evaluated Chromosomes
+loop until termination fulfilled
+    Implementation -> ReproductionOperation: Reproduction
+    ReproductionOperation --> Implementation: Offspring
+end
 @enduml

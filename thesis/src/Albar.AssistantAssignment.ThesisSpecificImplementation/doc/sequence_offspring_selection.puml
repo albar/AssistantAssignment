@@ -1,0 +1,14 @@
+@startuml
+[-> OffspringSelection: Select Offspring with specific Capacity
+OffspringSelection -> FastNonDominatedSorting: Pareto Sorting
+FastNonDominatedSorting --> OffspringSelection: Pareto Fronts
+loop until minimum capacity fulfilled or limited by maximum capacity
+    OffspringSelection -> OffspringSelection: Select offspring front by front
+end
+alt minimum capacity is not fulfilled?
+    OffspringSelection -> OffspringSelection: Calculate Density Estimation
+    OffspringSelection -> OffspringSelection: Crowding Distance Sorting
+    OffspringSelection -> OffspringSelection: Select remain capacity From ordered Offspring by crowding distance
+end
+[<-- OffspringSelection: Selected Offspring
+@enduml

@@ -1,0 +1,10 @@
+@startuml
+[-> PopulationInitialization: Create Population with specific Capacity
+loop until minimum Capacity fulfilled
+    PopulationInitialization -> DataRepository: Create Genotype
+    DataRepository --> PopulationInitialization: Genotype
+    PopulationInitialization -> Chromosome: Initialize Chromosome with Genotype
+    Chromosome --> PopulationInitialization: Chromosome
+end
+[<-- PopulationInitialization: Population with specific capacity Chromosome
+@enduml
