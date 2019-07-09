@@ -1,163 +1,296 @@
 @startuml
-package Bunnypro.GeneticAlgorithm.Primitives
-{
-    class PopulationCapacity
+namespace Bunnypro.GeneticAlgorithm.Primitives {
+    class PopulationCapacity <<(S,#FF7700)>>
+    {
+        +int Minimum { get }
+        +int Maximum { get }
+    }
 }
 
-package Bunnypro.GeneticAlgorithm.MultiObjective.Primitives
-{
-    class ObjectiveValues<T: Enum>
+namespace Bunnypro.GeneticAlgorithm.Abstractions {
+    interface IChromosome
+    {
+        +double Fitness { get set }
+        +ImmutableArray<object> Genotype { get }
+        +object Phenotype { get }
+    }
 }
 
-package Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions
-{
+'hide Bunnypro.GeneticAlgorithm.Primitives
+'hide Bunnypro.GeneticAlgorithm.Abstractions
+
+namespace Bunnypro.GeneticAlgorithm.MultiObjective.Primitives {
+    class ObjectiveValues<T: Enum> <<(S,#FF7700)>>
+    {
+        -IReadOnlyDictionary<T, double> _values
+    }
+}
+
+namespace Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions {
+    Bunnypro.GeneticAlgorithm.Abstractions.IChromosome <|-- IChromosome
+    
     IMultiObjectiveGeneticOperation ..> IChromosome
-    IMultiObjectiveGeneticOperation ..> PopulationCapacity
-   
-    IChromosome o-- ObjectiveValues
+    IMultiObjectiveGeneticOperation ..> Bunnypro.GeneticAlgorithm.Primitives.PopulationCapacity
+
+    IChromosome o-- Bunnypro.GeneticAlgorithm.MultiObjective.Primitives.ObjectiveValues
     
     interface IChromosome<T: Enum>
+    {
+        +ObjectiveValues<T> ObjectiveValues { get set }
+    }
+    
     interface IMultiObjectiveGeneticOperation<T: Enum>
+    {
+        +Task<IEnumerable<IChromosome<T>>> Operate(IEnumerable<IChromosome<T>>, PopulationCapacity[, CancellationToken])
+    }
 }
 
-package Bunnypro.GeneticAlgorithm.MultiObjective.Core
-{
-    NormalizedObjectiveValuesFitnessEvaluator ..> IChromosome
+namespace Bunnypro.GeneticAlgorithm.MultiObjective.Core {
+    Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions.IChromosomeEvaluator <|-- NormalizedObjectiveValuesFitnessEvaluator
+    NormalizedObjectiveValuesFitnessEvaluator o-- Bunnypro.GeneticAlgorithm.MultiObjective.Core.NormalizedObjectiveValuesFitnessEvaluator.Optimum
+    NormalizedObjectiveValuesFitnessEvaluator ..> Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions.IChromosome
+    
+    enum Bunnypro.GeneticAlgorithm.MultiObjective.Core.NormalizedObjectiveValuesFitnessEvaluator.Optimum
+    {
+        Minimum
+        Maximum
+    }
+    
     class NormalizedObjectiveValuesFitnessEvaluator<T: Enum>
+    {
+        -<<readonly>> IDictionary<T, Optimum> _optimum
+        -<<readonly>> IDictionary<T, double> _coefficient
+        #<<virtual>> void EvaluateObjectiveValuesAll(IEnumerable<IChromosome<T>>)
+    }
 }
 
-package Albar.Assignment.DataAbstraction {
+'hide Bunnypro.GeneticAlgorithm.MultiObjective.Primitives
+'hide Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions
+'hide Bunnypro.GeneticAlgorithm.MultiObjective.Core
+
+namespace Albar.Assignment.DataAbstraction {
     interface IAssistant
     {
-        byte[] Id { get; }
-        ImmutableArray<byte[]> Subjects { get; }
+        +byte[] Id { get }
+        +ImmutableArray<byte[]> Subjects { get }
     }
     
     interface ISchedule
     {
-        byte[] Id { get; }
-        byte[] Subject { get; }
+        +byte[] Id { get }
+        +byte[] Subject { get }
     }
     
     interface ISubject
     {
-        byte[] Id { get; }
-        ImmutableArray<byte[]> Assistants { get; }
-        ImmutableArray<byte[]> Schedules { get; }
-        int AssistantCountPerScheduleRequirement { get; }
+        +byte[] Id { get }
+        +ImmutableArray<byte[]> Assistants { get }
+        +ImmutableArray<byte[]> Schedules { get }
+        +int AssistantCountPerScheduleRequirement { get }
     }
 }
 
-package Albar.Assignment.Abstraction {
-    IChromosome <|-- IAssignmentChromosome
+namespace Albar.Assignment.Abstractions {
+    Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions.IChromosome <|-- IAssignmentChromosome
     ICrossoverSelection <|-- IReproductionSelection
     IMutationSelection <|-- IReproductionSelection
 
     IAssignmentChromosome o-- IScheduleSolutionRepresentation
     
     ICrossoverSelection ..> IAssignmentChromosome
-    ICrossoverSelection ..> PopulationCapacity
+    ICrossoverSelection ..> Bunnypro.GeneticAlgorithm.Primitives.PopulationCapacity
+    IMutationSelection ..> IAssignmentChromosome
+    IMutationSelection ..> Bunnypro.GeneticAlgorithm.Primitives.PopulationCapacity
     
-    IDataRepository o-- ISubject
-    IDataRepository o-- ISchedule
-    IDataRepository o-- IAssistant
+    IDataRepository o-- Albar.Assignment.DataAbstraction.ISubject
+    IDataRepository o-- Albar.Assignment.DataAbstraction.ISchedule
+    IDataRepository o-- Albar.Assignment.DataAbstraction.IAssistant
     IDataRepository o-- IAssistantCombination
     
     IGenotypePhenotypeMapper o-- IDataRepository
     IGenotypePhenotypeMapper ..> IAssignmentChromosome
     IGenotypePhenotypeMapper ..> IScheduleSolutionRepresentation
     
-    ICrossoverSelection ..> IAssignmentChromosome
-    ICrossoverSelection ..> PopulationCapacity
-    
     IObjectiveEvaluator ..> IAssignmentChromosome
     
-    IScheduleSolutionRepresentation o-- ISchedule
+    IScheduleSolutionRepresentation o-- Albar.Assignment.DataAbstraction.ISchedule
     IScheduleSolutionRepresentation o-- IAssistantCombination
 
-    interface IAssignmentChromosome<T: Enum>
-    interface IAssistantCombination
-    interface ICrossoverSelection<T: Enum>
-    interface IDataRepository
-    interface IGenotypePhenotypeMapper<T: Enum>
-    interface IMutationSelection<T: Enum>
-    interface IObjectiveEvaluator<T: Enum>
     interface IReproductionSelection<T: Enum>
+    
+    interface IAssignmentChromosome<T: Enum>
+    {
+        +ImmutableArray<byte> Genotype { get }
+        +IEnumerable<IScheduleSolutionRepresentation> Phenotype { get }
+    }
+    
+    interface IAssistantCombination
+    {
+        +byte[] Id { get }
+        +byte[] Subject { get }
+        +ImmutableArray<byte[]> Assistants { get }
+    }
+    
+    interface ICrossoverSelection<T: Enum>
+    {
+        +IEnumerable<PreparedCrossoverParent> SelectCrossoverParent(IEnumerable<IAssignmentChromosome<T>>, PopulationCapacity)
+    }
+    
+    interface IDataRepository
+    {
+        +byte GeneSize { get }
+        +ImmutableArray<ISubject> Subjects { get }
+        +ImmutableArray<ISchedule> Schedules { get }
+        +ImmutableArray<IAssistant> Assistants { get }
+        +ImmutableArray<IAssistantCombination> AssistantCombinations { get }
+    }
+    
+    interface IGenotypePhenotypeMapper<T: Enum>
+    {
+        +IDataRepository DataRepository { get }
+        +IEnumerable<IScheduleSolutionRepresentation> ToSolution(IAssignmentChromosome<T>)
+        +IEnumerable<IScheduleSolutionRepresentation> ToSolution(byte[])
+        +IAssignmentChromosome<T> ToChromosome(IEnumerable<IScheduleSolutionRepresentation>)
+        +IAssignmentChromosome<T> ToChromosome(byte[])
+    }
+    
+    interface IMutationSelection<T: Enum>
+    {
+        +IEnumerable<PreparedMutationParent> SelectMutationParent(IEnumerable<IAssignmentChromosome<T>>, PopulationCapacity)
+    }
+    
+    interface IObjectiveEvaluator<T: Enum>
+    {
+        +double Evaluate(IAssignmentChromosome<T>)
+    }
+    
     interface IScheduleSolutionRepresentation
+    {
+        +ISchedule Schedule { get }
+        +IAssistantCombination AssistantCombination { get }
+    }
+    
+    namespace Primitives {
+        PreparedCrossoverParent o-- Albar.Assignment.Abstractions.IAssignmentChromosome
+        PreparedMutationParent o-- Albar.Assignment.Abstractions.IAssignmentChromosome
+        
+        class PreparedCrossoverParent<T: Enum> <<(S,#FF7700)>>
+        {
+            +ImmutableArray<bool> Schema { get } 
+            +IAssignmentChromosome<T> Parent1 { get }
+            +IAssignmentChromosome<T> Parent2 { get }
+        }
+        
+        class PreparedMutationParent<T: Enum> <<(S,#FF7700)>>
+        {
+            +ImmutableArray<bool> Schema { get }
+            +IAssignmentChromosome<T> Parent { get }
+        }
+    }
 }
 
-package Albar.Assignment.Algorithm {
-    IAssignmentChromosome <|-- AssignmentChromosome
-    IMultiObjectiveGeneticOperation <|-- AssignmentCrossover
-    IMultiObjectiveGeneticOperation <|-- AssignmentMutation
-    IMultiObjectiveGeneticOperation <|-- AssignmentReproduction
-    IAssistantCombination <|-- AssistantCombination
+namespace Albar.Assignment.Algorithm {
+    Albar.Assignment.Abstractions.IAssignmentChromosome <|-down- AssignmentChromosome
+    Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions.IMultiObjectiveGeneticOperation <|-right- AssignmentCrossover
+    Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions.IMultiObjectiveGeneticOperation <|-right- AssignmentMutation
+    Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions.IMultiObjectiveGeneticOperation <|-right- AssignmentReproduction
+    Albar.Assignment.Abstractions.IAssistantCombination <|-down- AssistantCombination
     
-    AssignmentChromosome o-- IScheduleSolutionRepresentation
+    AssignmentChromosome o-down- Albar.Assignment.Abstractions.IScheduleSolutionRepresentation
     
-    AssignmentCrossover o-- ICrossoverSelection
-    AssignmentCrossover o-- IGenotypePhenotypeMapper
-    AssignmentCrossover ..> IAssignmentChromosome
+    AssignmentCrossover o-down- Albar.Assignment.Abstractions.ICrossoverSelection
+    AssignmentCrossover o-down- Albar.Assignment.Abstractions.IGenotypePhenotypeMapper
+    AssignmentCrossover .down.> Albar.Assignment.Abstractions.IAssignmentChromosome
     
-    AssignmentMutation o-- IMutationSelection
-    AssignmentMutation o-- IGenotypePhenotypeMapper
-    AssignmentMutation ..> IAssignmentChromosome
+    AssignmentMutation o-down- Albar.Assignment.Abstractions.IMutationSelection
+    AssignmentMutation o-down- Albar.Assignment.Abstractions.IGenotypePhenotypeMapper
+    AssignmentMutation .down.> Albar.Assignment.Abstractions.IAssignmentChromosome
     
-    AssignmentReproduction o-- IGenotypePhenotypeMapper
-    AssignmentReproduction o-- IReproductionSelection
-    AssignmentReproduction o-- ICrossoverSelection
-    AssignmentReproduction o-- IMutationSelection
+    AssignmentReproduction o-down- Albar.Assignment.Abstractions.IGenotypePhenotypeMapper
+    AssignmentReproduction o-down- Albar.Assignment.Abstractions.IReproductionSelection
+    AssignmentReproduction o-down- Albar.Assignment.Abstractions.ICrossoverSelection
+    AssignmentReproduction o-down- Albar.Assignment.Abstractions.IMutationSelection
     AssignmentReproduction *-- AssignmentCrossover
     AssignmentReproduction *-- AssignmentMutation
     
-    AssistantCombination o-- ISubject
-    AssistantCombination o-- IAssistant
+    AssistantCombination o-down- Albar.Assignment.DataAbstraction.ISubject
+    AssistantCombination o-down- Albar.Assignment.DataAbstraction.IAssistant
     
     class AssignmentChromosome<T: Enum>
-    class AssignmentCrossover<T: Enum>
-    class AssignmentMutation<T: Enum>
-    class AssignmentReproduction<T: Enum>
     class AssistantCombination
     
-    package Factories {
+    class AssignmentCrossover<T: Enum>
+    {
+        -<<readonly>> IMutationSelection<T> _selection
+        -<<readonly>> IGenotypePhenotypeMapper<T> _mapper
+        -IEnumerable<byte[]> Crossover(ImmutableArray<bool>, IAssignmentChromosome<T>, IAssignmentChromosome<T>)
+    }
+    
+    class AssignmentMutation<T: Enum>
+    {
+        -<<readonly>> IMutationSelection<T> _selection
+        -<<readonly>> IGenotypePhenotypeMapper<T> _mapper
+        -byte[] Mutate(ImmutableArray<bool>, IAssignmentChromosome<T>)
+    }
+    
+    class AssignmentReproduction<T: Enum>
+    {
+        -<<readonly>> IEnumerable<IMultiObjectiveGeneticOperation<T>> _operations
+    }
+    
+    namespace Factories {
         class PopulationFactory
     }
     
-    package Utilities {
+    namespace Utilities {
         class ByteConverter
     }
     
-    hide Factories
-    hide Utilities
+    hide Albar.Assignment.Algorithm.Factories
+    hide Albar.Assignment.Algorithm.Utilities
 }
 
-package Albar.Assignment.ThesisSpecificImplementation {
-    NormalizedObjectiveValuesFitnessEvaluator <|-- AssignmentChromosomesEvaluator
-    IDataRepository <|-- DataRepository
-    IGenotypePhenotypeMapper <|-- GenotypePhenotypeMapper
-    IReproductionSelection <|-- ReproductionSelection
-    IScheduleSolutionRepresentation <|-- ScheduleSolutionRepresentation
+namespace Albar.Assignment.ThesisSpecificImplementation {
+    Bunnypro.GeneticAlgorithm.MultiObjective.Core.NormalizedObjectiveValuesFitnessEvaluator <|-right- AssignmentChromosomesEvaluator
+    Albar.Assignment.Abstractions.IDataRepository <|-down- DataRepository
+    Albar.Assignment.Abstractions.IGenotypePhenotypeMapper <|-down- GenotypePhenotypeMapper
+    Albar.Assignment.Abstractions.IReproductionSelection <|-down- ReproductionSelection
+    Albar.Assignment.Abstractions.IScheduleSolutionRepresentation <|-down- ScheduleSolutionRepresentation
    
-    AssignmentChromosomesEvaluator o-- IObjectiveEvaluator
-    AssignmentChromosomesEvaluator ..> IAssignmentChromosome
+    AssignmentChromosomesEvaluator o-down- Albar.Assignment.Abstractions.IObjectiveEvaluator
+    AssignmentChromosomesEvaluator .up.> Albar.Assignment.Abstractions.IAssignmentChromosome
    
-    class AssignmentChromosomesEvaluator<T: Enum>
-    class AssignmentObjective
-    class DataRepository
     class GenotypePhenotypeMapper
-    class ReproductionSelection
     class ScheduleSolutionRepresentation
+    enum AssignmentObjective
+    
+    class AssignmentChromosomesEvaluator<T: Enum>
+    {
+        +void Add(T, IObjectiveEvaluator<T>)
+        #void EvaluateObjectiveValuesAll(IEnumerable<IChromosome<T>>)
+    }
+    
+    class DataRepository
+    {
+        -ImmutableArray<IAssistantCombination> CombineAssistants(ImmutableArray<ISubject>)
+    }
+    
+    class ReproductionSelection
+    {
+        -<<readonly>> IGenotypePhenotypeMapper<AssignmentObjective> _mapper
+    }
+    
+    namespace ObjectiveEvaluators {
+    }
 
-    package Data {
-        ISubject <|-- Subject
-        IAssistant <|-- Assistant
-        ISchedule <|-- Schedule
+    namespace Data {
+        Albar.Assignment.DataAbstraction.ISubject <|-down- Subject
+        Albar.Assignment.DataAbstraction.IAssistant <|-down- Assistant
+        Albar.Assignment.DataAbstraction.ISchedule <|-down- Schedule
         
-        Assistant o-- AssistantAssessment
-        
+        Subject o-right- AssistantAssessment
+        Assistant o-down- AssistantAssessment
         Schedule o-- SessionOfDay
-        
-        Subject o-- AssistantAssessment
         
         enum AssistantAssessment
         {
@@ -174,19 +307,19 @@ package Albar.Assignment.ThesisSpecificImplementation {
         
         class Assistant
         {
-            + ImmutableDictionary<byte[], Dictionary<AssistantAssessment, double>> SubjectAssessments { get; }
+            + ImmutableDictionary<byte[], Dictionary<AssistantAssessment, double>> SubjectAssessments { get }
         }
         
         class Schedule
         {
-            + DayOfWeek Day { get; }
-            + SessionOfDay Session { get; }
-            + int Lab { get; }
+            + DayOfWeek Day { get }
+            + SessionOfDay Session { get }
+            + int Lab { get }
         }
         
         class Subject
         {
-            + IDictionary<AssistantAssessment, double> AssessmentThreshold { get; }
+            + IDictionary<AssistantAssessment, double> AssessmentThreshold { get }
         }
     }
 }
