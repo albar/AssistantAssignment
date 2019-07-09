@@ -13,7 +13,6 @@ namespace Albar.AssistantAssignment.Algorithm
         public byte[] Subject { get; }
         public ImmutableArray<byte[]> Assistants { get; }
 
-
         public AssistantCombination(byte[] id, ISubject subject, IEnumerable<IAssistant> assistants)
             : this(id, subject.Id, assistants.Select(a => a.Id))
         {
