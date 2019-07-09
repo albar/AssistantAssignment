@@ -1,0 +1,38 @@
+@startuml
+start
+partition Initialization {
+    :Population Initialization;
+    :Objective Assignment;
+    :Fitness Assignment;
+}
+repeat
+    partition Reproduction {
+        fork
+            :Crossover Selection;
+            :Crossover;
+        fork again
+            :Mutation Selection;
+            :Mutation;
+        endfork
+        :Objective Assignment;
+        :Fitness Assignment;
+    }
+    (A)
+    detach
+    (A)
+    partition "Offspring Selection" {
+        :Non-dominated Sorting;
+        :Front Selection;
+        if (Population Capacity Fulfilled?) then (no)
+            partition "Diversity Preservation" {
+                :Density Estimation;
+                :Crowding Distance Sorting;
+                :Fill Population Capacity;
+            }
+        else (yes)
+        endif
+    }
+repeat while (Termination?) is (no)
+->yes;
+stop
+@enduml

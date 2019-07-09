@@ -1,0 +1,18 @@
+@startuml
+
+Implementation <<Application>>
+
+(Start) as (Start)
+(Start with Termination) as (StartWithTermination)
+
+(StartWithTermination) <. (Termination) : <<include>>
+(StartWithTermination) <. (Start) : <<include>>
+
+(Start) <. (Termination) : <<extend>>
+
+Implementation --> (StartWithTermination)
+Implementation ---> (Start)
+Implementation -> (Termination)
+Implementation -> (Result Access)
+
+@enduml
