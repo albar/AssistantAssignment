@@ -5,7 +5,7 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation.Data
         First,
         Second,
         Third,
-        Fouth,
+        Fourth,
         Fifth
     }
 }
