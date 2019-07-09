@@ -1,18 +1,16 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Albar.AssistantAssignment.Abstractions;
 using Albar.AssistantAssignment.Algorithm.Utilities;
 using Albar.AssistantAssignment.DataAbstractions;
+using Albar.AssistantAssignment.ThesisSpecificImplementation.Data;
 
-namespace Albar.AssistantAssignment.Algorithm
+namespace Albar.AssistantAssignment.ThesisSpecificImplementation
 {
     public class AssistantCombination : IAssistantCombination
     {
-        public byte[] Id { get; }
-        public byte[] Subject { get; }
-        public ImmutableArray<byte[]> Assistants { get; }
-
         public AssistantCombination(byte[] id, ISubject subject, IEnumerable<IAssistant> assistants)
             : this(id, subject.Id, assistants.Select(a => a.Id))
         {
@@ -24,6 +22,10 @@ namespace Albar.AssistantAssignment.Algorithm
             Subject = subject;
             Assistants = assistants.ToImmutableArray();
         }
+
+        public byte[] Id { get; }
+        public byte[] Subject { get; }
+        public ImmutableArray<byte[]> Assistants { get; }
 
         public bool Equals(IAssistantCombination other)
         {
