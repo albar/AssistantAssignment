@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions;
 using Bunnypro.GeneticAlgorithm.MultiObjective.Core;
+using Bunnypro.GeneticAlgorithm.MultiObjective.Primitives;
 using Bunnypro.GeneticAlgorithm.Primitives;
 
 namespace Bunnypro.GeneticAlgorithm.MultiObjective.NSGA2
@@ -14,12 +15,15 @@ namespace Bunnypro.GeneticAlgorithm.MultiObjective.NSGA2
     {
         private readonly IMultiObjectiveGeneticOperation<T> _reproduction;
         private readonly IChromosomeEvaluator<T> _chromosomeEvaluator;
-        private readonly IDistinctMultiObjectiveGeneticOperation<T> _offspringSelection = new OffspringSelection<T>();
+        private readonly IDistinctMultiObjectiveGeneticOperation<T> _offspringSelection;
 
-        public NSGA2(IMultiObjectiveGeneticOperation<T> reproduction, IChromosomeEvaluator<T> chromosomeEvaluator)
+        public NSGA2(IMultiObjectiveGeneticOperation<T> reproduction,
+            IChromosomeEvaluator<T> chromosomeEvaluator,
+            IReadOnlyDictionary<T, OptimumValue> optimumValues)
         {
             _reproduction = reproduction;
             _chromosomeEvaluator = chromosomeEvaluator;
+            _offspringSelection = new OffspringSelection<T>(optimumValues);
         }
 
         public override async Task<ImmutableHashSet<IChromosome<T>>> Operate(
@@ -27,14 +31,10 @@ namespace Bunnypro.GeneticAlgorithm.MultiObjective.NSGA2
             PopulationCapacity capacity,
             CancellationToken token = default)
         {
-            var offspring = ImmutableHashSet.CreateBuilder<IChromosome<T>>();
-            {
-                var parents = chromosomes.ToList();
-                offspring.UnionWith(await _reproduction.Operate(parents, capacity, token));
-                _chromosomeEvaluator.EvaluateAll(offspring);
-                offspring.UnionWith(parents);
-            }
-
+            var parents = chromosomes.ToArray();
+            var offspring = (await _reproduction.Operate(parents, capacity, token)).ToList();
+            _chromosomeEvaluator.EvaluateAll(offspring);
+            offspring.AddRange(parents);
             return await _offspringSelection.Operate(offspring.ToImmutableHashSet(), capacity, token);
         }
     }

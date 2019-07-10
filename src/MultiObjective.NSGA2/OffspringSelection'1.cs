@@ -5,29 +5,35 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions;
-using Bunnypro.GeneticAlgorithm.MultiObjective.Core;
+using Bunnypro.GeneticAlgorithm.MultiObjective.Primitives;
 using Bunnypro.GeneticAlgorithm.Primitives;
 
 namespace Bunnypro.GeneticAlgorithm.MultiObjective.NSGA2
 {
     public class OffspringSelection<T> : IDistinctMultiObjectiveGeneticOperation<T> where T : Enum
     {
-        private readonly IParetoSort<T> _sorter = new FastNonDominatedSort<T>();
+        private readonly IParetoSort<T> _sorter;
+
+        public OffspringSelection(IReadOnlyDictionary<T, OptimumValue> optimumValues)
+        {
+            _sorter = new FastNonDominatedSort<T>(optimumValues);
+        }
 
         public Task<ImmutableHashSet<IChromosome<T>>> Operate(IEnumerable<IChromosome<T>> parents,
             PopulationCapacity capacity, CancellationToken token = default)
         {
             var elite = ImmutableHashSet.CreateBuilder<IChromosome<T>>();
             ImmutableArray<IChromosome<T>> lastFront;
-            using (var enumerator = _sorter.Sort(parents).GetEnumerator())
+            var fronts = _sorter.Sort(parents).Select(f => f.ToArray()).ToArray();
+            foreach (var front in fronts)
             {
-                lastFront = enumerator.Current;
-                while (elite.Count < capacity.Minimum && elite.Count + lastFront.Length <= capacity.Maximum)
+                if (elite.Count + front.Length > capacity.Maximum)
                 {
-                    elite.UnionWith(lastFront);
-                    if (!enumerator.MoveNext()) break;
-                    lastFront = enumerator.Current;
+                    lastFront = front.ToImmutableArray();
+                    break;
                 }
+                elite.UnionWith(front);
+                if (elite.Count > capacity.Minimum) break;
             }
 
             if (elite.Count >= capacity.Minimum) return Task.FromResult(elite.ToImmutable());

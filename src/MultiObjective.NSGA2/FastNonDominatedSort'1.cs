@@ -9,25 +9,30 @@ namespace Bunnypro.GeneticAlgorithm.MultiObjective.NSGA2
 {
     public class FastNonDominatedSort<T> : IParetoSort<T> where T : Enum
     {
+        private readonly IComparer<IReadOnlyDictionary<T, double>> _comparer;
+
+        public FastNonDominatedSort(IReadOnlyDictionary<T, OptimumValue> optimum)
+        {
+            _comparer = new NonDominatedComparer<T, double>(optimum);
+        }
+
         public IEnumerable<ImmutableArray<IChromosome<T>>> Sort(IEnumerable<IChromosome<T>> chromosomes)
         {
-            var dominationStates = new Dictionary<IChromosome<T>, DominationData>();
+            var chromosomeArray = chromosomes.ToArray();
+            var dominationStates = chromosomeArray.ToDictionary(c => c, _ => new DominationData());
             var frontBuilder = ImmutableArray.CreateBuilder<IChromosome<T>>();
-            var chromosomeList = chromosomes.ToList();
-            for (var i = 0; i < chromosomeList.Count; i++)
+            for (var i = 0; i < chromosomeArray.Length; i++)
             {
-                RegisterChromosome(chromosomeList[i]);
-                for (var j = i + 1; j < chromosomeList.Count; j++)
+                for (var j = i + 1; j < chromosomeArray.Length; j++)
                 {
-                    RegisterChromosome(chromosomeList[j]);
-                    var sign = Compare(chromosomeList[i].ObjectiveValues, chromosomeList[j].ObjectiveValues);
+                    var sign = _comparer.Compare(chromosomeArray[i].ObjectiveValues, chromosomeArray[j].ObjectiveValues);
                     if (sign > 0)
-                        Dominate(chromosomeList[i], chromosomeList[j]);
+                        Dominate(chromosomeArray[i], chromosomeArray[j]);
                     if (sign < 0)
-                        Dominate(chromosomeList[j], chromosomeList[i]);
+                        Dominate(chromosomeArray[j], chromosomeArray[i]);
                 }
-                if (dominationStates[chromosomeList[i]].DominatedCount == 0)
-                    frontBuilder.Add(chromosomeList[i]);
+                if (dominationStates[chromosomeArray[i]].DominatedCount == 0)
+                    frontBuilder.Add(chromosomeArray[i]);
             }
 
             while (frontBuilder.Count > 0)
@@ -39,16 +44,11 @@ namespace Bunnypro.GeneticAlgorithm.MultiObjective.NSGA2
                 {
                     foreach (var dominatedChromosome in dominationStates[dominatingChromosome].DominatedChromosomes)
                     {
-                        var count = dominationStates[dominatedChromosome].DominatedCount--;
+                        var count = dominationStates[dominatedChromosome].DominatedCount - 1;
                         if (count == 0) frontBuilder.Add(dominatedChromosome);
+                        dominationStates[dominatedChromosome].DominatedCount = count;
                     }
                 }
-            }
-            
-            void RegisterChromosome(IChromosome<T> chromosome)
-            {
-                if (dominationStates.ContainsKey(chromosome)) return;
-                dominationStates.Add(chromosome, new DominationData());
             }
 
             void Dominate(IChromosome<T> dominating, IChromosome<T> dominated)
@@ -56,21 +56,6 @@ namespace Bunnypro.GeneticAlgorithm.MultiObjective.NSGA2
                 dominationStates[dominating].DominatedChromosomes.Add(dominated);
                 dominationStates[dominated].DominatedCount++;
             }
-        }
-
-        private static int Compare(ObjectiveValues<T> values, ObjectiveValues<T> otherValues)
-        {
-            var domination = 0;
-            foreach (var objective in Enum.GetValues(typeof(T)).Cast<T>())
-            {
-                var sign = Math.Sign(values[objective].CompareTo(otherValues[objective]));
-                if (sign == 0 || domination == sign)
-                    continue;
-                if (domination != 0)
-                    return 0;
-                domination = sign;
-            }
-            return domination;
         }
         
         private class DominationData
