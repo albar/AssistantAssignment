@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -11,21 +10,27 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
 {
     public class AssistantCombination : IAssistantCombination
     {
-        public AssistantCombination(byte[] id, ISubject subject, IEnumerable<IAssistant> assistants)
-            : this(id, subject.Id, assistants.Select(a => a.Id))
+        public AssistantCombination(byte[] id, ISubject subject,
+            IEnumerable<IAssistant> assistants,
+            IReadOnlyDictionary<AssistantAssessment, double> maxAssessments)
+            : this(id, subject.Id, assistants.Select(a => a.Id), maxAssessments)
         {
         }
 
-        public AssistantCombination(byte[] id, byte[] subject, IEnumerable<byte[]> assistants)
+        public AssistantCombination(byte[] id, byte[] subject, IEnumerable<byte[]> assistants,
+            IReadOnlyDictionary<AssistantAssessment, double> maxAssessments)
         {
             Id = id;
             Subject = subject;
             Assistants = assistants.ToImmutableArray();
+            MaxAssessments = maxAssessments;
         }
 
         public byte[] Id { get; }
         public byte[] Subject { get; }
         public ImmutableArray<byte[]> Assistants { get; }
+        
+        public IReadOnlyDictionary<AssistantAssessment, double> MaxAssessments { get; }
 
         public bool Equals(IAssistantCombination other)
         {

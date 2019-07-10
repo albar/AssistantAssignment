@@ -6,10 +6,6 @@
     <ProjectReference Include="..\..\..\utility\Bunnypro.Enumerable.Chunk\Bunnypro.Enumerable.Chunk.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Evaluators" />
-  </ItemGroup>
-
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>

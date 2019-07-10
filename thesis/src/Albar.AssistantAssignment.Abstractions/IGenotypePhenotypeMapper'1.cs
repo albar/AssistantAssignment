@@ -5,7 +5,7 @@ namespace Albar.AssistantAssignment.Abstractions
 {
     public interface IGenotypePhenotypeMapper<T> where T : Enum
     {
-        IDataRepository DataRepository { get; }
+        IDataRepository<T> DataRepository { get; }
         
         IEnumerable<IScheduleSolutionRepresentation> ToSolution(IAssignmentChromosome<T> chromosome);
         IEnumerable<IScheduleSolutionRepresentation> ToSolution(byte[] genotype);

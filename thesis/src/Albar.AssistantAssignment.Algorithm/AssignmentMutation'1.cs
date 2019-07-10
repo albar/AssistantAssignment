@@ -34,14 +34,14 @@ namespace Albar.AssistantAssignment.Algorithm
                 .Select(selection => Task.Run(() => Mutate(selection.Schema, selection.Parent), token));
             token.ThrowIfCancellationRequested();
             var result = await Task.WhenAll(mutationTasks);
-            return result.Select(_mapper.ToChromosome);
+            return new HashSet<IChromosome<T>>(result.Select(_mapper.ToChromosome));
         }
 
         private byte[] Mutate(ImmutableArray<bool> schema, IAssignmentChromosome<T> chromosome)
         {
-            return chromosome.Genotype.Chunk(_mapper.DataRepository.GeneSize).SelectMany((gene, locus) =>
+            return chromosome.Genotype.Chunk(_mapper.DataRepository.GeneSize).ToInnerArray().SelectMany((gene, locus) =>
             {
-                if (!schema[locus]) return gene.ToArray();
+                if (!schema[locus]) return gene;
                 var subjectId = _mapper.DataRepository.Schedules[locus].Subject;
                 return _mapper.DataRepository.AssistantCombinations
                     .Where(c => c.Subject == subjectId)

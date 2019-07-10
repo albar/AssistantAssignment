@@ -91,7 +91,7 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
                 }
 
                 var assistantAssessments = subjectIds.ToImmutableDictionary(subjectId => subjectId, subjectId =>
-                    assessments.ToDictionary(assessment => assessment, _ => randomize.NextDouble()));
+                    assessments.ToDictionary(assessment => assessment, _ => (double) randomize.Next(2,4)));
                 return new Assistant(assistantId, subjectIds, assistantAssessments);
             }).ToArray();
             foreach (var subject in subjectStorage)

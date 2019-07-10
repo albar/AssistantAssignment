@@ -31,10 +31,10 @@ namespace Albar.AssistantAssignment.Algorithm
             var crossoverTasks = _selection
                 .SelectCrossoverParent(chromosomes.Cast<IAssignmentChromosome<T>>(), capacity)
                 .Select(selection => Task.Run(() =>
-                        Crossover(selection.Schema, selection.Parent1, selection.Parent2), token));
+                    Crossover(selection.Schema, selection.Parent1, selection.Parent2), token));
             token.ThrowIfCancellationRequested();
             var result = await Task.WhenAll(crossoverTasks);
-            return result.SelectMany(r => r.Select(_mapper.ToChromosome));
+            return new HashSet<IChromosome<T>>(result.SelectMany(r => r).Select(_mapper.ToChromosome));
         }
 
         private IEnumerable<byte[]> Crossover(
@@ -46,11 +46,11 @@ namespace Albar.AssistantAssignment.Algorithm
             var p2 = parent2.Genotype.Chunk(_mapper.DataRepository.GeneSize).ToAllArray();
             return schema.Select((isCrossover, locus) =>
                 isCrossover ? (p2[locus], p1[locus]) : (p1[locus], p2[locus])
-            ).Aggregate(new List<byte>[2], (offspring, gene) =>
+            ).Aggregate(new[] {new List<byte>(), new List<byte>()}, (offspring, gene) =>
             {
                 var (g1, g2) = gene;
-                offspring[1].AddRange(g1);
-                offspring[2].AddRange(g2);
+                offspring[0].AddRange(g1);
+                offspring[1].AddRange(g2);
                 return offspring;
             }).Select(off => off.ToArray());
         }

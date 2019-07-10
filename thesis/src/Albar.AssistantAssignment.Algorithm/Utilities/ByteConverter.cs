@@ -23,7 +23,7 @@ namespace Albar.AssistantAssignment.Algorithm.Utilities
         public static int ToInt32(byte[] bytes)
         {
             if (bytes.Length > 4) throw new Exception("Byte size out of range");
-            return bytes.Select((t, i) => t * (256 ^ i)).Sum();
+            return bytes.Reverse().Select((t, i) => t * (int) Math.Pow(256, i)).Sum();
         }
 
         public static string ToString(byte[] bytes)

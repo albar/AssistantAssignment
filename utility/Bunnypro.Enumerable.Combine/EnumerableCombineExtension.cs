@@ -14,10 +14,10 @@ namespace Bunnypro.Enumerable.Combine
             var count = Factorial(items.Length) / (Factorial(size) * Factorial(items.Length - size));
             for (var i = 0; i < count - 1; i++)
             {
-                yield return state.Select(index => items[index]);
+                yield return state.Select(index => items[index]).ToArray();
                 state = UpgradeState(state, items.Length - 1);
             }
-            yield return state.Select(index => items[index]);
+            yield return state.Select(index => items[index]).ToArray();
         }
 
         private static int Factorial(int n)

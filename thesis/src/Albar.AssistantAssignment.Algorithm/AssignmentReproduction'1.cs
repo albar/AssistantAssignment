@@ -12,6 +12,7 @@ namespace Albar.AssistantAssignment.Algorithm
 {
     public class AssignmentReproduction<T> : IMultiObjectiveGeneticOperation<T> where T : Enum
     {
+        private readonly IGenotypePhenotypeMapper<T> _mapper;
         private readonly IEnumerable<IMultiObjectiveGeneticOperation<T>> _operations;
 
         public AssignmentReproduction(
@@ -26,6 +27,7 @@ namespace Albar.AssistantAssignment.Algorithm
             ICrossoverSelection<T> crossoverSelection,
             IMutationSelection<T> mutationSelection)
         {
+            _mapper = mapper;
             _operations = new IMultiObjectiveGeneticOperation<T>[]
             {
                 new AssignmentCrossover<T>(crossoverSelection, mapper),
@@ -40,7 +42,13 @@ namespace Albar.AssistantAssignment.Algorithm
         {
             var operations = _operations.Select(operation => operation.Operate(chromosomes, capacity, token));
             var result = await Task.WhenAll(operations);
-            return result.SelectMany(r => r);
+            return new HashSet<IChromosome<T>>(result.SelectMany(r => r)).Cast<AssignmentChromosome<T>>().Select(ResolvePhenotype);
+        }
+
+        private IChromosome<T> ResolvePhenotype(AssignmentChromosome<T> chromosome)
+        {
+            chromosome.Phenotype = _mapper.ToSolution(chromosome);
+            return chromosome;
         }
     }
 }

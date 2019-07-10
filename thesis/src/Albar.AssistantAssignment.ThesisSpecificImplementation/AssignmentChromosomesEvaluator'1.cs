@@ -14,7 +14,20 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
         IEnumerable<KeyValuePair<T, IObjectiveEvaluator<T>>>
         where T : Enum
     {
-        private readonly IDictionary<T, IObjectiveEvaluator<T>> _evaluators = new Dictionary<T, IObjectiveEvaluator<T>>();
+        private readonly IDictionary<T, IObjectiveEvaluator<T>> _evaluators =
+            new Dictionary<T, IObjectiveEvaluator<T>>();
+
+        public AssignmentChromosomesEvaluator(IReadOnlyDictionary<T, OptimumValue> optimum)
+            : base(optimum)
+        {
+        }
+
+        public AssignmentChromosomesEvaluator(
+            IReadOnlyDictionary<T, OptimumValue> optimum,
+            IReadOnlyDictionary<T, double> coefficient)
+            : base(optimum, coefficient)
+        {
+        }
 
         public void Add(T objective, IObjectiveEvaluator<T> evaluator)
         {

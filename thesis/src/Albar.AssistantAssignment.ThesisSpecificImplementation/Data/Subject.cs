@@ -8,7 +8,7 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation.Data
     {
         public Subject(
             byte[] id, int assistantCountPerScheduleRequirement,
-            IDictionary<AssistantAssessment, double> assessmentThreshold)
+            IReadOnlyDictionary<AssistantAssessment, double> assessmentThreshold)
         {
             Id = id;
             AssistantCountPerScheduleRequirement = assistantCountPerScheduleRequirement;
@@ -19,7 +19,7 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation.Data
         public ImmutableArray<byte[]> Assistants { get; set; }
         public ImmutableArray<byte[]> Schedules { get; set; }
         public int AssistantCountPerScheduleRequirement { get; }
-        public IDictionary<AssistantAssessment, double> AssessmentThreshold { get; }
+        public IReadOnlyDictionary<AssistantAssessment, double> AssessmentThreshold { get; }
 
         private bool Equals(Subject other)
         {

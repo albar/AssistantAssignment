@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Albar.AssistantAssignment.Abstractions;
 using Bunnypro.GeneticAlgorithm.Abstractions;
+using Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions;
 using Bunnypro.GeneticAlgorithm.MultiObjective.Primitives;
 
 namespace Albar.AssistantAssignment.Algorithm
@@ -24,12 +25,17 @@ namespace Albar.AssistantAssignment.Algorithm
 
         public bool Equals(IAssignmentChromosome<T> other)
         {
-            return Genotype.Equals(other.Genotype);
+            return Genotype.SequenceEqual(other.Genotype);
+        }
+
+        public bool Equals(IChromosome<T> other)
+        {
+            return other is IAssignmentChromosome<T> chromosome && Equals(chromosome);
         }
 
         public bool Equals(IChromosome other)
         {
-            return other is IAssignmentChromosome<T> chromosome && Equals(chromosome);
+            return other is IChromosome<T> chromosome && Equals(chromosome);
         }
 
         public override bool Equals(object obj)
