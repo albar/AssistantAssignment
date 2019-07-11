@@ -38,29 +38,28 @@ namespace Bunnypro.GeneticAlgorithm.MultiObjective.Core
                 {
                     var ordered = chromosomesArray
                         .Select(c => c.ObjectiveValues[key])
-                        .OrderBy(v => v).ToArray();
+                        .OrderBy(v => v * (_optimum[key] == OptimumValue.Maximum ? 1 : -1))
+                        .ToArray();
 
                     var boundary = new Dictionary<OptimumValue, double>
                     {
-                        {
-                            OptimumValue.Maximum,
-                            _optimum[key] == OptimumValue.Maximum ? ordered.Last() : ordered.First()
-                        },
-                        {
-                            OptimumValue.Minimum,
-                            _optimum[key] == OptimumValue.Minimum ? ordered.Last() : ordered.First()
-                        }
+                        {OptimumValue.Maximum, ordered.Last()},
+                        {OptimumValue.Minimum, ordered.First()}
                     };
 
                     var range = Math.Abs(boundary[OptimumValue.Maximum] - boundary[OptimumValue.Minimum]);
-                    return value => _coefficient[key] * Math.Abs(value - boundary[OptimumValue.Minimum]) / range;
+                    return value =>
+                    {
+                        if (range <= 0) return 1;
+                        return Math.Abs((value - boundary[OptimumValue.Minimum]) * _coefficient[key]) / range;
+                    };
                 });
 
             foreach (var chromosome in chromosomesArray)
             {
-                chromosome.Fitness = chromosome.ObjectiveValues.Aggregate(
-                    0d, (fitness, objective) => fitness + normalizer[objective.Key].Invoke(objective.Value)
-                );
+                chromosome.Fitness = chromosome.ObjectiveValues.Sum(objective =>
+                                         normalizer[objective.Key].Invoke(objective.Value)
+                                     ) / _coefficient.Sum(c => c.Value);
             }
         }
 

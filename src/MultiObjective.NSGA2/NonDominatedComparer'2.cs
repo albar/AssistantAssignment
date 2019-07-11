@@ -29,15 +29,13 @@ namespace Bunnypro.GeneticAlgorithm.MultiObjective.NSGA2
                 if (value2 != null) return 1;
                 return -1;
             }
-            
+
             var domination = 0;
-            foreach (var objective in Enum.GetValues(typeof(TKey)).Cast<TKey>())
+            foreach (var optimum in _optimum)
             {
-                var sign = Math.Sign(value1[objective].CompareTo(value2[objective])) * _optimum[objective];
-                if (sign == 0 || domination == sign)
-                    continue;
-                if (domination != 0)
-                    return 0;
+                var sign = Math.Sign(value1[optimum.Key].CompareTo(value2[optimum.Key]) * optimum.Value);
+                if (sign == 0 || domination != 0 && domination != sign) return 0;
+                if (domination == sign) continue;
                 domination = sign;
             }
 
