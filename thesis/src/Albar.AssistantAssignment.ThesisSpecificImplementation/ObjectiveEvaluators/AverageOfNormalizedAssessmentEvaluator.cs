@@ -26,8 +26,6 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation.ObjectiveEvalua
                         .Select(c => c.MaxAssessments)
                         .ToArray();
 
-//                    var representations = schedules.Cast<ScheduleSolutionRepresentation>().ToArray();
-//                    var assessments = representations.Select(r => r.AssistantCombination.MaxAssessments).ToArray();
                     var minAssessment = assessment.ToDictionary(o => o, o =>
                         subjectCombinedAssistantAssessments.Min(a => a[o])
                     );
@@ -48,11 +46,6 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation.ObjectiveEvalua
                         .Select(combination => combination.MaxAssessments.Average(ass =>
                             assessmentNormalizer[ass.Key].Invoke(ass.Value)
                         ));
-
-
-//                    return subjectCombinedAssistantAssessments.Select(representation =>
-//                        assessment.Sum(o => Math.Abs(representation[o] - minAssessment[o]) / assessmentNormalizer[o])
-//                    );
                 }).Average();
         }
     }

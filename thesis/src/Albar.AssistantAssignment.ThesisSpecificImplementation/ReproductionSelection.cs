@@ -17,14 +17,10 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
     public class ReproductionSelection : IReproductionSelection<AssignmentObjective>
     {
         private readonly IDataRepository<AssignmentObjective> _repository;
-        private readonly IReadOnlyDictionary<AssignmentObjective, double> _optimumCoefficient;
 
         public ReproductionSelection(IDataRepository<AssignmentObjective> repository)
         {
             _repository = repository;
-            _optimumCoefficient = repository.ObjectiveOptimumValue.ToDictionary(
-                o => o.Key, o => (o.Value == OptimumValue.Maximum ? 1 : -1) * _repository.ObjectiveCoefficient[o.Key]
-            );
         }
 
         public IEnumerable<PreparedMutationParent<AssignmentObjective>> SelectMutationParent(
@@ -65,7 +61,6 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
             var ordered = chromosomes.ToList();
             ordered.Sort((c1, c2) => comparer.Compare(c2.ObjectiveValues, c1.ObjectiveValues));
             return ordered.Take(requiredParentCount).Combine(2)
-//            return chromosomes.OrderByDescending(c => c.Fitness)
                 .Select(parents =>
                 {
                     var parentArray = parents as IAssignmentChromosome<AssignmentObjective>[] ?? parents.ToArray();
