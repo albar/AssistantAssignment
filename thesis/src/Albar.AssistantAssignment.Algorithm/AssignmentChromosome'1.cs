@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Albar.AssistantAssignment.Abstractions;
+using Albar.AssistantAssignment.Algorithm.Utilities;
 using Bunnypro.GeneticAlgorithm.Abstractions;
 using Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions;
 using Bunnypro.GeneticAlgorithm.MultiObjective.Primitives;

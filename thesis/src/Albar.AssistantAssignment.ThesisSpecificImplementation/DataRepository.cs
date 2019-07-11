@@ -17,17 +17,20 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
             ImmutableArray<ISubject> subjects,
             ImmutableArray<ISchedule> schedules,
             ImmutableArray<IAssistant> assistants,
-            IReadOnlyDictionary<AssignmentObjective, OptimumValue> optimumValue)
+            IReadOnlyDictionary<AssignmentObjective, OptimumValue> optimumValue,
+            IReadOnlyDictionary<AssignmentObjective, double> coefficient)
         {
             Subjects = subjects;
             Schedules = schedules;
             Assistants = assistants;
-            OptimumValue = optimumValue;
+            ObjectiveOptimumValue = optimumValue;
+            ObjectiveCoefficient = coefficient;
             AssistantCombinations = CombineAssistants();
         }
 
         public byte GeneSize { get; private set; }
-        public IReadOnlyDictionary<AssignmentObjective, OptimumValue> OptimumValue { get; }
+        public IReadOnlyDictionary<AssignmentObjective, OptimumValue> ObjectiveOptimumValue { get; }
+        public IReadOnlyDictionary<AssignmentObjective, double> ObjectiveCoefficient { get; }
         public ImmutableArray<ISubject> Subjects { get; }
         public ImmutableArray<ISchedule> Schedules { get; }
         public ImmutableArray<IAssistant> Assistants { get; }

@@ -9,20 +9,22 @@ using Albar.AssistantAssignment.ThesisSpecificImplementation.Data;
 using Bunnypro.Enumerable.Chunk;
 using Bunnypro.Enumerable.Combine;
 using Bunnypro.GeneticAlgorithm.MultiObjective.NSGA2;
+using Bunnypro.GeneticAlgorithm.MultiObjective.Primitives;
 using Bunnypro.GeneticAlgorithm.Primitives;
 
 namespace Albar.AssistantAssignment.ThesisSpecificImplementation
 {
     public class ReproductionSelection : IReproductionSelection<AssignmentObjective>
     {
-        private readonly IGenotypePhenotypeMapper<AssignmentObjective> _mapper;
+        private readonly IDataRepository<AssignmentObjective> _repository;
+        private readonly IReadOnlyDictionary<AssignmentObjective, double> _optimumCoefficient;
 
-        private NonDominatedComparer<AssistantAssessment, double> _comparer =
-            new NonDominatedComparer<AssistantAssessment, double>();
-
-        public ReproductionSelection(IGenotypePhenotypeMapper<AssignmentObjective> mapper)
+        public ReproductionSelection(IDataRepository<AssignmentObjective> repository)
         {
-            _mapper = mapper;
+            _repository = repository;
+            _optimumCoefficient = repository.ObjectiveOptimumValue.ToDictionary(
+                o => o.Key, o => (o.Value == OptimumValue.Maximum ? 1 : -1) * _repository.ObjectiveCoefficient[o.Key]
+            );
         }
 
         public IEnumerable<PreparedMutationParent<AssignmentObjective>> SelectMutationParent(
@@ -30,10 +32,8 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
         {
             var chromosomeArray = chromosomes.ToArray();
             var mutationCount = chromosomeArray.Length / 10;
-            return chromosomeArray
-                .OrderBy(c => c.ObjectiveValues[AssignmentObjective.ScheduleCollision] * -1)
+            return chromosomeArray.OrderByDescending(c => c.ObjectiveValues[AssignmentObjective.JobCollision])
                 .Take(mutationCount)
-                .Cast<AssignmentChromosome<AssignmentObjective>>()
                 .Select(chromosome =>
                 {
                     var schedules = chromosome.Phenotype.Cast<ScheduleSolutionRepresentation>().ToArray();
@@ -41,7 +41,8 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
                         !other.Schedule.Id.SequenceEqual(schedule.Schedule.Id) &&
                         other.Schedule.Day.Equals(schedule.Schedule.Day) &&
                         other.Schedule.Session.Equals(schedule.Schedule.Session) &&
-                        other.AssistantCombination.Assistants.Any(id => schedule.AssistantCombination.Assistants.Any(a => a.SequenceEqual(id)))
+                        other.AssistantCombination.Assistants.Any(id =>
+                            schedule.AssistantCombination.Assistants.Any(a => a.SequenceEqual(id)))
                     )).ToImmutableArray();
                     return new PreparedMutationParent<AssignmentObjective>(schema, chromosome);
                 });
@@ -51,23 +52,48 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
             IEnumerable<IAssignmentChromosome<AssignmentObjective>> chromosomes, PopulationCapacity capacity)
         {
             var requiredParentCount = (int) Math.Ceiling((1 + Math.Sqrt(4 * capacity.Minimum + 1)) / 2);
-            return chromosomes.OrderByDescending(c => c.Fitness)
-                .Take(requiredParentCount).Combine(2)
+            var subjectsAssessmentThreshold = _repository.Subjects
+                .Cast<Subject>()
+                .ToDictionary(s => s.Id, s => s.AssessmentThreshold);
+            var comparedObjective = new Dictionary<AssignmentObjective, OptimumValue>
+            {
+                {AssignmentObjective.AboveThresholdAssessment, OptimumValue.Maximum},
+                {AssignmentObjective.BelowThresholdAssessment, OptimumValue.Minimum},
+                {AssignmentObjective.AverageOfNormalizedAssessment, OptimumValue.Maximum}
+            };
+            var comparer = new NonDominatedComparer<AssignmentObjective, double>(comparedObjective);
+            var ordered = chromosomes.ToList();
+            ordered.Sort((c1, c2) => comparer.Compare(c2.ObjectiveValues, c1.ObjectiveValues));
+            return ordered.Take(requiredParentCount).Combine(2)
+//            return chromosomes.OrderByDescending(c => c.Fitness)
                 .Select(parents =>
                 {
                     var parentArray = parents as IAssignmentChromosome<AssignmentObjective>[] ?? parents.ToArray();
                     var parentsAssessments = parentArray.Select(parent =>
-                        parent.Genotype.Chunk(_mapper.DataRepository.GeneSize).ToInnerArray()
+                        parent.Genotype.Chunk(_repository.GeneSize).ToInnerArray()
                     ).Select(genotype => genotype.Select(gene =>
-                            _mapper.DataRepository.AssistantCombinations.First(a => a.Id.SequenceEqual(gene))
-                        ).Cast<AssistantCombination>().Select(combination => combination.MaxAssessments).ToArray()
+                            _repository.AssistantCombinations.First(a => a.Id.SequenceEqual(gene))
+                        ).Cast<AssistantCombination>().Select(combination =>
+                            IsBelowThreshold(
+                                combination.MaxAssessments,
+                                subjectsAssessmentThreshold[combination.Subject])
+                                ? -1
+                                : 1
+                        ).ToArray()
                     ).ToArray();
 
-                    var schema = _mapper.DataRepository.Schedules.Select((_, i) =>
-                        _comparer.Compare(parentsAssessments[0][i], parentsAssessments[1][i]) < 0
+                    var schema = _repository.Schedules.Select((_, i) =>
+                        parentsAssessments[0][i] * parentsAssessments[1][i] < 0
                     ).ToImmutableArray();
                     return new PreparedCrossoverParent<AssignmentObjective>(schema, parentArray[0], parentArray[1]);
                 });
+        }
+
+        private static bool IsBelowThreshold(
+            IReadOnlyDictionary<AssistantAssessment, double> assessments,
+            IReadOnlyDictionary<AssistantAssessment, double> threshold)
+        {
+            return assessments.Any(assessment => assessment.Value < threshold[assessment.Key]);
         }
     }
 }

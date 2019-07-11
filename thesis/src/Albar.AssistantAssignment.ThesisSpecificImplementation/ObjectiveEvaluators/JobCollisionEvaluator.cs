@@ -4,7 +4,7 @@ using Albar.AssistantAssignment.ThesisSpecificImplementation.Data;
 
 namespace Albar.AssistantAssignment.ThesisSpecificImplementation.ObjectiveEvaluators
 {
-    public class ScheduleCollisionEvaluator : IObjectiveEvaluator<AssignmentObjective>
+    public class JobCollisionEvaluator : IObjectiveEvaluator<AssignmentObjective>
     {
         public double Evaluate(IAssignmentChromosome<AssignmentObjective> chromosome)
         {

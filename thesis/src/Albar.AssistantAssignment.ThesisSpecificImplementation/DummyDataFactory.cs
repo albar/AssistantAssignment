@@ -17,7 +17,7 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
             var subjects = Enumerable.Range(1, count).Select(
                 id => new Subject(
                     ByteConverter.GetByte(byteSize, id), 3,
-                    assessments.ToDictionary(assessment => assessment, _ => 3d)
+                    assessments.ToDictionary(assessment => assessment, _ => 8d)
                 )
             );
             return new HashSet<ISubject>(subjects);
@@ -91,7 +91,7 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
                 }
 
                 var assistantAssessments = subjectIds.ToImmutableDictionary(subjectId => subjectId, subjectId =>
-                    assessments.ToDictionary(assessment => assessment, _ => (double) randomize.Next(2,4)));
+                    assessments.ToDictionary(assessment => assessment, _ => (double) randomize.Next(6,9)));
                 return new Assistant(assistantId, subjectIds, assistantAssessments);
             }).ToArray();
             foreach (var subject in subjectStorage)

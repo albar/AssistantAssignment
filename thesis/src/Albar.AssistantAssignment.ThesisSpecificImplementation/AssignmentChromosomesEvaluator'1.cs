@@ -38,7 +38,8 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
         {
             if (_evaluators.Count != Enum.GetNames(typeof(T)).Length)
                 throw new Exception("Some assignment objective evaluator is not implemented");
-            foreach (var chromosome in chromosomes) chromosome.ObjectiveValues = EvaluateObjectiveValues(chromosome);
+            foreach (var chromosome in chromosomes)
+                chromosome.ObjectiveValues = EvaluateObjectiveValues(chromosome);
         }
 
         private ObjectiveValues<T> EvaluateObjectiveValues(IChromosome<T> chromosome)
