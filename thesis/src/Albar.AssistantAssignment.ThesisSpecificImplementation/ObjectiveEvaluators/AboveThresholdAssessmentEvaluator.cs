@@ -21,7 +21,7 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation.ObjectiveEvalua
                 .Aggregate(0, (count, solution) =>
                 {
                     var relatedSubject = (Subject) _repository.Subjects
-                        .First(subject => subject.Id == solution.Schedule.Subject);
+                        .First(subject => subject.Equals(solution.Schedule.Subject));
                     var state = relatedSubject.AssessmentThreshold.All(threshold =>
                         solution.AssistantCombination.MaxAssessments[threshold.Key] >=
                         threshold.Value

@@ -51,15 +51,15 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
         private ImmutableArray<IAssistantCombination> CombineAssistants()
         {
             var combined = Subjects.SelectMany(subject =>
-                Assistants.Where(assistant => assistant.Subjects.Contains(subject.Id))
+                Assistants.Where(assistant => assistant.Subjects.Contains(subject))
                     .Combine(subject.AssistantCountPerScheduleRequirement)
                     .Select(combination => new
                     {
-                        Subject = subject.Id,
+                        Subject = subject,
                         AssistantsAssessments = combination.Cast<Assistant>()
                             .ToDictionary(
-                                assistant => assistant.Id,
-                                assistant => assistant.SubjectAssessments[subject.Id]
+                                assistant => assistant,
+                                assistant => assistant.SubjectAssessments[subject]
                             )
                     })
             ).ToArray();

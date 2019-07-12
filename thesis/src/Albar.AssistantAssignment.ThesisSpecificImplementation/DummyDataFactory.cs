@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using Albar.AssistantAssignment.Algorithm.Utilities;
 using Albar.AssistantAssignment.DataAbstractions;
 using Albar.AssistantAssignment.ThesisSpecificImplementation.Data;
 
@@ -41,7 +40,7 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
                 {
                     newSchedule = new Schedule(
                         schedule.Key,
-                        schedule.Value.Id,
+                        schedule.Value,
                         (DayOfWeek) randomize.Next(0, days - 1),
                         (SessionOfDay) randomize.Next(0, sessions - 1),
                         randomize.Next(1, 20)
@@ -53,7 +52,7 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
 
             foreach (var subject in subjectArray)
             {
-                subject.Schedules = result.Where(s => s.Subject == subject.Id).Select(s => s.Id).ToImmutableArray();
+                subject.Schedules = result.Where(s => s.Subject.Equals(subject)).ToImmutableArray();
             }
 
             return result;
@@ -62,9 +61,9 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
         public static HashSet<IAssistant> CreateAssistant(IEnumerable<Subject> subjects)
         {
             var subjectArray = subjects as Subject[] ?? subjects.ToArray();
-            var assistantStorage = new List<ImmutableArray<int>>();
+            var assistantStorage = new List<ImmutableArray<ISubject>>();
             var subjectAssistantsCount = subjectArray.ToDictionary(
-                subject => subject.Id, subject => new[] {subject.Schedules.Length + 3, 0}
+                subject => subject, subject => new[] {subject.Schedules.Length + 3, 0}
             );
             do
             {
@@ -74,7 +73,9 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
                     {
                         s.Value[1]++;
                         return s.Key;
-                    }).ToImmutableArray();
+                    })
+                    .Cast<ISubject>()
+                    .ToImmutableArray();
                 assistantStorage.Add(subjectIds);
             } while (subjectAssistantsCount.Any(s => s.Value[1] < s.Value[0]));
 
@@ -83,7 +84,7 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
             var assessments = Enum.GetValues(typeof(AssistantAssessment)).Cast<AssistantAssessment>().ToArray();
             var assistants = assistantStorage.Select((subjectIds, id) =>
             {
-                foreach (var subject in subjectStorage.Where(subject => subjectIds.Contains(subject.Key.Id)))
+                foreach (var subject in subjectStorage.Where(subject => subjectIds.Contains(subject.Key)))
                 {
                     subject.Value.Add(id);
                 }
@@ -94,7 +95,10 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
             }).ToArray();
             foreach (var subject in subjectStorage)
             {
-                subject.Key.Assistants = subject.Value.ToImmutableArray();
+                subject.Key.Assistants = assistants
+                    .Where(assistant => subject.Value.Contains(assistant.Id))
+                    .Cast<IAssistant>()
+                    .ToImmutableArray();
             }
 
             return new HashSet<IAssistant>(assistants);

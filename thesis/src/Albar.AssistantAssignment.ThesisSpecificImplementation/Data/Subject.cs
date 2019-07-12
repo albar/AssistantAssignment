@@ -16,8 +16,8 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation.Data
         }
 
         public int Id { get; }
-        public ImmutableArray<int> Assistants { get; set; }
-        public ImmutableArray<int> Schedules { get; set; }
+        public ImmutableArray<IAssistant> Assistants { get; set; }
+        public ImmutableArray<ISchedule> Schedules { get; set; }
         public int AssistantCountPerScheduleRequirement { get; }
         public IReadOnlyDictionary<AssistantAssessment, double> AssessmentThreshold { get; }
 

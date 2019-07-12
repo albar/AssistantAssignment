@@ -6,8 +6,8 @@ namespace Albar.AssistantAssignment.DataAbstractions
     public interface ISubject : IEquatable<ISubject>
     {
         int Id { get; }
-        ImmutableArray<int> Assistants { get; }
-        ImmutableArray<int> Schedules { get; }
+        ImmutableArray<IAssistant> Assistants { get; }
+        ImmutableArray<ISchedule> Schedules { get; }
         int AssistantCountPerScheduleRequirement { get; }
     }
 }

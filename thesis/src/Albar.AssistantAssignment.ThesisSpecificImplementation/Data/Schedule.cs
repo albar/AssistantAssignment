@@ -5,13 +5,13 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation.Data
 {
     public class Schedule : ISchedule
     {
-        public Schedule(int id, int subject)
+        public Schedule(int id, ISubject subject)
         {
             Id = id;
             Subject = subject;
         }
 
-        public Schedule(int id, int subject, DayOfWeek day, SessionOfDay session, int lab) : this(id, subject)
+        public Schedule(int id, ISubject subject, DayOfWeek day, SessionOfDay session, int lab) : this(id, subject)
         {
             Day = day;
             Session = session;
@@ -19,7 +19,7 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation.Data
         }
 
         public int Id { get; }
-        public int Subject { get; }
+        public ISubject Subject { get; }
         public DayOfWeek Day { get; }
         public SessionOfDay Session { get; }
         public int Lab { get; }

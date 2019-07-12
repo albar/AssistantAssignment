@@ -7,8 +7,8 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation.Data
     public sealed class Assistant : IAssistant
     {
         public Assistant(
-            int id, ImmutableArray<int> subjects,
-            ImmutableDictionary<int, Dictionary<AssistantAssessment, double>> subjectAssessments)
+            int id, ImmutableArray<ISubject> subjects,
+            ImmutableDictionary<ISubject, Dictionary<AssistantAssessment, double>> subjectAssessments)
         {
             Id = id;
             Subjects = subjects;
@@ -16,8 +16,8 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation.Data
         }
 
         public int Id { get; }
-        public ImmutableArray<int> Subjects { get; }
-        public ImmutableDictionary<int, Dictionary<AssistantAssessment, double>> SubjectAssessments { get; }
+        public ImmutableArray<ISubject> Subjects { get; }
+        public ImmutableDictionary<ISubject, Dictionary<AssistantAssessment, double>> SubjectAssessments { get; }
 
         private bool Equals(Assistant other)
         {

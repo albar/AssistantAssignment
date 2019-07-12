@@ -48,9 +48,9 @@ namespace Albar.AssistantAssignment.Algorithm
                 .SelectMany((gene, locus) =>
                 {
                     if (!schema[locus]) return gene;
-                    var subjectId = _mapper.DataRepository.Schedules[locus].Subject;
+                    var subject = _mapper.DataRepository.Schedules[locus].Subject;
                     var assistantCombinationId = _mapper.DataRepository.AssistantCombinations
-                        .Where(c => c.Subject == subjectId)
+                        .Where(c => c.Subject.Equals(subject))
                         .OrderBy(_ => new Random().Next())
                         .First().Id;
                     return ByteConverter.GetByte(

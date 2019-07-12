@@ -10,14 +10,10 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
 {
     public class AssistantCombination : IAssistantCombination
     {
-        public AssistantCombination(int id, ISubject subject,
+        public AssistantCombination(
+            int id,
+            ISubject subject,
             IEnumerable<IAssistant> assistants,
-            IReadOnlyDictionary<AssistantAssessment, double> maxAssessments)
-            : this(id, subject.Id, assistants.Select(a => a.Id), maxAssessments)
-        {
-        }
-
-        public AssistantCombination(int id, int subject, IEnumerable<int> assistants,
             IReadOnlyDictionary<AssistantAssessment, double> maxAssessments)
         {
             Id = id;
@@ -27,8 +23,8 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
         }
 
         public int Id { get; }
-        public int Subject { get; }
-        public ImmutableArray<int> Assistants { get; }
+        public ISubject Subject { get; }
+        public ImmutableArray<IAssistant> Assistants { get; }
         
         public IReadOnlyDictionary<AssistantAssessment, double> MaxAssessments { get; }
 
@@ -52,7 +48,7 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
             unchecked
             {
                 return Assistants.Aggregate(
-                    Subject,
+                    Subject.Id,
                     (hashCode, assistant) => (hashCode * 397) ^ assistant.GetHashCode()
                 );
             }

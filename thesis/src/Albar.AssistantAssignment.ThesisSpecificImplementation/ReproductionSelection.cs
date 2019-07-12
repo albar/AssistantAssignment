@@ -6,6 +6,7 @@ using Albar.AssistantAssignment.Abstractions;
 using Albar.AssistantAssignment.Abstractions.Primitives;
 using Albar.AssistantAssignment.Algorithm;
 using Albar.AssistantAssignment.Algorithm.Utilities;
+using Albar.AssistantAssignment.DataAbstractions;
 using Albar.AssistantAssignment.ThesisSpecificImplementation.Data;
 using Bunnypro.Enumerable.Chunk;
 using Bunnypro.Enumerable.Combine;
@@ -57,7 +58,7 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
             var requiredParentCount = (int) Math.Ceiling((1 + Math.Sqrt(4 * capacity.Minimum + 1)) / 2);
             var subjectsAssessmentThreshold = _repository.Subjects
                 .Cast<Subject>()
-                .ToDictionary(subject => subject.Id, subject => subject.AssessmentThreshold);
+                .ToDictionary(subject => subject, subject => subject.AssessmentThreshold);
             var comparedObjective = new Dictionary<AssignmentObjective, OptimumValue>
             {
                 {AssignmentObjective.AboveThresholdAssessment, OptimumValue.Maximum},
@@ -80,7 +81,7 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
                         ).Cast<AssistantCombination>().Select(combination =>
                             IsBelowThreshold(
                                 combination.MaxAssessments,
-                                subjectsAssessmentThreshold[combination.Subject])
+                                subjectsAssessmentThreshold[(Subject) combination.Subject])
                                 ? -1
                                 : 1
                         ).ToArray()
