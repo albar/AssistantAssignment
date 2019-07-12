@@ -17,12 +17,12 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation.ObjectiveEvalua
             return schedules.Aggregate(0, (count, schedule) =>
             {
                 var isCollided = schedules.Any(other =>
-                    !other.Schedule.Id.SequenceEqual(schedule.Schedule.Id) &&
+                    other.Schedule.Id != schedule.Schedule.Id &&
                     other.Schedule.Day.Equals(schedule.Schedule.Day) &&
                     other.Schedule.Session.Equals(schedule.Schedule.Session) &&
-                    other.Combination.Assistants.Any(id =>
-                        schedule.Combination.Assistants
-                            .Any(assistant => assistant.SequenceEqual(id)))
+                    schedule.Combination.Assistants.Any(
+                        assistantId => other.Combination.Assistants.Contains(assistantId)
+                    )
                 );
 
                 return isCollided ? count + 1 : count;

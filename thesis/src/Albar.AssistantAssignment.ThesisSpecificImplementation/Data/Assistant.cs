@@ -7,17 +7,17 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation.Data
     public sealed class Assistant : IAssistant
     {
         public Assistant(
-            byte[] id, ImmutableArray<byte[]> subjects,
-            ImmutableDictionary<byte[], Dictionary<AssistantAssessment, double>> subjectAssessments)
+            int id, ImmutableArray<int> subjects,
+            ImmutableDictionary<int, Dictionary<AssistantAssessment, double>> subjectAssessments)
         {
             Id = id;
             Subjects = subjects;
             SubjectAssessments = subjectAssessments;
         }
 
-        public byte[] Id { get; }
-        public ImmutableArray<byte[]> Subjects { get; }
-        public ImmutableDictionary<byte[], Dictionary<AssistantAssessment, double>> SubjectAssessments { get; }
+        public int Id { get; }
+        public ImmutableArray<int> Subjects { get; }
+        public ImmutableDictionary<int, Dictionary<AssistantAssessment, double>> SubjectAssessments { get; }
 
         private bool Equals(Assistant other)
         {
@@ -38,7 +38,7 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation.Data
 
         public override int GetHashCode()
         {
-            return Id != null ? Id.GetHashCode() : 0;
+            return Id.GetHashCode();
         }
     }
 }

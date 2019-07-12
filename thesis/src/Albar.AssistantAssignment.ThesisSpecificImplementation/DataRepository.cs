@@ -25,10 +25,22 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
             Assistants = assistants;
             ObjectiveOptimumValue = optimumValue;
             ObjectiveCoefficient = coefficient;
+            CalculateByteSize();
             AssistantCombinations = CombineAssistants();
         }
 
-        public byte GeneSize { get; private set; }
+        private void CalculateByteSize()
+        {
+            byte CalculateByteSize(int length) => (byte) Math.Ceiling(Math.Log(length, 256));
+            SubjectIdByteSize = CalculateByteSize(Subjects.Length);
+            ScheduleIdByteSize = CalculateByteSize(Schedules.Length);
+            AssistantIdByteSize = CalculateByteSize(Assistants.Length);
+        }
+
+        public byte SubjectIdByteSize { get; private set; }
+        public byte ScheduleIdByteSize { get; private set; }
+        public byte AssistantIdByteSize { get; private set; }
+        public byte AssistantCombinationIdByteSize { get; private set; }
         public IReadOnlyDictionary<AssignmentObjective, OptimumValue> ObjectiveOptimumValue { get; }
         public IReadOnlyDictionary<AssignmentObjective, double> ObjectiveCoefficient { get; }
         public ImmutableArray<ISubject> Subjects { get; }
@@ -51,7 +63,7 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
                             )
                     })
             ).ToArray();
-            GeneSize = (byte) Math.Ceiling(Math.Log(combined.Length, 256));
+            AssistantCombinationIdByteSize = (byte) Math.Ceiling(Math.Log(combined.Length, 256));
             return combined.Select((combination, i) =>
             {
                 var assessmentCombination = Enum.GetValues(typeof(AssistantAssessment))
@@ -62,7 +74,7 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
                             .Max()
                     );
                 return new AssistantCombination(
-                    ByteConverter.GetByte(GeneSize, i),
+                    i,
                     combination.Subject,
                     combination.AssistantsAssessments.Select(assistant => assistant.Key),
                     assessmentCombination

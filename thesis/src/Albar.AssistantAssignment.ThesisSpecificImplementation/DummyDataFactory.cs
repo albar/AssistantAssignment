@@ -12,11 +12,10 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
     {
         public static HashSet<ISubject> CreateSubject(int count)
         {
-            var byteSize = (byte) Math.Ceiling(Math.Log(count, 256));
             var assessments = Enum.GetValues(typeof(AssistantAssessment)).Cast<AssistantAssessment>().ToArray();
-            var subjects = Enumerable.Range(1, count).Select(
+            var subjects = Enumerable.Range(0, count).Select(
                 id => new Subject(
-                    ByteConverter.GetByte(byteSize, id), 3,
+                    id, 3,
                     assessments.ToDictionary(assessment => assessment, _ => 8d)
                 )
             );
@@ -29,26 +28,25 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
             var subjectArray = subjects as Subject[] ?? subjects.ToArray();
 
             var schedules = subjectArray.SelectMany(
-                s => Enumerable.Range(0, randomize.Next(min, max)).Select(_ => s)
-            ).Select((s, i) => new KeyValuePair<int, Subject>(i, s)).ToDictionary(v => v.Key, v => v.Value);
+                subject => Enumerable.Range(0, randomize.Next(min, max)).Select(_ => subject)
+            ).Select((subject, i) => new KeyValuePair<int, Subject>(i, subject)).ToDictionary(v => v.Key, v => v.Value);
 
-            var byteSize = (byte) Math.Ceiling(Math.Log(schedules.Count, 256));
             var days = Enum.GetNames(typeof(DayOfWeek)).Length;
             var sessions = Enum.GetNames(typeof(SessionOfDay)).Length;
 
-            var result = schedules.Aggregate(new HashSet<ISchedule>(), (all, subject) =>
+            var result = schedules.Aggregate(new HashSet<ISchedule>(), (all, schedule) =>
             {
-                Schedule schedule;
+                Schedule newSchedule;
                 do
                 {
-                    schedule = new Schedule(
-                        ByteConverter.GetByte(byteSize, subject.Key),
-                        subject.Value.Id,
+                    newSchedule = new Schedule(
+                        schedule.Key,
+                        schedule.Value.Id,
                         (DayOfWeek) randomize.Next(0, days - 1),
                         (SessionOfDay) randomize.Next(0, sessions - 1),
                         randomize.Next(1, 20)
                     );
-                } while (!all.Add(schedule));
+                } while (!all.Add(newSchedule));
 
                 return all;
             });
@@ -64,8 +62,10 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
         public static HashSet<IAssistant> CreateAssistant(IEnumerable<Subject> subjects)
         {
             var subjectArray = subjects as Subject[] ?? subjects.ToArray();
-            var assistantStorage = new List<ImmutableArray<byte[]>>();
-            var subjectAssistantsCount = subjectArray.ToDictionary(s => s.Id, s => new[] {s.Schedules.Length + 3, 0});
+            var assistantStorage = new List<ImmutableArray<int>>();
+            var subjectAssistantsCount = subjectArray.ToDictionary(
+                subject => subject.Id, subject => new[] {subject.Schedules.Length + 3, 0}
+            );
             do
             {
                 var subjectIds = subjectAssistantsCount
@@ -78,21 +78,19 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
                 assistantStorage.Add(subjectIds);
             } while (subjectAssistantsCount.Any(s => s.Value[1] < s.Value[0]));
 
-            var subjectStorage = subjectArray.ToDictionary(s => s, _ => new HashSet<byte[]>());
-            var byteSize = (byte) Math.Ceiling(Math.Log(assistantStorage.Count, 256));
+            var subjectStorage = subjectArray.ToDictionary(subject => subject, _ => new HashSet<int>());
             var randomize = new Random();
             var assessments = Enum.GetValues(typeof(AssistantAssessment)).Cast<AssistantAssessment>().ToArray();
             var assistants = assistantStorage.Select((subjectIds, id) =>
             {
-                var assistantId = ByteConverter.GetByte(byteSize, id);
-                foreach (var subject in subjectStorage.Where(s => subjectIds.Contains(s.Key.Id)))
+                foreach (var subject in subjectStorage.Where(subject => subjectIds.Contains(subject.Key.Id)))
                 {
-                    subject.Value.Add(assistantId);
+                    subject.Value.Add(id);
                 }
 
                 var assistantAssessments = subjectIds.ToImmutableDictionary(subjectId => subjectId, subjectId =>
-                    assessments.ToDictionary(assessment => assessment, _ => (double) randomize.Next(6,9)));
-                return new Assistant(assistantId, subjectIds, assistantAssessments);
+                    assessments.ToDictionary(assessment => assessment, _ => (double) randomize.Next(6, 9)));
+                return new Assistant(id, subjectIds, assistantAssessments);
             }).ToArray();
             foreach (var subject in subjectStorage)
             {

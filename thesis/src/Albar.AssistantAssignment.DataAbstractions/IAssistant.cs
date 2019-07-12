@@ -5,7 +5,7 @@ namespace Albar.AssistantAssignment.DataAbstractions
 {
     public interface IAssistant : IEquatable<IAssistant>
     {
-        byte[] Id { get; }
-        ImmutableArray<byte[]> Subjects { get; }
+        int Id { get; }
+        ImmutableArray<int> Subjects { get; }
     }
 }

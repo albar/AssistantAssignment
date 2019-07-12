@@ -27,21 +27,16 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
 
         public IEnumerable<IScheduleSolutionRepresentation> ToSolution(byte[] genotype)
         {
-            var scheduleIdByteSize = (byte) Math.Ceiling(
-                Math.Log(DataRepository.Schedules.Length, 256)
-            );
-
-            return genotype.Chunk(DataRepository.GeneSize).ToInnerArray()
+            return genotype.Chunk(DataRepository.AssistantCombinationIdByteSize).ToInnerArray()
                 .Select((gene, locus) =>
                 {
-                    var locusByte = ByteConverter.GetByte(scheduleIdByteSize, locus);
                     return new ScheduleSolutionRepresentation
                     {
                         Schedule = (Schedule) DataRepository.Schedules
-                            .First(schedule => schedule.Id.SequenceEqual(locusByte)),
+                            .First(schedule => schedule.Id == locus),
                         AssistantCombination = (AssistantCombination) DataRepository
                             .AssistantCombinations
-                            .First(combination => combination.Id.SequenceEqual(gene))
+                            .First(combination => combination.Id == ByteConverter.ToInt32(gene))
                     };
                 });
         }
@@ -50,7 +45,10 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
             IEnumerable<IScheduleSolutionRepresentation> solution)
         {
             var scheduleSolution = solution as IScheduleSolutionRepresentation[] ?? solution.ToArray();
-            var genotype = scheduleSolution.SelectMany(schedule => schedule.AssistantCombination.Id);
+            var genotype = scheduleSolution.SelectMany(schedule => ByteConverter.GetByte(
+                DataRepository.AssistantCombinationIdByteSize,
+                schedule.AssistantCombination.Id
+            ));
 
             return new AssignmentChromosome<AssignmentObjective>(genotype.ToImmutableArray())
             {

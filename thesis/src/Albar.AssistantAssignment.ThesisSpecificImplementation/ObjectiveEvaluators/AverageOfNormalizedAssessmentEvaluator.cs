@@ -25,7 +25,7 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation.ObjectiveEvalua
                 .SelectMany(schedules =>
                 {
                     var subjectCombinedAssistantAssessments = _repository.AssistantCombinations
-                        .Where(combination => combination.Subject.SequenceEqual(schedules.Key))
+                        .Where(combination => combination.Subject == schedules.Key)
                         .Cast<AssistantCombination>()
                         .Select(combination => combination.MaxAssessments)
                         .ToArray();

@@ -3,23 +3,23 @@ using Albar.AssistantAssignment.DataAbstractions;
 
 namespace Albar.AssistantAssignment.ThesisSpecificImplementation.Data
 {
-    public sealed class Schedule : ISchedule
+    public class Schedule : ISchedule
     {
-        public Schedule(byte[] id, byte[] subject)
+        public Schedule(int id, int subject)
         {
             Id = id;
             Subject = subject;
         }
 
-        public Schedule(byte[] id, byte[] subject, DayOfWeek day, SessionOfDay session, int lab) : this(id, subject)
+        public Schedule(int id, int subject, DayOfWeek day, SessionOfDay session, int lab) : this(id, subject)
         {
             Day = day;
             Session = session;
             Lab = lab;
         }
 
-        public byte[] Id { get; }
-        public byte[] Subject { get; }
+        public int Id { get; }
+        public int Subject { get; }
         public DayOfWeek Day { get; }
         public SessionOfDay Session { get; }
         public int Lab { get; }

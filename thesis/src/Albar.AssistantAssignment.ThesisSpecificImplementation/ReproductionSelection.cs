@@ -5,6 +5,7 @@ using System.Linq;
 using Albar.AssistantAssignment.Abstractions;
 using Albar.AssistantAssignment.Abstractions.Primitives;
 using Albar.AssistantAssignment.Algorithm;
+using Albar.AssistantAssignment.Algorithm.Utilities;
 using Albar.AssistantAssignment.ThesisSpecificImplementation.Data;
 using Bunnypro.Enumerable.Chunk;
 using Bunnypro.Enumerable.Combine;
@@ -28,22 +29,22 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
             PopulationCapacity capacity)
         {
             var chromosomeArray = chromosomes.ToArray();
-            var mutationCount = chromosomeArray.Length / 10;
             return chromosomeArray
-                .OrderByDescending(chromosome =>
-                    chromosome.ObjectiveValues[AssignmentObjective.JobCollision])
-                .Take(mutationCount)
+                .Where(chromosome =>
+                    (int) chromosome.ObjectiveValues[AssignmentObjective.AssistantScheduleCollision] > 0
+                )
                 .Select(chromosome =>
                 {
                     var schedules = chromosome.Phenotype
                         .Cast<ScheduleSolutionRepresentation>()
                         .ToArray();
                     var schema = schedules.Select(schedule => schedules.Any(other =>
-                        !other.Schedule.Id.SequenceEqual(schedule.Schedule.Id) &&
+                        other.Schedule.Id != schedule.Schedule.Id &&
                         other.Schedule.Day.Equals(schedule.Schedule.Day) &&
                         other.Schedule.Session.Equals(schedule.Schedule.Session) &&
-                        other.AssistantCombination.Assistants.Any(id =>
-                            schedule.AssistantCombination.Assistants.Any(a => a.SequenceEqual(id)))
+                        schedule.AssistantCombination.Assistants.Any(assistantId =>
+                            other.AssistantCombination.Assistants.Contains(assistantId)
+                        )
                     )).ToImmutableArray();
                     return new PreparedMutationParent<AssignmentObjective>(schema, chromosome);
                 });
@@ -65,18 +66,17 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
             };
             var comparer = new NonDominatedComparer<AssignmentObjective, double>(comparedObjective);
             var ordered = chromosomes.ToList();
-            ordered.Sort((first, second) =>
-                comparer.Compare(second.ObjectiveValues, first.ObjectiveValues));
+            ordered.Sort((first, second) => comparer.Compare(second.ObjectiveValues, first.ObjectiveValues));
             return ordered.Take(requiredParentCount).Combine(2)
                 .Select(parents =>
                 {
                     var parentArray = parents as IAssignmentChromosome<AssignmentObjective>[] ??
                                       parents.ToArray();
                     var parentsAssessments = parentArray.Select(parent =>
-                        parent.Genotype.Chunk(_repository.GeneSize).ToInnerArray()
+                        parent.Genotype.Chunk(_repository.AssistantCombinationIdByteSize).ToInnerArray()
                     ).Select(genotype => genotype.Select(gene =>
                             _repository.AssistantCombinations
-                                .First(combination => combination.Id.SequenceEqual(gene))
+                                .First(combination => combination.Id == ByteConverter.ToInt32(gene))
                         ).Cast<AssistantCombination>().Select(combination =>
                             IsBelowThreshold(
                                 combination.MaxAssessments,

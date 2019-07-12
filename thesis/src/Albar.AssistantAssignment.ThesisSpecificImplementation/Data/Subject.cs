@@ -7,7 +7,7 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation.Data
     public class Subject : ISubject
     {
         public Subject(
-            byte[] id, int assistantCountPerScheduleRequirement,
+            int id, int assistantCountPerScheduleRequirement,
             IReadOnlyDictionary<AssistantAssessment, double> assessmentThreshold)
         {
             Id = id;
@@ -15,9 +15,9 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation.Data
             AssessmentThreshold = assessmentThreshold;
         }
 
-        public byte[] Id { get; }
-        public ImmutableArray<byte[]> Assistants { get; set; }
-        public ImmutableArray<byte[]> Schedules { get; set; }
+        public int Id { get; }
+        public ImmutableArray<int> Assistants { get; set; }
+        public ImmutableArray<int> Schedules { get; set; }
         public int AssistantCountPerScheduleRequirement { get; }
         public IReadOnlyDictionary<AssistantAssessment, double> AssessmentThreshold { get; }
 
@@ -40,7 +40,7 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation.Data
 
         public override int GetHashCode()
         {
-            return Id != null ? Id.GetHashCode() : 0;
+            return Id.GetHashCode();
         }
     }
 }

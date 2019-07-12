@@ -8,7 +8,10 @@ namespace Albar.AssistantAssignment.Abstractions
 {
     public interface IDataRepository<T> where T : Enum
     {
-        byte GeneSize { get; }
+        byte SubjectIdByteSize { get; }
+        byte ScheduleIdByteSize { get; }
+        byte AssistantIdByteSize { get; }
+        byte AssistantCombinationIdByteSize { get; }
         IReadOnlyDictionary<T, OptimumValue> ObjectiveOptimumValue { get; }
         IReadOnlyDictionary<T, double> ObjectiveCoefficient { get; }
         ImmutableArray<ISubject> Subjects { get; }

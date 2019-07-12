@@ -2,7 +2,7 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
 {
     public enum AssignmentObjective
     {
-        JobCollision,
+        AssistantScheduleCollision,
         BelowThresholdAssessment,
         AboveThresholdAssessment,
         AverageOfNormalizedAssessment

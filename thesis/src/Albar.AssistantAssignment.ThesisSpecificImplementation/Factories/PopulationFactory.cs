@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Albar.AssistantAssignment.Abstractions;
 using Albar.AssistantAssignment.Algorithm;
+using Albar.AssistantAssignment.Algorithm.Utilities;
 using Bunnypro.GeneticAlgorithm.Abstractions;
 using Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions;
 using Bunnypro.GeneticAlgorithm.Primitives;
@@ -39,11 +40,13 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation.Factories
             while (chromosomes.Count < count)
             {
                 var genotype = _mapper.DataRepository.Schedules.SelectMany(schedule =>
-                    _mapper.DataRepository.AssistantCombinations
-                        .Where(c => c.Subject.SequenceEqual(schedule.Subject))
+                {
+                    var id = _mapper.DataRepository.AssistantCombinations
+                        .Where(c => c.Subject == schedule.Subject)
                         .OrderBy(_ => randomize.Next())
-                        .First().Id
-                );
+                        .First().Id;
+                    return ByteConverter.GetByte(_mapper.DataRepository.AssistantCombinationIdByteSize, id);
+                });
                 var chromosome = new AssignmentChromosome<AssignmentObjective>(genotype.ToImmutableArray());
                 if (chromosomes.Add(chromosome))
                     chromosome.Phenotype = _mapper.ToSolution(chromosome.Genotype.ToArray()).ToArray();

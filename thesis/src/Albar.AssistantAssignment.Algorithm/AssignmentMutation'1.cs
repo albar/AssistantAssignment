@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Albar.AssistantAssignment.Abstractions;
+using Albar.AssistantAssignment.Algorithm.Utilities;
 using Bunnypro.Enumerable.Chunk;
 using Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions;
 using Bunnypro.GeneticAlgorithm.Primitives;
@@ -42,16 +43,20 @@ namespace Albar.AssistantAssignment.Algorithm
             IAssignmentChromosome<T> chromosome)
         {
             return chromosome.Genotype
-                .Chunk(_mapper.DataRepository.GeneSize)
+                .Chunk(_mapper.DataRepository.AssistantCombinationIdByteSize)
                 .ToInnerArray()
                 .SelectMany((gene, locus) =>
                 {
                     if (!schema[locus]) return gene;
                     var subjectId = _mapper.DataRepository.Schedules[locus].Subject;
-                    return _mapper.DataRepository.AssistantCombinations
+                    var assistantCombinationId = _mapper.DataRepository.AssistantCombinations
                         .Where(c => c.Subject == subjectId)
                         .OrderBy(_ => new Random().Next())
                         .First().Id;
+                    return ByteConverter.GetByte(
+                        _mapper.DataRepository.AssistantCombinationIdByteSize,
+                        assistantCombinationId
+                    );
                 }).ToArray();
         }
     }
