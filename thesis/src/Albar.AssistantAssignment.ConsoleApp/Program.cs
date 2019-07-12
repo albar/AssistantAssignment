@@ -42,7 +42,7 @@ namespace Albar.AssistantAssignment.ConsoleApp
                     repository.ObjectiveOptimumValue,
                     repository.ObjectiveCoefficient)
                 {
-                    {AssignmentObjective.JobCollision, new JobCollisionEvaluator()},
+                    {AssignmentObjective.JobCollision, new AssistantScheduleCollisionEvaluator()},
                     {AssignmentObjective.AboveThresholdAssessment, new AboveThresholdAssessmentEvaluator(repository)},
                     {AssignmentObjective.BelowThresholdAssessment, new BelowThresholdAssessmentEvaluator(repository)},
                     {
