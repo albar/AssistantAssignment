@@ -24,15 +24,20 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
         }
 
         public IEnumerable<PreparedMutationParent<AssignmentObjective>> SelectMutationParent(
-            IEnumerable<IAssignmentChromosome<AssignmentObjective>> chromosomes, PopulationCapacity capacity)
+            IEnumerable<IAssignmentChromosome<AssignmentObjective>> chromosomes,
+            PopulationCapacity capacity)
         {
             var chromosomeArray = chromosomes.ToArray();
             var mutationCount = chromosomeArray.Length / 10;
-            return chromosomeArray.OrderByDescending(c => c.ObjectiveValues[AssignmentObjective.JobCollision])
+            return chromosomeArray
+                .OrderByDescending(chromosome =>
+                    chromosome.ObjectiveValues[AssignmentObjective.JobCollision])
                 .Take(mutationCount)
                 .Select(chromosome =>
                 {
-                    var schedules = chromosome.Phenotype.Cast<ScheduleSolutionRepresentation>().ToArray();
+                    var schedules = chromosome.Phenotype
+                        .Cast<ScheduleSolutionRepresentation>()
+                        .ToArray();
                     var schema = schedules.Select(schedule => schedules.Any(other =>
                         !other.Schedule.Id.SequenceEqual(schedule.Schedule.Id) &&
                         other.Schedule.Day.Equals(schedule.Schedule.Day) &&
@@ -45,12 +50,13 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
         }
 
         public IEnumerable<PreparedCrossoverParent<AssignmentObjective>> SelectCrossoverParent(
-            IEnumerable<IAssignmentChromosome<AssignmentObjective>> chromosomes, PopulationCapacity capacity)
+            IEnumerable<IAssignmentChromosome<AssignmentObjective>> chromosomes,
+            PopulationCapacity capacity)
         {
             var requiredParentCount = (int) Math.Ceiling((1 + Math.Sqrt(4 * capacity.Minimum + 1)) / 2);
             var subjectsAssessmentThreshold = _repository.Subjects
                 .Cast<Subject>()
-                .ToDictionary(s => s.Id, s => s.AssessmentThreshold);
+                .ToDictionary(subject => subject.Id, subject => subject.AssessmentThreshold);
             var comparedObjective = new Dictionary<AssignmentObjective, OptimumValue>
             {
                 {AssignmentObjective.AboveThresholdAssessment, OptimumValue.Maximum},
@@ -59,15 +65,18 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
             };
             var comparer = new NonDominatedComparer<AssignmentObjective, double>(comparedObjective);
             var ordered = chromosomes.ToList();
-            ordered.Sort((c1, c2) => comparer.Compare(c2.ObjectiveValues, c1.ObjectiveValues));
+            ordered.Sort((first, second) =>
+                comparer.Compare(second.ObjectiveValues, first.ObjectiveValues));
             return ordered.Take(requiredParentCount).Combine(2)
                 .Select(parents =>
                 {
-                    var parentArray = parents as IAssignmentChromosome<AssignmentObjective>[] ?? parents.ToArray();
+                    var parentArray = parents as IAssignmentChromosome<AssignmentObjective>[] ??
+                                      parents.ToArray();
                     var parentsAssessments = parentArray.Select(parent =>
                         parent.Genotype.Chunk(_repository.GeneSize).ToInnerArray()
                     ).Select(genotype => genotype.Select(gene =>
-                            _repository.AssistantCombinations.First(a => a.Id.SequenceEqual(gene))
+                            _repository.AssistantCombinations
+                                .First(combination => combination.Id.SequenceEqual(gene))
                         ).Cast<AssistantCombination>().Select(combination =>
                             IsBelowThreshold(
                                 combination.MaxAssessments,
@@ -80,7 +89,11 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
                     var schema = _repository.Schedules.Select((_, i) =>
                         parentsAssessments[0][i] * parentsAssessments[1][i] < 0
                     ).ToImmutableArray();
-                    return new PreparedCrossoverParent<AssignmentObjective>(schema, parentArray[0], parentArray[1]);
+                    return new PreparedCrossoverParent<AssignmentObjective>(
+                        schema,
+                        parentArray[0],
+                        parentArray[1]
+                    );
                 });
         }
 

@@ -27,15 +27,21 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
 
         public IEnumerable<IScheduleSolutionRepresentation> ToSolution(byte[] genotype)
         {
-            var byteSize = (byte) Math.Ceiling(Math.Log(DataRepository.Schedules.Length, 256));
+            var scheduleIdByteSize = (byte) Math.Ceiling(
+                Math.Log(DataRepository.Schedules.Length, 256)
+            );
+
             return genotype.Chunk(DataRepository.GeneSize).ToInnerArray()
                 .Select((gene, locus) =>
                 {
-                    var locusByte = ByteConverter.GetByte(byteSize, locus);
+                    var locusByte = ByteConverter.GetByte(scheduleIdByteSize, locus);
                     return new ScheduleSolutionRepresentation
                     {
-                        Schedule = (Schedule) DataRepository.Schedules.First(s => s.Id.SequenceEqual(locusByte)),
-                        AssistantCombination = (AssistantCombination) DataRepository.AssistantCombinations.First(c => c.Id.SequenceEqual(gene))
+                        Schedule = (Schedule) DataRepository.Schedules
+                            .First(schedule => schedule.Id.SequenceEqual(locusByte)),
+                        AssistantCombination = (AssistantCombination) DataRepository
+                            .AssistantCombinations
+                            .First(combination => combination.Id.SequenceEqual(gene))
                     };
                 });
         }

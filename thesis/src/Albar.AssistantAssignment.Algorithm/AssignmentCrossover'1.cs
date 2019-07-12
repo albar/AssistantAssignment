@@ -42,15 +42,15 @@ namespace Albar.AssistantAssignment.Algorithm
             IAssignmentChromosome<T> parent1,
             IAssignmentChromosome<T> parent2)
         {
-            var p1 = parent1.Genotype.Chunk(_mapper.DataRepository.GeneSize).ToAllArray();
-            var p2 = parent2.Genotype.Chunk(_mapper.DataRepository.GeneSize).ToAllArray();
+            var genotype1 = parent1.Genotype.Chunk(_mapper.DataRepository.GeneSize).ToAllArray();
+            var genotype2 = parent2.Genotype.Chunk(_mapper.DataRepository.GeneSize).ToAllArray();
             return schema.Select((isCrossover, locus) =>
-                isCrossover ? (p2[locus], p1[locus]) : (p1[locus], p2[locus])
+                isCrossover ? (genotype2[locus], genotype1[locus]) : (genotype1[locus], genotype2[locus])
             ).Aggregate(new[] {new List<byte>(), new List<byte>()}, (offspring, gene) =>
             {
-                var (g1, g2) = gene;
-                offspring[0].AddRange(g1);
-                offspring[1].AddRange(g2);
+                var (gene1, gene2) = gene;
+                offspring[0].AddRange(gene1);
+                offspring[1].AddRange(gene2);
                 return offspring;
             }).Select(off => off.ToArray());
         }

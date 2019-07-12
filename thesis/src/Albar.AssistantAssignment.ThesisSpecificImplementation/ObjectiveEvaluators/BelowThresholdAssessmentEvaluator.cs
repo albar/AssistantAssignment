@@ -4,11 +4,13 @@ using Albar.AssistantAssignment.ThesisSpecificImplementation.Data;
 
 namespace Albar.AssistantAssignment.ThesisSpecificImplementation.ObjectiveEvaluators
 {
-    public class BelowThresholdAssessmentEvaluator : IObjectiveEvaluator<AssignmentObjective>
+    public class BelowThresholdAssessmentEvaluator :
+        IObjectiveEvaluator<AssignmentObjective>
     {
         private readonly IDataRepository<AssignmentObjective> _repository;
 
-        public BelowThresholdAssessmentEvaluator(IDataRepository<AssignmentObjective> repository)
+        public BelowThresholdAssessmentEvaluator(
+            IDataRepository<AssignmentObjective> repository)
         {
             _repository = repository;
         }
@@ -18,10 +20,12 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation.ObjectiveEvalua
             return chromosome.Phenotype.Cast<ScheduleSolutionRepresentation>()
                 .Aggregate(0, (count, solution) =>
                 {
-                    var subject = (Subject) _repository.Subjects
-                        .First(s => s.Id.SequenceEqual(solution.Schedule.Subject));
-                    var state = subject.AssessmentThreshold.Any(threshold =>
-                        solution.AssistantCombination.MaxAssessments[threshold.Key] < threshold.Value
+                    var relatedSubject = (Subject) _repository.Subjects
+                        .First(subject =>
+                            subject.Id.SequenceEqual(solution.Schedule.Subject));
+                    var state = relatedSubject.AssessmentThreshold.Any(threshold =>
+                        solution.AssistantCombination.MaxAssessments[threshold.Key] <
+                        threshold.Value
                     );
                     return state ? count + 1 : count;
                 });

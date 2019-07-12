@@ -37,17 +37,22 @@ namespace Albar.AssistantAssignment.Algorithm
             return new HashSet<IChromosome<T>>(result.Select(_mapper.ToChromosome));
         }
 
-        private byte[] Mutate(ImmutableArray<bool> schema, IAssignmentChromosome<T> chromosome)
+        private byte[] Mutate(
+            ImmutableArray<bool> schema,
+            IAssignmentChromosome<T> chromosome)
         {
-            return chromosome.Genotype.Chunk(_mapper.DataRepository.GeneSize).ToInnerArray().SelectMany((gene, locus) =>
-            {
-                if (!schema[locus]) return gene;
-                var subjectId = _mapper.DataRepository.Schedules[locus].Subject;
-                return _mapper.DataRepository.AssistantCombinations
-                    .Where(c => c.Subject == subjectId)
-                    .OrderBy(_ => new Random().Next())
-                    .First().Id;
-            }).ToArray();
+            return chromosome.Genotype
+                .Chunk(_mapper.DataRepository.GeneSize)
+                .ToInnerArray()
+                .SelectMany((gene, locus) =>
+                {
+                    if (!schema[locus]) return gene;
+                    var subjectId = _mapper.DataRepository.Schedules[locus].Subject;
+                    return _mapper.DataRepository.AssistantCombinations
+                        .Where(c => c.Subject == subjectId)
+                        .OrderBy(_ => new Random().Next())
+                        .First().Id;
+                }).ToArray();
         }
     }
 }

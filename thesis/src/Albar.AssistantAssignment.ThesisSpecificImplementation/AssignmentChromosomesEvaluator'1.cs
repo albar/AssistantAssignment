@@ -24,8 +24,8 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
 
         public AssignmentChromosomesEvaluator(
             IReadOnlyDictionary<T, OptimumValue> optimum,
-            IReadOnlyDictionary<T, double> coefficient)
-            : base(optimum, coefficient)
+            IReadOnlyDictionary<T, double> coefficients)
+            : base(optimum, coefficients)
         {
         }
 
