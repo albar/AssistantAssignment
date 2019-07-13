@@ -45,7 +45,7 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation.Factories
                         .Where(c => c.Subject == schedule.Subject)
                         .OrderBy(_ => randomize.Next())
                         .First().Id;
-                    return ByteConverter.GetByte(_mapper.DataRepository.AssistantCombinationIdByteSize, id);
+                    return ByteConverter.GetByte(_mapper.DataRepository.GeneByteSize, id);
                 });
                 var chromosome = new AssignmentChromosome<AssignmentObjective>(genotype.ToImmutableArray());
                 if (chromosomes.Add(chromosome))

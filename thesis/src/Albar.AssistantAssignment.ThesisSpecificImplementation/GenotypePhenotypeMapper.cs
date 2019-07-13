@@ -28,7 +28,7 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
 
         public IEnumerable<IScheduleSolutionRepresentation> ToSolution(byte[] genotype)
         {
-            return genotype.Chunk(DataRepository.AssistantCombinationIdByteSize).ToInnerArray()
+            return genotype.Chunk(DataRepository.GeneByteSize).ToInnerArray()
                 .Select((gene, locus) =>
                 {
                     return new ScheduleSolutionRepresentation
@@ -47,7 +47,7 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
         {
             var scheduleSolution = solution as IScheduleSolutionRepresentation[] ?? solution.ToArray();
             var genotype = scheduleSolution.SelectMany(schedule => ByteConverter.GetByte(
-                DataRepository.AssistantCombinationIdByteSize,
+                DataRepository.GeneByteSize,
                 schedule.AssistantCombination.Id
             ));
 

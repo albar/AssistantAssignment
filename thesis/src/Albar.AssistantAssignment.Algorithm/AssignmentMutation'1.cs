@@ -44,7 +44,7 @@ namespace Albar.AssistantAssignment.Algorithm
             IAssignmentChromosome<T> chromosome)
         {
             return chromosome.Genotype
-                .Chunk(_mapper.DataRepository.AssistantCombinationIdByteSize)
+                .Chunk(_mapper.DataRepository.GeneByteSize)
                 .ToInnerArray()
                 .SelectMany((gene, locus) =>
                 {
@@ -55,7 +55,7 @@ namespace Albar.AssistantAssignment.Algorithm
                         .OrderBy(_ => new Random().Next())
                         .First().Id;
                     return ByteConverter.GetByte(
-                        _mapper.DataRepository.AssistantCombinationIdByteSize,
+                        _mapper.DataRepository.GeneByteSize,
                         assistantCombinationId
                     );
                 }).ToArray();
