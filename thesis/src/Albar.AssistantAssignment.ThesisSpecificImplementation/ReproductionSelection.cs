@@ -79,20 +79,12 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
             var requiredParentCount = (int) Math.Ceiling((1 + Math.Sqrt(4 * capacity.Minimum + 1)) / 2);
             var subjectsAssessmentThreshold = _repository.Subjects
                 .ToDictionary(subject => subject, subject => ((Subject) subject).AssessmentThreshold);
-            var comparedObjective = new Dictionary<AssignmentObjective, OptimumValue>
-            {
-                {AssignmentObjective.AboveThresholdAssessment, OptimumValue.Maximum},
-                {AssignmentObjective.BelowThresholdAssessment, OptimumValue.Minimum},
-                {AssignmentObjective.AverageOfNormalizedAssessment, OptimumValue.Maximum}
-            };
-            var comparer = new NonDominatedComparer<AssignmentObjective, double>(comparedObjective);
-            var ordered = chromosomes.ToList();
-            ordered.Sort((first, second) => comparer.Compare(second.ObjectiveValues, first.ObjectiveValues));
-            return ordered.Take(requiredParentCount).Combine(2).ToInnerArray()
+            return chromosomes.OrderBy(chromosome => chromosome.Fitness)
+                .Take(requiredParentCount).Combine(2).ToInnerArray()
                 .Select(parents =>
                 {
                     var parentsAssessments = parents.Select(parent =>
-                        parent.Genotype.Chunk(_repository.AssistantCombinationIdByteSize).ToInnerArray()
+                        parent.Genotype.Chunk(_repository.GeneByteSize).ToInnerArray()
                     ).Select(genotype =>
                         genotype.Select(gene => _repository.AssistantCombinations
                             .First(combination => combination.Id == ByteConverter.ToInt32(gene))
@@ -108,6 +100,7 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
                     var schema = _repository.Schedules.Select((_, i) =>
                         parentsAssessments[0][i] * parentsAssessments[1][i] < 0
                     ).ToImmutableArray();
+
                     return new PreparedCrossoverParent<AssignmentObjective>(
                         schema,
                         parents[0],
