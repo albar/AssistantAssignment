@@ -47,6 +47,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Albar.AssistantAssignment.T
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Albar.AssistantAssignment.WebApi", "thesis\src\Albar.AssistantAssignment.WebApi\Albar.AssistantAssignment.WebApi.csproj", "{84396E83-A5B1-46F3-8BC8-45145B119380}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bunnypro.Enumerable.Utility", "utility\Bunnypro.Enumerable.Utility\Bunnypro.Enumerable.Utility.csproj", "{F841A664-2E75-4873-9ED6-66C1F4DA739B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -276,6 +278,18 @@ Global
 		{84396E83-A5B1-46F3-8BC8-45145B119380}.Release|x64.Build.0 = Release|Any CPU
 		{84396E83-A5B1-46F3-8BC8-45145B119380}.Release|x86.ActiveCfg = Release|Any CPU
 		{84396E83-A5B1-46F3-8BC8-45145B119380}.Release|x86.Build.0 = Release|Any CPU
+		{F841A664-2E75-4873-9ED6-66C1F4DA739B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F841A664-2E75-4873-9ED6-66C1F4DA739B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F841A664-2E75-4873-9ED6-66C1F4DA739B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F841A664-2E75-4873-9ED6-66C1F4DA739B}.Debug|x64.Build.0 = Debug|Any CPU
+		{F841A664-2E75-4873-9ED6-66C1F4DA739B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F841A664-2E75-4873-9ED6-66C1F4DA739B}.Debug|x86.Build.0 = Debug|Any CPU
+		{F841A664-2E75-4873-9ED6-66C1F4DA739B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F841A664-2E75-4873-9ED6-66C1F4DA739B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F841A664-2E75-4873-9ED6-66C1F4DA739B}.Release|x64.ActiveCfg = Release|Any CPU
+		{F841A664-2E75-4873-9ED6-66C1F4DA739B}.Release|x64.Build.0 = Release|Any CPU
+		{F841A664-2E75-4873-9ED6-66C1F4DA739B}.Release|x86.ActiveCfg = Release|Any CPU
+		{F841A664-2E75-4873-9ED6-66C1F4DA739B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{122EB974-B9E8-49A2-A255-6BFC9032ADF7} = {FEB5B73F-21AE-418D-8CA8-DB5DB8BDAB1E}
@@ -297,5 +311,6 @@ Global
 		{5AA8FF50-A5C1-49CD-847A-51B81C648066} = {CC888DA2-C11B-4051-AAE8-6C454A13A232}
 		{A8FD5ABB-CCD8-4591-B20E-5EFF0283AEF4} = {CC888DA2-C11B-4051-AAE8-6C454A13A232}
 		{84396E83-A5B1-46F3-8BC8-45145B119380} = {CC888DA2-C11B-4051-AAE8-6C454A13A232}
+		{F841A664-2E75-4873-9ED6-66C1F4DA739B} = {91BFB3EF-4806-49FD-BDBC-370D0166BE3A}
 	EndGlobalSection
 EndGlobal

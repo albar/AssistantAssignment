@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Albar.AssistantAssignment.Abstractions;
 using Bunnypro.Enumerable.Chunk;
+using Bunnypro.Enumerable.Utility;
 using Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions;
 using Bunnypro.GeneticAlgorithm.Primitives;
 
@@ -29,8 +30,10 @@ namespace Albar.AssistantAssignment.Algorithm
         {
             var crossoverTasks = _selection
                 .SelectCrossoverParent(chromosomes.Cast<IAssignmentChromosome<T>>(), capacity)
-                .Select(selection => Task.Run(() =>
-                    Crossover(selection.Schema, selection.Parent1, selection.Parent2), token));
+                .Select(selection => Task.Run(
+                    () => Crossover(selection.Schema, selection.Parent1, selection.Parent2),
+                    token
+                ));
             token.ThrowIfCancellationRequested();
             var result = await Task.WhenAll(crossoverTasks);
             return new HashSet<IChromosome<T>>(result.SelectMany(r => r).Select(_mapper.ToChromosome));

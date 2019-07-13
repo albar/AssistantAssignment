@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Albar.AssistantAssignment.Abstractions;
 using Albar.AssistantAssignment.Algorithm.Utilities;
 using Bunnypro.Enumerable.Chunk;
+using Bunnypro.Enumerable.Utility;
 using Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions;
 using Bunnypro.GeneticAlgorithm.Primitives;
 

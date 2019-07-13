@@ -22,10 +22,10 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation.ObjectiveEvalua
                 .Cast<AssistantAssessment>().ToArray();
 
             return chromosome.Phenotype.GroupBy(solution => solution.Schedule.Subject)
-                .SelectMany(schedules =>
+                .SelectMany(groupedSchedules =>
                 {
                     var subjectCombinedAssistantAssessments = _repository.AssistantCombinations
-                        .Where(combination => combination.Subject == schedules.Key)
+                        .Where(combination => combination.Subject.Equals(groupedSchedules.Key))
                         .Cast<AssistantCombination>()
                         .Select(combination => combination.MaxAssessments)
                         .ToArray();
@@ -57,7 +57,7 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation.ObjectiveEvalua
                                 };
                             });
 
-                    return schedules.Select(representation => representation.AssistantCombination)
+                    return groupedSchedules.Select(representation => representation.AssistantCombination)
                         .Cast<AssistantCombination>()
                         .Select(combination => combination.MaxAssessments.Average(assessment =>
                             assessmentNormalizer[assessment.Key].Invoke(assessment.Value)

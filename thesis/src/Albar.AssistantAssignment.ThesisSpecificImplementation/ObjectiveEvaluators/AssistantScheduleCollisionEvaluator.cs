@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using Albar.AssistantAssignment.Abstractions;
 using Albar.AssistantAssignment.ThesisSpecificImplementation.Data;
@@ -8,15 +9,15 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation.ObjectiveEvalua
     {
         public double Evaluate(IAssignmentChromosome<AssignmentObjective> chromosome)
         {
-            var schedules = chromosome.Phenotype.Select(representation => new
+            var representations = chromosome.Phenotype.Select(representation => new
             {
                 Schedule = (Schedule) representation.Schedule,
                 Combination = representation.AssistantCombination
             }).ToArray();
 
-            return schedules.Aggregate(0, (count, schedule) =>
+            return representations.Aggregate(0, (count, schedule) =>
             {
-                var isCollided = schedules.Any(other =>
+                var isCollided = representations.Any(other =>
                     other.Schedule.Id != schedule.Schedule.Id &&
                     other.Schedule.Day.Equals(schedule.Schedule.Day) &&
                     other.Schedule.Session.Equals(schedule.Schedule.Session) &&

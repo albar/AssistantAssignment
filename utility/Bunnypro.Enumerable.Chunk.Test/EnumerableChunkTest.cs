@@ -1,3 +1,4 @@
+using Bunnypro.Enumerable.Utility;
 using Xunit;
 
 namespace Bunnypro.Enumerable.Chunk.Test

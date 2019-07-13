@@ -10,6 +10,7 @@ using Albar.AssistantAssignment.DataAbstractions;
 using Albar.AssistantAssignment.ThesisSpecificImplementation.Data;
 using Bunnypro.Enumerable.Chunk;
 using Bunnypro.Enumerable.Combine;
+using Bunnypro.Enumerable.Utility;
 using Bunnypro.GeneticAlgorithm.MultiObjective.NSGA2;
 using Bunnypro.GeneticAlgorithm.MultiObjective.Primitives;
 using Bunnypro.GeneticAlgorithm.Primitives;
@@ -36,17 +37,37 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
                 )
                 .Select(chromosome =>
                 {
-                    var schedules = chromosome.Phenotype
+                    var representations = chromosome.Phenotype
                         .Cast<ScheduleSolutionRepresentation>()
                         .ToArray();
-                    var schema = schedules.Select(schedule => schedules.Any(other =>
-                        other.Schedule.Id != schedule.Schedule.Id &&
-                        other.Schedule.Day.Equals(schedule.Schedule.Day) &&
-                        other.Schedule.Session.Equals(schedule.Schedule.Session) &&
-                        schedule.AssistantCombination.Assistants.Any(assistantId =>
-                            other.AssistantCombination.Assistants.Contains(assistantId)
-                        )
-                    )).ToImmutableArray();
+                    var collidedRepresentations = representations.ToDictionary(
+                        representation => representation.Schedule.Id, _ => false
+                    );
+                    foreach (var representation in representations)
+                    {
+                        if (collidedRepresentations[representation.Schedule.Id]) continue;
+                        var currentCollidedRepresentations = representations.Where(other =>
+                            other.Schedule.Id != representation.Schedule.Id &&
+                            other.Schedule.Day.Equals(representation.Schedule.Day) &&
+                            other.Schedule.Session.Equals(representation.Schedule.Session) &&
+                            representation.AssistantCombination.Assistants.Any(assistant =>
+                                other.AssistantCombination.Assistants.Contains(assistant)
+                            )
+                        ).Select(r => r.Schedule.Id).ToArray();
+                        if (currentCollidedRepresentations.Length > 0)
+                            collidedRepresentations[representation.Schedule.Id] = true;
+
+                        foreach (var collided in currentCollidedRepresentations)
+                        {
+                            if (collidedRepresentations[collided]) continue;
+                            collidedRepresentations[collided] = true;
+                        }
+                    }
+
+                    var schema = collidedRepresentations
+                        .OrderBy(collision => collision.Key)
+                        .Select(collision => collision.Value)
+                        .ToImmutableArray();
                     return new PreparedMutationParent<AssignmentObjective>(schema, chromosome);
                 });
         }
@@ -57,8 +78,7 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
         {
             var requiredParentCount = (int) Math.Ceiling((1 + Math.Sqrt(4 * capacity.Minimum + 1)) / 2);
             var subjectsAssessmentThreshold = _repository.Subjects
-                .Cast<Subject>()
-                .ToDictionary(subject => subject, subject => subject.AssessmentThreshold);
+                .ToDictionary(subject => subject, subject => ((Subject) subject).AssessmentThreshold);
             var comparedObjective = new Dictionary<AssignmentObjective, OptimumValue>
             {
                 {AssignmentObjective.AboveThresholdAssessment, OptimumValue.Maximum},
@@ -68,20 +88,18 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
             var comparer = new NonDominatedComparer<AssignmentObjective, double>(comparedObjective);
             var ordered = chromosomes.ToList();
             ordered.Sort((first, second) => comparer.Compare(second.ObjectiveValues, first.ObjectiveValues));
-            return ordered.Take(requiredParentCount).Combine(2)
+            return ordered.Take(requiredParentCount).Combine(2).ToInnerArray()
                 .Select(parents =>
                 {
-                    var parentArray = parents as IAssignmentChromosome<AssignmentObjective>[] ??
-                                      parents.ToArray();
-                    var parentsAssessments = parentArray.Select(parent =>
+                    var parentsAssessments = parents.Select(parent =>
                         parent.Genotype.Chunk(_repository.AssistantCombinationIdByteSize).ToInnerArray()
-                    ).Select(genotype => genotype.Select(gene =>
-                            _repository.AssistantCombinations
-                                .First(combination => combination.Id == ByteConverter.ToInt32(gene))
+                    ).Select(genotype =>
+                        genotype.Select(gene => _repository.AssistantCombinations
+                            .First(combination => combination.Id == ByteConverter.ToInt32(gene))
                         ).Cast<AssistantCombination>().Select(combination =>
                             IsBelowThreshold(
                                 combination.MaxAssessments,
-                                subjectsAssessmentThreshold[(Subject) combination.Subject])
+                                subjectsAssessmentThreshold[combination.Subject])
                                 ? -1
                                 : 1
                         ).ToArray()
@@ -92,8 +110,8 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
                     ).ToImmutableArray();
                     return new PreparedCrossoverParent<AssignmentObjective>(
                         schema,
-                        parentArray[0],
-                        parentArray[1]
+                        parents[0],
+                        parents[1]
                     );
                 });
         }

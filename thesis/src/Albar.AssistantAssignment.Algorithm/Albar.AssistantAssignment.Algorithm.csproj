@@ -6,6 +6,7 @@
     <ProjectReference Include="..\Albar.AssistantAssignment.Abstractions\Albar.AssistantAssignment.Abstractions.csproj" />
     <ProjectReference Include="..\..\..\utility\Bunnypro.Enumerable.Chunk\Bunnypro.Enumerable.Chunk.csproj" />
     <ProjectReference Include="..\..\..\utility\Bunnypro.Enumerable.Combine\Bunnypro.Enumerable.Combine.csproj" />
+    <ProjectReference Include="..\..\..\utility\Bunnypro.Enumerable.Utility\Bunnypro.Enumerable.Utility.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

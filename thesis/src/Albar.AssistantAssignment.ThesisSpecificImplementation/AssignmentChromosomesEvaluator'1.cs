@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Albar.AssistantAssignment.Abstractions;
 using Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions;
 using Bunnypro.GeneticAlgorithm.MultiObjective.Core;
@@ -34,19 +36,30 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
             _evaluators.Add(objective, evaluator);
         }
 
-        protected override void EvaluateObjectiveValuesAll(IEnumerable<IChromosome<T>> chromosomes)
+        protected override async Task<IEnumerable<IChromosome<T>>> EvaluateObjectiveValuesAll(
+            IEnumerable<IChromosome<T>> chromosomes,
+            CancellationToken token = default)
         {
             if (_evaluators.Count != Enum.GetNames(typeof(T)).Length)
                 throw new Exception("Some assignment objective evaluator is not implemented");
-            foreach (var chromosome in chromosomes)
-                chromosome.ObjectiveValues = EvaluateObjectiveValues(chromosome);
+            var evaluableChromosome = chromosomes.Where(chromosome => chromosome.Fitness <= 0).ToArray();
+            var chromosomeEvaluationTasks = evaluableChromosome.Select(async chromosome =>
+            {
+                chromosome.ObjectiveValues = await EvaluateObjectiveValues(chromosome);
+            });
+            await Task.WhenAll(chromosomeEvaluationTasks);
+            return evaluableChromosome;
         }
 
-        private ObjectiveValues<T> EvaluateObjectiveValues(IChromosome<T> chromosome)
+        private async Task<ObjectiveValues<T>> EvaluateObjectiveValues(IChromosome<T> chromosome)
         {
             if (!(chromosome is IAssignmentChromosome<T> assignmentChromosome))
                 throw new SystemException("The chromosome requires to be " + typeof(IAssignmentChromosome<T>));
-            var values = _evaluators.ToDictionary(e => e.Key, e => e.Value.Evaluate(assignmentChromosome));
+            var evaluationTasks = _evaluators.Select(evaluator => Task.Run(() =>
+                new KeyValuePair<T, double>(evaluator.Key, evaluator.Value.Evaluate(assignmentChromosome))
+            ));
+            var results = await Task.WhenAll(evaluationTasks);
+            var values = results.ToDictionary(result => result.Key, result => result.Value);
             return new ObjectiveValues<T>(values);
         }
 

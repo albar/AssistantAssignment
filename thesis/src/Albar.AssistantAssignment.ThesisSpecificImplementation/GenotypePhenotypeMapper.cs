@@ -7,6 +7,7 @@ using Albar.AssistantAssignment.Algorithm;
 using Albar.AssistantAssignment.Algorithm.Utilities;
 using Albar.AssistantAssignment.ThesisSpecificImplementation.Data;
 using Bunnypro.Enumerable.Chunk;
+using Bunnypro.Enumerable.Utility;
 
 namespace Albar.AssistantAssignment.ThesisSpecificImplementation
 {
