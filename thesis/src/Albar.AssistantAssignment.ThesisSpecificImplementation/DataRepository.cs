@@ -6,7 +6,6 @@ using Albar.AssistantAssignment.Abstractions;
 using Albar.AssistantAssignment.DataAbstractions;
 using Albar.AssistantAssignment.ThesisSpecificImplementation.Data;
 using Bunnypro.Enumerable.Combine;
-using Bunnypro.GeneticAlgorithm.MultiObjective.Primitives;
 
 namespace Albar.AssistantAssignment.ThesisSpecificImplementation
 {
@@ -16,20 +15,17 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
             ImmutableArray<ISubject> subjects,
             ImmutableArray<ISchedule> schedules,
             ImmutableArray<IAssistant> assistants,
-            IReadOnlyDictionary<AssignmentObjective, OptimumValue> optimumValue,
-            IReadOnlyDictionary<AssignmentObjective, double> coefficient)
+            IReadOnlyDictionary<AssignmentObjective, double> coefficients)
         {
             Subjects = subjects;
             Schedules = schedules;
             Assistants = assistants;
-            ObjectiveOptimumValue = optimumValue;
-            ObjectiveCoefficient = coefficient;
+            ObjectiveCoefficients = coefficients;
             AssistantCombinations = CombineAssistants();
         }
 
         public byte GeneByteSize { get; private set; }
-        public IReadOnlyDictionary<AssignmentObjective, OptimumValue> ObjectiveOptimumValue { get; }
-        public IReadOnlyDictionary<AssignmentObjective, double> ObjectiveCoefficient { get; }
+        public IReadOnlyDictionary<AssignmentObjective, double> ObjectiveCoefficients { get; }
         public ImmutableArray<ISubject> Subjects { get; }
         public ImmutableArray<ISchedule> Schedules { get; }
         public ImmutableArray<IAssistant> Assistants { get; }

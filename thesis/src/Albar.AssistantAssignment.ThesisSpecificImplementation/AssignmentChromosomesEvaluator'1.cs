@@ -19,15 +19,8 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
         private readonly IDictionary<T, IObjectiveEvaluator<T>> _evaluators =
             new Dictionary<T, IObjectiveEvaluator<T>>();
 
-        public AssignmentChromosomesEvaluator(IReadOnlyDictionary<T, OptimumValue> optimum)
-            : base(optimum)
-        {
-        }
-
-        public AssignmentChromosomesEvaluator(
-            IReadOnlyDictionary<T, OptimumValue> optimum,
-            IReadOnlyDictionary<T, double> coefficients)
-            : base(optimum, coefficients)
+        public AssignmentChromosomesEvaluator(IReadOnlyDictionary<T, double> coefficients)
+            : base(coefficients)
         {
         }
 

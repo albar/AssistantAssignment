@@ -38,32 +38,47 @@ namespace Albar.AssistantAssignment.ConsoleApp
             );
 
             var objectiveEvaluator =
-                new AssignmentChromosomesEvaluator<AssignmentObjective>(
-                    repository.ObjectiveOptimumValue,
-                    repository.ObjectiveCoefficient)
+                new AssignmentChromosomesEvaluator<AssignmentObjective>(repository.ObjectiveCoefficients)
                 {
-                    {AssignmentObjective.JobCollision, new AssistantScheduleCollisionEvaluator()},
-                    {AssignmentObjective.AboveThresholdAssessment, new AboveThresholdAssessmentEvaluator(repository)},
-                    {AssignmentObjective.BelowThresholdAssessment, new BelowThresholdAssessmentEvaluator(repository)},
+                    {AssignmentObjective.AssistantScheduleCollision, new AssistantScheduleCollisionEvaluator()},
+                    {AssignmentObjective.AboveThresholdAssessment, new AboveThresholdAssessmentEvaluator()},
+                    {AssignmentObjective.BelowThresholdAssessment, new BelowThresholdAssessmentEvaluator()},
                     {
                         AssignmentObjective.AverageOfNormalizedAssessment,
                         new AverageOfNormalizedAssessmentEvaluator(repository)
                     }
                 };
             var nsga = new NSGA2<AssignmentObjective>(reproduction, objectiveEvaluator,
-                repository.ObjectiveOptimumValue);
+                repository.ObjectiveCoefficients);
             var ga = new GeneticAlgorithm(nsga);
 
             // Initialization
             var population = new PopulationFactory<AssignmentObjective>(genotypePhenotypeMapper, objectiveEvaluator)
                 .Create(capacity);
-            objectiveEvaluator.EvaluateAll(population.Chromosomes.Cast<IChromosome<AssignmentObjective>>());
+            await objectiveEvaluator.EvaluateAll(population.Chromosomes.Cast<IChromosome<AssignmentObjective>>());
 
 //            Print(repository);
 
 //            Console.WriteLine("{0}, {1}", capacity.Minimum, capacity.Maximum);
 //            // GA Iteration
+
             var result = await ga.EvolveUntil(population, termination);
+//            var below = repository.Schedules.Length * 25 / 100;
+//            var result = await ga.EvolveUntil(population, states =>
+//                termination(states) &&
+//                population.Chromosomes
+//                    .Cast<IAssignmentChromosome<AssignmentObjective>>()
+////                    .OrderBy(c => c.Fitness).Last().ObjectiveValues[AssignmentObjective.AssistantScheduleCollision] == 0
+//                    .Any(c =>
+//                        (int) c.ObjectiveValues[AssignmentObjective.AssistantScheduleCollision] == 0
+//                    )
+//                || population.Chromosomes
+//                    .Cast<IAssignmentChromosome<AssignmentObjective>>()
+//                    .Any(c =>
+//                        (int) c.ObjectiveValues[AssignmentObjective.AssistantScheduleCollision] == 0
+//                        && (int) c.ObjectiveValues[AssignmentObjective.BelowThresholdAssessment] < below
+//                    )
+//            );
 
 //            foreach (var chromosome in population.Chromosomes)
 //            {
@@ -87,7 +102,7 @@ namespace Albar.AssistantAssignment.ConsoleApp
 //            }
 
 //            objectiveEvaluator.EvaluateAll(population.Chromosomes.Cast<IChromosome<AssignmentObjective>>());
-            var fronts = new FastNonDominatedSort<AssignmentObjective>(repository.ObjectiveOptimumValue)
+            var fronts = new FastNonDominatedSort<AssignmentObjective>(repository.ObjectiveCoefficients)
                 .Sort(population.Chromosomes.Cast<IChromosome<AssignmentObjective>>())
                 .Select(f =>
                     f.Cast<AssignmentChromosome<AssignmentObjective>>().OrderByDescending(s => s.Fitness).ToArray()
@@ -103,20 +118,6 @@ namespace Albar.AssistantAssignment.ConsoleApp
 //                Console.WriteLine(string.Join(", ", solution.ObjectiveValues.Select(a => a.Value)));
 //            }
 
-//            var solutions = bestSolution.Select(s => (ScheduleSolutionRepresentation) s)
-//                .OrderBy(s => s.Schedule.Day)
-//                .ThenBy(s => s.Schedule.Session)
-//                .ThenBy(s => s.Schedule.Lab)
-//                .ToArray();
-//            foreach (var solution in solutions)
-//            {
-//                Console.WriteLine("Schedule: {0}", ByteConverter.ToString(solution.Schedule.Id));
-//                Console.WriteLine("\tSubject: {0}", ByteConverter.ToString(solution.Schedule.Subject));
-//                Console.WriteLine("\tDay: {0} Session: {1}", solution.Schedule.Day, solution.Schedule.Session);
-//                Console.WriteLine("\tAssistants: {0}",
-//                    string.Join(", ", solution.AssistantCombination.Assistants.Select(ByteConverter.ToString)));
-//            }
-
 //            foreach (var assistant in repository.Assistants)
 //            {
 //                var count = solutions.Count(s => s.AssistantCombination.Assistants.Contains(assistant.Id));
@@ -129,7 +130,7 @@ namespace Albar.AssistantAssignment.ConsoleApp
                 .Cast<AssignmentObjective>()
                 .Select(a =>
                 {
-                    var sign = repository.ObjectiveOptimumValue[a] == OptimumValue.Maximum ? 1 : -1;
+                    var sign = repository.ObjectiveCoefficients[a];
                     var ordered = chromosomes.Select(c => c.ObjectiveValues[a])
                         .OrderBy(v => v * sign)
                         .ToArray();
@@ -149,7 +150,7 @@ namespace Albar.AssistantAssignment.ConsoleApp
                         "\tFitness: {0:0.000}, Objectives: {1}",
                         solution.Fitness,
                         string.Join(", ", solution.ObjectiveValues.Select(o =>
-                            $"{o.Value:00.000} ({repository.ObjectiveOptimumValue[o.Key]})")
+                            $"{o.Value:00.000} ({repository.ObjectiveCoefficients[o.Key]})")
                         )
                     );
                 }
@@ -163,12 +164,27 @@ namespace Albar.AssistantAssignment.ConsoleApp
             foreach (var assistant in repository.Assistants)
             {
                 Console.WriteLine(
-                    "Assistant: {0}, Schedules: {1}",
-                    ByteConverter.ToString(assistant.Id),
+                    "Assistant: {0}, Subjects: {1}, Schedules: {2}",
+                    assistant.Id,
+                    string.Join(",", assistant.Subjects.Select(s => s.Id)),
                     best.Phenotype.Count(solution =>
-                        solution.AssistantCombination.Assistants.Any(a => a.SequenceEqual(assistant.Id))
+                        solution.AssistantCombination.Assistants.Contains(assistant)
                     )
                 );
+            }
+            
+            var solutions = best.Phenotype.Select(s => (ScheduleSolutionRepresentation) s)
+                .OrderBy(s => s.Schedule.Day)
+                .ThenBy(s => s.Schedule.Session)
+                .ThenBy(s => s.Schedule.Lab)
+                .ToArray();
+            foreach (var solution in solutions)
+            {
+                Console.WriteLine("Schedule: {0}", solution.Schedule.Id);
+                Console.WriteLine("\tSubject: {0}", solution.Schedule.Subject.Id);
+                Console.WriteLine("\tDay: {0} Session: {1}", solution.Schedule.Day, solution.Schedule.Session);
+                Console.WriteLine("\tAssistants: {0}",
+                    string.Join(", ", solution.AssistantCombination.Assistants.Select(a => a.Id)));
             }
 
 //
@@ -177,11 +193,11 @@ namespace Albar.AssistantAssignment.ConsoleApp
 
         private static void Test()
         {
-            var sorter = new FastNonDominatedSort<Fuck>(new Dictionary<Fuck, OptimumValue>
+            var sorter = new FastNonDominatedSort<Fuck>(new Dictionary<Fuck, double>
             {
-                {Fuck.A, OptimumValue.Maximum},
-                {Fuck.B, OptimumValue.Maximum},
-                {Fuck.C, OptimumValue.Maximum},
+                {Fuck.A, 1d},
+                {Fuck.B, 1d},
+                {Fuck.C, 1d},
             });
             var items = new[]
             {
@@ -262,17 +278,17 @@ namespace Albar.AssistantAssignment.ConsoleApp
             var subjects = DummyDataFactory.CreateSubject(5);
             var schedules = DummyDataFactory.CreateSchedule(subjects.Cast<Subject>());
             var assistants = DummyDataFactory.CreateAssistant(subjects.Cast<Subject>());
-            var optimum = new Dictionary<AssignmentObjective, OptimumValue>
-            {
-                {AssignmentObjective.JobCollision, OptimumValue.Minimum},
-                {AssignmentObjective.BelowThresholdAssessment, OptimumValue.Minimum},
-                {AssignmentObjective.AboveThresholdAssessment, OptimumValue.Maximum},
-                {AssignmentObjective.AverageOfNormalizedAssessment, OptimumValue.Maximum}
-            };
+//            var optimum = new Dictionary<AssignmentObjective, OptimumValue>
+//            {
+//                {AssignmentObjective.AssistantScheduleCollision, OptimumValue.Minimum},
+//                {AssignmentObjective.BelowThresholdAssessment, OptimumValue.Minimum},
+//                {AssignmentObjective.AboveThresholdAssessment, OptimumValue.Maximum},
+//                {AssignmentObjective.AverageOfNormalizedAssessment, OptimumValue.Maximum}
+//            };
             var coefficient = new Dictionary<AssignmentObjective, double>
             {
-                {AssignmentObjective.JobCollision, 10d},
-                {AssignmentObjective.BelowThresholdAssessment, 1d},
+                {AssignmentObjective.AssistantScheduleCollision, -10d},
+                {AssignmentObjective.BelowThresholdAssessment, -1d},
                 {AssignmentObjective.AboveThresholdAssessment, 3d},
                 {AssignmentObjective.AverageOfNormalizedAssessment, 1d}
             };
@@ -280,7 +296,7 @@ namespace Albar.AssistantAssignment.ConsoleApp
                 subjects.ToImmutableArray(),
                 schedules.ToImmutableArray(),
                 assistants.ToImmutableArray(),
-                optimum,
+//                optimum,
                 coefficient
             );
         }
