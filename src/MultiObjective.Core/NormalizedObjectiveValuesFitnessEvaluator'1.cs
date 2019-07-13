@@ -4,30 +4,20 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions;
-using Bunnypro.GeneticAlgorithm.MultiObjective.Primitives;
 
 namespace Bunnypro.GeneticAlgorithm.MultiObjective.Core
 {
     public abstract class NormalizedObjectiveValuesFitnessEvaluator<T> : IChromosomeEvaluator<T> where T : Enum
     {
-        private readonly IReadOnlyDictionary<T, OptimumValue> _optimum;
         private readonly IReadOnlyDictionary<T, double> _coefficients;
 
-        public NormalizedObjectiveValuesFitnessEvaluator()
-            : this(Enum.GetValues(typeof(T)).Cast<T>().ToDictionary(k => k, _ => OptimumValue.Maximum))
+        public NormalizedObjectiveValuesFitnessEvaluator() :
+            this(Enum.GetValues(typeof(T)).Cast<T>().ToDictionary(k => k, _ => 1d))
         {
         }
 
-        public NormalizedObjectiveValuesFitnessEvaluator(IReadOnlyDictionary<T, OptimumValue> optimum)
-            : this(optimum, Enum.GetValues(typeof(T)).Cast<T>().ToDictionary(k => k, _ => 1d))
+        public NormalizedObjectiveValuesFitnessEvaluator(IReadOnlyDictionary<T, double> coefficients)
         {
-        }
-
-        public NormalizedObjectiveValuesFitnessEvaluator(
-            IReadOnlyDictionary<T, OptimumValue> optimum,
-            IReadOnlyDictionary<T, double> coefficients)
-        {
-            _optimum = optimum;
             _coefficients = coefficients;
         }
 
@@ -48,31 +38,27 @@ namespace Bunnypro.GeneticAlgorithm.MultiObjective.Core
                     {
                         var ordered = chromosomeArray
                             .Select(chromosome => chromosome.ObjectiveValues[objective])
-                            .OrderBy(value =>
-                                value * (_optimum[objective] == OptimumValue.Maximum ? 1 : -1))
+                            .OrderBy(value => value * _coefficients[objective])
                             .ToArray();
 
-                        var boundary = new Dictionary<OptimumValue, double>
+                        var boundary = new
                         {
-                            {OptimumValue.Maximum, ordered.Last()},
-                            {OptimumValue.Minimum, ordered.First()}
+                            Max = ordered.Last(),
+                            Min = ordered.First()
                         };
 
-                        var range = Math.Abs(
-                            boundary[OptimumValue.Maximum] - boundary[OptimumValue.Minimum]
-                        );
+                        var range = Math.Abs(boundary.Max - boundary.Min);
 
                         return value =>
                         {
                             if (range <= 0) return 1;
                             return Math.Abs(
-                                       (value - boundary[OptimumValue.Minimum]) *
-                                       _coefficients[objective]
+                                       (value - boundary.Min) * _coefficients[objective]
                                    ) / range;
                         };
                     });
 
-            var coefficientSum = _coefficients.Sum(coefficient => coefficient.Value);
+            var coefficientSum = _coefficients.Sum(coefficient => Math.Abs(coefficient.Value));
             var fitnessEvaluationTasks = chromosomeArray.Select(chromosome => Task.Run(() =>
             {
                 chromosome.Fitness = chromosome.ObjectiveValues.Sum(objective =>

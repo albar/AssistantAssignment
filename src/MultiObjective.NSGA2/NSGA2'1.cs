@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions;
 using Bunnypro.GeneticAlgorithm.MultiObjective.Core;
-using Bunnypro.GeneticAlgorithm.MultiObjective.Primitives;
 using Bunnypro.GeneticAlgorithm.Primitives;
 
 namespace Bunnypro.GeneticAlgorithm.MultiObjective.NSGA2
@@ -19,11 +18,11 @@ namespace Bunnypro.GeneticAlgorithm.MultiObjective.NSGA2
 
         public NSGA2(IMultiObjectiveGeneticOperation<T> reproduction,
             IChromosomeEvaluator<T> chromosomeEvaluator,
-            IReadOnlyDictionary<T, OptimumValue> optimumValues)
+            IReadOnlyDictionary<T, double> coefficients)
         {
             _reproduction = reproduction;
             _chromosomeEvaluator = chromosomeEvaluator;
-            _offspringSelection = new OffspringSelection<T>(optimumValues);
+            _offspringSelection = new OffspringSelection<T>(coefficients);
         }
 
         public override async Task<ImmutableHashSet<IChromosome<T>>> Operate(

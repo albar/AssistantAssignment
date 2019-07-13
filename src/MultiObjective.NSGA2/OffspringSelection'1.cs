@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions;
-using Bunnypro.GeneticAlgorithm.MultiObjective.Primitives;
 using Bunnypro.GeneticAlgorithm.Primitives;
 
 namespace Bunnypro.GeneticAlgorithm.MultiObjective.NSGA2
@@ -14,9 +13,9 @@ namespace Bunnypro.GeneticAlgorithm.MultiObjective.NSGA2
     {
         private readonly IParetoSort<T> _sorter;
 
-        public OffspringSelection(IReadOnlyDictionary<T, OptimumValue> optimumValues)
+        public OffspringSelection(IReadOnlyDictionary<T, double> coefficients)
         {
-            _sorter = new FastNonDominatedSort<T>(optimumValues);
+            _sorter = new FastNonDominatedSort<T>(coefficients);
         }
 
         public Task<ImmutableHashSet<IChromosome<T>>> Operate(IEnumerable<IChromosome<T>> parents,

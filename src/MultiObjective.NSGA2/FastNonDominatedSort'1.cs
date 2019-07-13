@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions;
-using Bunnypro.GeneticAlgorithm.MultiObjective.Primitives;
 
 namespace Bunnypro.GeneticAlgorithm.MultiObjective.NSGA2
 {
@@ -11,9 +10,9 @@ namespace Bunnypro.GeneticAlgorithm.MultiObjective.NSGA2
     {
         private readonly IComparer<IReadOnlyDictionary<T, double>> _comparer;
 
-        public FastNonDominatedSort(IReadOnlyDictionary<T, OptimumValue> optimum)
+        public FastNonDominatedSort(IReadOnlyDictionary<T, double> coefficients)
         {
-            _comparer = new NonDominatedComparer<T, double>(optimum);
+            _comparer = new NonDominatedComparer<T, double>(coefficients);
         }
 
         public IEnumerable<ImmutableArray<IChromosome<T>>> Sort(IEnumerable<IChromosome<T>> chromosomes)

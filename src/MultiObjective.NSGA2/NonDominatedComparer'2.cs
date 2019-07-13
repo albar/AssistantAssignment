@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Bunnypro.GeneticAlgorithm.MultiObjective.Primitives;
 
 namespace Bunnypro.GeneticAlgorithm.MultiObjective.NSGA2
 {
@@ -9,15 +8,15 @@ namespace Bunnypro.GeneticAlgorithm.MultiObjective.NSGA2
         where TKey : Enum
         where TValue : IComparable
     {
-        private readonly IReadOnlyDictionary<TKey, int> _optimum;
+        private readonly IReadOnlyDictionary<TKey, double> _coefficients;
 
-        public NonDominatedComparer(IReadOnlyDictionary<TKey, OptimumValue> optimum)
+        public NonDominatedComparer(IReadOnlyDictionary<TKey, double> coefficients)
         {
-            _optimum = optimum.ToDictionary(o => o.Key, o => o.Value == OptimumValue.Maximum ? 1 : -1);
+            _coefficients = coefficients;
         }
 
         public NonDominatedComparer() :
-            this(Enum.GetValues(typeof(TKey)).Cast<TKey>().ToDictionary(k => k, _ => OptimumValue.Maximum))
+            this(Enum.GetValues(typeof(TKey)).Cast<TKey>().ToDictionary(k => k, _ => 1d))
         {
         }
 
@@ -31,7 +30,7 @@ namespace Bunnypro.GeneticAlgorithm.MultiObjective.NSGA2
             }
 
             var domination = 0;
-            foreach (var optimum in _optimum)
+            foreach (var optimum in _coefficients)
             {
                 var sign = Math.Sign(value1[optimum.Key].CompareTo(value2[optimum.Key]) * optimum.Value);
                 if (sign == 0 || domination != 0 && domination != sign) return 0;
