@@ -33,8 +33,7 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
                 {
                     return new ScheduleSolutionRepresentation
                     {
-                        Schedule = (Schedule) DataRepository.Schedules
-                            .First(schedule => schedule.Id == locus),
+                        Schedule = (Schedule) DataRepository.Schedules[locus],
                         AssistantCombination = (AssistantCombination) DataRepository
                             .AssistantCombinations
                             .First(combination => combination.Id == ByteConverter.ToInt32(gene))
