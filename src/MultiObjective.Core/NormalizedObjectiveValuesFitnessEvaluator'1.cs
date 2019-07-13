@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions;
 using Bunnypro.GeneticAlgorithm.MultiObjective.Primitives;
 
 namespace Bunnypro.GeneticAlgorithm.MultiObjective.Core
 {
-    public class NormalizedObjectiveValuesFitnessEvaluator<T> : IChromosomeEvaluator<T> where T : Enum
+    public abstract class NormalizedObjectiveValuesFitnessEvaluator<T> : IChromosomeEvaluator<T> where T : Enum
     {
         private readonly IReadOnlyDictionary<T, OptimumValue> _optimum;
         private readonly IReadOnlyDictionary<T, double> _coefficients;
@@ -29,16 +31,22 @@ namespace Bunnypro.GeneticAlgorithm.MultiObjective.Core
             _coefficients = coefficients;
         }
 
-        public void EvaluateAll(IEnumerable<IChromosome<T>> chromosomes)
+        public async Task EvaluateAll(IEnumerable<IChromosome<T>> chromosomes, CancellationToken token = default)
         {
             var chromosomesArray = chromosomes.ToArray();
-            EvaluateObjectiveValuesAll(chromosomesArray);
-            var normalizer = Enum.GetValues(typeof(T)).Cast<T>()
+            var fitnessEvaluableChromosomes = await EvaluateObjectiveValuesAll(chromosomesArray, token);
+            await EvaluateFitnessValueAll(fitnessEvaluableChromosomes);
+        }
+
+        private async Task EvaluateFitnessValueAll(IEnumerable<IChromosome<T>> chromosomes)
+        {
+            var chromosomeArray = chromosomes.ToArray();
+            var objectivesNormalizer = Enum.GetValues(typeof(T)).Cast<T>()
                 .ToDictionary<T, T, Func<double, double>>(
                     objective => objective,
                     objective =>
                     {
-                        var ordered = chromosomesArray
+                        var ordered = chromosomeArray
                             .Select(chromosome => chromosome.ObjectiveValues[objective])
                             .OrderBy(value =>
                                 value * (_optimum[objective] == OptimumValue.Maximum ? 1 : -1))
@@ -64,16 +72,19 @@ namespace Bunnypro.GeneticAlgorithm.MultiObjective.Core
                         };
                     });
 
-            foreach (var chromosome in chromosomesArray)
+            var coefficientSum = _coefficients.Sum(coefficient => coefficient.Value);
+            var fitnessEvaluationTasks = chromosomeArray.Select(chromosome => Task.Run(() =>
             {
                 chromosome.Fitness = chromosome.ObjectiveValues.Sum(objective =>
-                                         normalizer[objective.Key].Invoke(objective.Value)
-                                     ) / _coefficients.Sum(coefficient => coefficient.Value);
-            }
+                                         objectivesNormalizer[objective.Key].Invoke(objective.Value)
+                                     ) / coefficientSum;
+            }));
+
+            await Task.WhenAll(fitnessEvaluationTasks);
         }
 
-        protected virtual void EvaluateObjectiveValuesAll(IEnumerable<IChromosome<T>> chromosomes)
-        {
-        }
+        protected abstract Task<IEnumerable<IChromosome<T>>> EvaluateObjectiveValuesAll(
+            IEnumerable<IChromosome<T>> chromosomes,
+            CancellationToken token = default);
     }
 }

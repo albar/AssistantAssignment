@@ -34,7 +34,7 @@ namespace Bunnypro.GeneticAlgorithm.MultiObjective.NSGA2
             var parents = chromosomes.ToArray();
             var offspring = (await _reproduction.Operate(parents, capacity, token)).ToList();
             offspring.AddRange(parents);
-            _chromosomeEvaluator.EvaluateAll(offspring);
+            await _chromosomeEvaluator.EvaluateAll(offspring, token);
             return await _offspringSelection.Operate(offspring.ToImmutableHashSet(), capacity, token);
         }
     }
