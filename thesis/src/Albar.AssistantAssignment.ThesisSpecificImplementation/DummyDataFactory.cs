@@ -13,10 +13,12 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
         {
             var assessments = Enum.GetValues(typeof(AssistantAssessment)).Cast<AssistantAssessment>().ToArray();
             var subjects = Enumerable.Range(0, count).Select(
-                id => new Subject(
-                    id, 3,
-                    assessments.ToDictionary(assessment => assessment, _ => 8d)
-                )
+                id => new Subject
+                {
+                    Id = id,
+                    AssessmentThreshold = assessments.ToDictionary(assessment => assessment, _ => 8d),
+                    AssistantCountPerScheduleRequirement = 3
+                }
             );
             return new HashSet<ISubject>(subjects);
         }
@@ -38,13 +40,14 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
                 Schedule newSchedule;
                 do
                 {
-                    newSchedule = new Schedule(
-                        schedule.Key,
-                        schedule.Value,
-                        (DayOfWeek) randomize.Next(0, days - 1),
-                        (SessionOfDay) randomize.Next(0, sessions - 1),
-                        randomize.Next(1, 20)
-                    );
+                    newSchedule = new Schedule
+                    {
+                        Id = schedule.Key,
+                        Subject = schedule.Value,
+                        Day = (DayOfWeek) randomize.Next(0, days - 1),
+                        Session = (SessionOfDay) randomize.Next(0, sessions - 1),
+                        Lab = randomize.Next(1, 20)
+                    };
                 } while (!all.Add(newSchedule));
 
                 return all;
@@ -82,16 +85,21 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
             var subjectStorage = subjectArray.ToDictionary(subject => subject, _ => new HashSet<int>());
             var randomize = new Random();
             var assessments = Enum.GetValues(typeof(AssistantAssessment)).Cast<AssistantAssessment>().ToArray();
-            var assistants = assistantStorage.Select((subjectIds, id) =>
+            var assistants = assistantStorage.Select((assistantSubjects, id) =>
             {
-                foreach (var subject in subjectStorage.Where(subject => subjectIds.Contains(subject.Key)))
+                foreach (var subject in subjectStorage.Where(subject => assistantSubjects.Contains(subject.Key)))
                 {
                     subject.Value.Add(id);
                 }
 
-                var assistantAssessments = subjectIds.ToImmutableDictionary(subjectId => subjectId, subjectId =>
+                var assistantAssessments = assistantSubjects.ToImmutableDictionary(subject => subject, subjectId =>
                     assessments.ToDictionary(assessment => assessment, _ => (double) randomize.Next(6, 9)));
-                return new Assistant(id, subjectIds, assistantAssessments);
+                return new Assistant
+                {
+                    Id = id,
+                    Subjects = assistantSubjects,
+                    SubjectAssessments = assistantAssessments
+                };
             }).ToArray();
             foreach (var subject in subjectStorage)
             {

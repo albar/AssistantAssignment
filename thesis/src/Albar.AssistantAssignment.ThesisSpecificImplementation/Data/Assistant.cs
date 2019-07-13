@@ -4,20 +4,11 @@ using Albar.AssistantAssignment.DataAbstractions;
 
 namespace Albar.AssistantAssignment.ThesisSpecificImplementation.Data
 {
-    public sealed class Assistant : IAssistant
+    public class Assistant : IAssistant
     {
-        public Assistant(
-            int id, ImmutableArray<ISubject> subjects,
-            ImmutableDictionary<ISubject, Dictionary<AssistantAssessment, double>> subjectAssessments)
-        {
-            Id = id;
-            Subjects = subjects;
-            SubjectAssessments = subjectAssessments;
-        }
-
-        public int Id { get; }
-        public ImmutableArray<ISubject> Subjects { get; }
-        public ImmutableDictionary<ISubject, Dictionary<AssistantAssessment, double>> SubjectAssessments { get; }
+        public int Id { get; set; }
+        public ImmutableArray<ISubject> Subjects { get; set; }
+        public ImmutableDictionary<ISubject, Dictionary<AssistantAssessment, double>> SubjectAssessments { get; set; }
 
         private bool Equals(Assistant other)
         {
