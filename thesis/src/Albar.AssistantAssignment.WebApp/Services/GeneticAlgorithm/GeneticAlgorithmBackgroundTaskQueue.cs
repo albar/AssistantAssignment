@@ -10,6 +10,7 @@ using Albar.AssistantAssignment.WebApp.Models;
 using Bunnypro.GeneticAlgorithm.Primitives;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Albar.AssistantAssignment.WebApp.Services.GeneticAlgorithm
 {
@@ -17,6 +18,7 @@ namespace Albar.AssistantAssignment.WebApp.Services.GeneticAlgorithm
     {
         private readonly IServiceProvider _services;
         private readonly IHubContext<GeneticAlgorithmNotificationHub, IGeneticAlgorithmTaskListener> _notification;
+        private readonly ILogger<GeneticAlgorithmBackgroundTaskQueue> _logger;
 
         private readonly HashSet<AssignmentDataRepository> _repositories =
             new HashSet<AssignmentDataRepository>();
@@ -24,17 +26,19 @@ namespace Albar.AssistantAssignment.WebApp.Services.GeneticAlgorithm
         private readonly ConcurrentQueue<Func<CancellationToken, Task>> _tasksQueue =
             new ConcurrentQueue<Func<CancellationToken, Task>>();
 
-        private readonly Dictionary<Guid, IGeneticAlgorithmTask> _geneticAlgorithmTasks =
-            new Dictionary<Guid, IGeneticAlgorithmTask>();
+        private readonly Dictionary<string, IGeneticAlgorithmTask> _geneticAlgorithmTasks =
+            new Dictionary<string, IGeneticAlgorithmTask>();
 
         private readonly SemaphoreSlim _signal = new SemaphoreSlim(0);
 
         public GeneticAlgorithmBackgroundTaskQueue(
             IServiceProvider services,
-            IHubContext<GeneticAlgorithmNotificationHub, IGeneticAlgorithmTaskListener> notification)
+            IHubContext<GeneticAlgorithmNotificationHub, IGeneticAlgorithmTaskListener> notification,
+            ILogger<GeneticAlgorithmBackgroundTaskQueue> logger)
         {
             _services = services;
             _notification = notification;
+            _logger = logger;
         }
 
         public IEnumerable<IGeneticAlgorithmTaskInfo> TaskInfos =>
@@ -46,13 +50,13 @@ namespace Albar.AssistantAssignment.WebApp.Services.GeneticAlgorithm
             PopulationCapacity capacity)
         {
             var task = new GeneticAlgorithmTask(group, coefficients, capacity);
-            task.Listener = _notification.Clients.Group(task.Info.Id.ToString());
+            task.Listener = _notification.Clients.Group(task.Info.Id);
             _geneticAlgorithmTasks.Add(task.Info.Id, task);
             _notification.Clients.All.Registered(task.Info);
             return task.Info;
         }
 
-        public bool Remove(Guid taskId)
+        public bool Remove(string taskId)
         {
             if (!_geneticAlgorithmTasks.ContainsKey(taskId)) return false;
             Stop(taskId);
@@ -75,17 +79,27 @@ namespace Albar.AssistantAssignment.WebApp.Services.GeneticAlgorithm
             return true;
         }
 
-        public bool Build(Guid taskId)
+        public bool Build(string taskId)
         {
             if (!_geneticAlgorithmTasks.ContainsKey(taskId)) return false;
             var task = _geneticAlgorithmTasks[taskId];
             _tasksQueue.Enqueue(async token =>
             {
+                _logger.LogInformation($"Building {taskId}");
                 await _notification.Clients.All.Building(taskId);
+                _logger.LogInformation($"Building {taskId}: Clients Notified");
                 var group = task.Info.Group;
-                var repository = _repositories.First(repo => repo.Group.Id == group.Id);
-                if (repository == null)
+                _logger.LogInformation($"Building {taskId}: Find Existing Repository");
+                AssignmentDataRepository repository;
+                var exists = _repositories.Any(repo => repo.Group.Id == group.Id);
+                if (exists)
                 {
+                    _logger.LogInformation($"Building {taskId}: Existing Repository Found");
+                    repository = _repositories.First(repo => repo.Group.Id == group.Id);
+                }
+                else
+                {
+                    _logger.LogInformation($"Building {taskId}: Generate Repository From Database");
                     using (var scope = _services.CreateScope())
                     {
                         var database = scope.ServiceProvider.GetRequiredService<AssignmentDatabase>();
@@ -94,13 +108,19 @@ namespace Albar.AssistantAssignment.WebApp.Services.GeneticAlgorithm
                     }
                 }
 
-                task.Build(repository);
+                _logger.LogInformation($"Building {taskId}: Building Task");
+                task.Build(repository, exception =>
+                {
+                    _logger.LogError(exception, exception.Message);
+                });
                 if (task.Info.State == GeneticAlgorithmTaskState.BuildFailed)
                 {
+                    _logger.LogInformation($"Build Failed {taskId}");
                     await _notification.Clients.All.BuildFailed(taskId);
                 }
                 else
                 {
+                    _logger.LogInformation($"Build Completed {taskId}");
                     await _notification.Clients.All.BuildCompleted(taskId);
                 }
             });
@@ -108,7 +128,7 @@ namespace Albar.AssistantAssignment.WebApp.Services.GeneticAlgorithm
             return true;
         }
 
-        public bool Start(Guid taskId, TerminationKind kind, int value)
+        public bool Start(string taskId, TerminationKind kind, int value)
         {
             if (!_geneticAlgorithmTasks.ContainsKey(taskId)) return false;
             var task = _geneticAlgorithmTasks[taskId];
@@ -125,7 +145,7 @@ namespace Albar.AssistantAssignment.WebApp.Services.GeneticAlgorithm
             return true;
         }
 
-        public bool Stop(Guid taskId)
+        public bool Stop(string taskId)
         {
             if (!_geneticAlgorithmTasks.ContainsKey(taskId)) return false;
             var task = _geneticAlgorithmTasks[taskId];

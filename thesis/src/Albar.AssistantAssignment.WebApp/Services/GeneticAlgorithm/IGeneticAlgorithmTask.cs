@@ -11,7 +11,7 @@ namespace Albar.AssistantAssignment.WebApp.Services.GeneticAlgorithm
     {
         IGeneticAlgorithmTaskInfo Info { get; }
         Task<GeneticEvolutionStates> Task { get; }
-        void Build(IDataRepository<AssignmentObjective> repository);
+        void Build(IDataRepository<AssignmentObjective> repository, Action<Exception> onError);
         void Start(TerminationKind kind, int value,
             Action<GeneticEvolutionStates, IPopulation> onFinished);
         void Stop();

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Albar.AssistantAssignment.ThesisSpecificImplementation;
 using Albar.AssistantAssignment.ThesisSpecificImplementation.Data;
 using Albar.AssistantAssignment.WebApp.Models;
 using Albar.AssistantAssignment.WebApp.Services.DatabaseTask;
@@ -31,6 +32,17 @@ namespace Albar.AssistantAssignment.WebApp.Controllers
             _taskQueue = taskQueue;
             _logger = logger;
         }
+
+        [HttpGet("coefficient")]
+        public JsonResult Coefficient()
+        {
+            return new JsonResult(
+                Enum.GetValues(typeof(AssignmentObjective))
+                    .Cast<AssignmentObjective>()
+                    .Select(objective => objective.ToString())
+            );
+        }
+
 
         [HttpGet("group")]
         public JsonResult Group()
@@ -65,22 +77,35 @@ namespace Albar.AssistantAssignment.WebApp.Controllers
                 {
                     subject.Id,
                     GroupId = subject.Group.Id,
-                    Schdules = subject.Schedules?.Select(schedule => new
+                    subject.Code,
+                    Schedules = subject.Schedules?.Select(schedule => new
                     {
                         schedule.Id,
-                        schedule.Day,
-                        schedule.Session,
+                        Day = schedule.Day.ToString(),
+                        Session = schedule.Session.ToString(),
                         schedule.Lab
                     }),
                     subject.AssistantPerScheduleCount,
+                    subject.AssessmentsThreshold,
                     Assistants = subject.Assistants?.Select(assistant => new
                     {
                         assistant.Id,
-                        Npm = assistant.Npm.ToString()
+                        Npm = assistant.Npm.ToString(),
+                        Assessment = assistant.AssistantSubjects.First(ass => ass.SubjectId == subject.Id)?.Assessments
                     })
                 }).ToArray();
 
-            return new JsonResult(subjects);
+            var result = new
+            {
+                Group = new
+                {
+                    group.Id,
+                    group.Name
+                },
+                Subjects = subjects
+            };
+
+            return new JsonResult(result);
         }
 
         [HttpPost("create")]

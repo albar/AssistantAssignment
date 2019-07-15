@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 using Bunnypro.GeneticAlgorithm.Abstractions;
@@ -11,18 +10,18 @@ namespace Albar.AssistantAssignment.WebApp.Services.GeneticAlgorithm
         Task Registered(IGeneticAlgorithmTaskInfo info);
         Task Removing(IGeneticAlgorithmTaskInfo taskInfo);
         Task Removed(IGeneticAlgorithmTaskInfo info);
-        Task Building(Guid id);
-        Task BuildCompleted(Guid id);
-        Task BuildFailed(Guid id);
-        Task Starting(Guid id);
-        Task Started(Guid id);
+        Task Building(string id);
+        Task BuildCompleted(string id);
+        Task BuildFailed(string id);
+        Task Starting(string id);
+        Task Started(string id);
         Task EvolvedOnce(
-            Guid id,
+            string id,
             GeneticEvolutionStates states,
             ImmutableHashSet<IChromosome> populationChromosomes);
-        Task Stopping(Guid id);
+        Task Stopping(string id);
         Task Finished(
-            Guid id,
+            string id,
             GeneticEvolutionStates state,
             ImmutableHashSet<IChromosome> populationChromosomes);
     }

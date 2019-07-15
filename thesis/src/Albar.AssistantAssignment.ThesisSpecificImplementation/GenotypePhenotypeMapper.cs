@@ -36,7 +36,9 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
                         Schedule = (Schedule) DataRepository.Schedules[locus],
                         AssistantCombination = (AssistantCombination) DataRepository
                             .AssistantCombinations
-                            .First(combination => combination.Id == ByteConverter.ToInt32(gene))
+                            .First(combination =>
+                                combination.Id == ByteConverter.ToInt32(gene)
+                            )
                     };
                 });
         }

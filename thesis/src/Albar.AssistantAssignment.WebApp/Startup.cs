@@ -21,6 +21,8 @@ namespace Albar.AssistantAssignment.WebApp
 
         public IConfiguration Configuration { get; }
 
+        private readonly string AllowSpecificOrigins = "_allowedSpecificOrigins";
+
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
@@ -30,6 +32,18 @@ namespace Albar.AssistantAssignment.WebApp
 //                options.CheckConsentNeeded = context => true;
 //                options.MinimumSameSitePolicy = SameSiteMode.None;
 //            });
+
+            services.AddCors(options =>
+            {
+                options.AddPolicy(AllowSpecificOrigins,
+                    builder =>
+                    {
+                        builder.WithOrigins("http://localhost:8080")
+                            .AllowAnyMethod()
+                            .AllowAnyHeader()
+                            .AllowCredentials();
+                    });
+            });
 
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
@@ -58,12 +72,14 @@ namespace Albar.AssistantAssignment.WebApp
                 app.UseHsts();
             }
 
+            app.UseCors(AllowSpecificOrigins);
+
 //            app.UseHttpsRedirection();
             app.UseDefaultFiles();
             app.UseStaticFiles();
 //            app.UseCookiePolicy();
 
-            app.UseSignalR(route => { route.MapHub<GeneticAlgorithmNotificationHub>("/ga-notification"); });
+            app.UseSignalR(route => { route.MapHub<GeneticAlgorithmNotificationHub>("/notification"); });
 
             app.UseMvc();
         }

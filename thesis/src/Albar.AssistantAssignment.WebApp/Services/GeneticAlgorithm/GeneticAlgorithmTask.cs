@@ -11,13 +11,12 @@ using Albar.AssistantAssignment.WebApp.Models;
 using Bunnypro.GeneticAlgorithm.Abstractions;
 using Bunnypro.GeneticAlgorithm.MultiObjective.NSGA2;
 using Bunnypro.GeneticAlgorithm.Primitives;
+using Microsoft.Extensions.Logging;
 
 namespace Albar.AssistantAssignment.WebApp.Services.GeneticAlgorithm
 {
     public class GeneticAlgorithmTask : IGeneticAlgorithmTask, IDisposable
     {
-        private readonly IReadOnlyDictionary<AssignmentObjective, double> _coefficients;
-        private readonly PopulationCapacity _populationCapacity;
         private readonly GeneticAlgorithmTaskInfo _info;
 
         private IGeneticAlgorithm _geneticAlgorithm;
@@ -30,16 +29,14 @@ namespace Albar.AssistantAssignment.WebApp.Services.GeneticAlgorithm
             IReadOnlyDictionary<AssignmentObjective, double> coefficients,
             PopulationCapacity capacity)
         {
-            _coefficients = coefficients;
-            _info = new GeneticAlgorithmTaskInfo(group);
-            _populationCapacity = capacity;
+            _info = new GeneticAlgorithmTaskInfo(group, capacity, coefficients);
         }
 
         public IGeneticAlgorithmTaskInfo Info => _info;
         public IGeneticAlgorithmTaskListener Listener { get; set; }
         public Task<GeneticEvolutionStates> Task { get; private set; }
 
-        public void Build(IDataRepository<AssignmentObjective> repository)
+        public void Build(IDataRepository<AssignmentObjective> repository, Action<Exception> onError)
         {
             _info.State = GeneticAlgorithmTaskState.Building;
             try
@@ -50,7 +47,7 @@ namespace Albar.AssistantAssignment.WebApp.Services.GeneticAlgorithm
                     genotypePhenotypeMapper,
                     new ReproductionSelection(repository)
                 );
-                var objectiveEvaluator = new AssignmentChromosomesEvaluator<AssignmentObjective>(_coefficients)
+                var objectiveEvaluator = new AssignmentChromosomesEvaluator<AssignmentObjective>(_info.Coefficients)
                 {
                     {AssignmentObjective.AssistantScheduleCollision, new AssistantScheduleCollisionEvaluator()},
                     {AssignmentObjective.AboveThresholdAssessment, new AboveThresholdAssessmentEvaluator()},
@@ -63,16 +60,17 @@ namespace Albar.AssistantAssignment.WebApp.Services.GeneticAlgorithm
                 var nsga = new NSGA2<AssignmentObjective>(
                     reproduction,
                     objectiveEvaluator,
-                    _coefficients
+                    _info.Coefficients
                 );
                 _geneticAlgorithm = new Bunnypro.GeneticAlgorithm.Core.GeneticAlgorithm(nsga);
                 var factory = new PopulationFactory<AssignmentObjective>(genotypePhenotypeMapper, objectiveEvaluator);
-                _population = factory.Create(_populationCapacity);
+                _population = factory.Create(_info.Capacity);
                 _info.State = GeneticAlgorithmTaskState.BuildCompleted;
             }
-            catch
+            catch(Exception e)
             {
                 _info.State = GeneticAlgorithmTaskState.BuildFailed;
+                onError.Invoke(e);
             }
         }
 
@@ -126,15 +124,23 @@ namespace Albar.AssistantAssignment.WebApp.Services.GeneticAlgorithm
 
         private class GeneticAlgorithmTaskInfo : IGeneticAlgorithmTaskInfo
         {
-            public GeneticAlgorithmTaskInfo(Group @group)
+            public GeneticAlgorithmTaskInfo(
+                Group @group,
+                PopulationCapacity capacity,
+                IReadOnlyDictionary<AssignmentObjective,double> coefficients)
             {
-                Id = Guid.NewGuid();
+                Id = Guid.NewGuid().ToString();
                 Group = @group;
+                Capacity = capacity;
+                Coefficients = coefficients;
+                State = GeneticAlgorithmTaskState.Registered;
             }
 
             public GeneticAlgorithmTaskState State { get; set; }
-            public Guid Id { get; }
+            public string Id { get; }
             public Group Group { get; }
+            public PopulationCapacity Capacity { get; }
+            public IReadOnlyDictionary<AssignmentObjective, double> Coefficients { get; }
         }
     }
 }

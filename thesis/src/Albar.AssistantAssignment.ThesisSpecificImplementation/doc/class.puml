@@ -71,21 +71,21 @@ namespace Bunnypro.GeneticAlgorithm.MultiObjective.Core {
 namespace Albar.Assignment.DataAbstraction {
     interface IAssistant
     {
-        +byte[] Id { get }
-        +ImmutableArray<byte[]> Subjects { get }
+        +int Id { get }
+        +ImmutableArray<ISubject> Subjects { get }
     }
     
     interface ISchedule
     {
-        +byte[] Id { get }
-        +byte[] Subject { get }
+        +int Id { get }
+        +ISubject Subject { get }
     }
     
     interface ISubject
     {
-        +byte[] Id { get }
-        +ImmutableArray<byte[]> Assistants { get }
-        +ImmutableArray<byte[]> Schedules { get }
+        +int Id { get }
+        +ImmutableArray<IAssistant> Assistants { get }
+        +ImmutableArray<ISchedule> Schedules { get }
         +int AssistantCountPerScheduleRequirement { get }
     }
 }
@@ -126,9 +126,9 @@ namespace Albar.Assignment.Abstractions {
     
     interface IAssistantCombination
     {
-        +byte[] Id { get }
-        +byte[] Subject { get }
-        +ImmutableArray<byte[]> Assistants { get }
+        +int Id { get }
+        +ISubject Subject { get }
+        +ImmutableArray<IAssistant> Assistants { get }
     }
     
     interface ICrossoverSelection<T: Enum>
@@ -251,7 +251,7 @@ namespace Albar.Assignment.Algorithm {
 }
 
 namespace Albar.Assignment.ThesisSpecificImplementation {
-    Bunnypro.GeneticAlgorithm.MultiObjective.Core.NormalizedObjectiveValuesFitnessEvaluator <|-right- AssignmentChromosomesEvaluator
+    Bunnypro.GeneticAlgorithm.MultiObjective.Core.NormalizedObjectiveValuesFitnessEvaluator <|-down- AssignmentChromosomesEvaluator
     Albar.Assignment.Abstractions.IDataRepository <|-down- DataRepository
     Albar.Assignment.Abstractions.IGenotypePhenotypeMapper <|-down- GenotypePhenotypeMapper
     Albar.Assignment.Abstractions.IReproductionSelection <|-down- ReproductionSelection
@@ -279,8 +279,25 @@ namespace Albar.Assignment.ThesisSpecificImplementation {
     {
         -<<readonly>> IGenotypePhenotypeMapper<AssignmentObjective> _mapper
     }
+
+    enum AssignmentObjective
+    {
+        AssistantScheduleCollision,
+        BelowThresholdAssessment,
+        AboveThresholdAssessment,
+        AverageOfNormalizedAssessment
+    }
     
     namespace ObjectiveEvaluators {
+        Albar.Assignment.Abstractions.IObjectiveEvaluator <|-down- AssistantScheduleCollisionEvaluator
+        Albar.Assignment.Abstractions.IObjectiveEvaluator <|-down- AboveThresholdAssessmentEvaluator
+        Albar.Assignment.Abstractions.IObjectiveEvaluator <|-down- BelowThresholdAssessmentEvaluator
+        Albar.Assignment.Abstractions.IObjectiveEvaluator <|-down- AverageOfNormalizedAssessmentEvaluator
+        
+        class AssistantScheduleCollisionEvaluator
+        class AboveThresholdAssessmentEvaluator
+        class BelowThresholdAssessmentEvaluator
+        class AverageOfNormalizedAssessmentEvaluator
     }
 
     namespace Data {
@@ -288,12 +305,16 @@ namespace Albar.Assignment.ThesisSpecificImplementation {
         Albar.Assignment.DataAbstraction.IAssistant <|-down- Assistant
         Albar.Assignment.DataAbstraction.ISchedule <|-down- Schedule
         
-        Subject o-right- AssistantAssessment
+        Subject o-down- AssistantAssessment
         Assistant o-down- AssistantAssessment
-        Schedule o-- SessionOfDay
+        Schedule o-down- SessionOfDay
         
         enum AssistantAssessment
         {
+            AssistantScheduleCollision,
+            BelowThresholdAssessment,
+            AboveThresholdAssessment,
+            AverageOfNormalizedAssessment
         }
         
         enum SessionOfDay
@@ -307,7 +328,7 @@ namespace Albar.Assignment.ThesisSpecificImplementation {
         
         class Assistant
         {
-            + ImmutableDictionary<byte[], Dictionary<AssistantAssessment, double>> SubjectAssessments { get }
+            + ImmutableDictionary<Subject, Dictionary<AssistantAssessment, double>> SubjectAssessments { get }
         }
         
         class Schedule

@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using Albar.AssistantAssignment.Abstractions;
 using Albar.AssistantAssignment.ThesisSpecificImplementation.Data;
@@ -14,7 +13,6 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation.ObjectiveEvalua
                 Schedule = (Schedule) representation.Schedule,
                 Combination = representation.AssistantCombination
             }).ToArray();
-
             return representations.Aggregate(0, (count, schedule) =>
             {
                 var isCollided = representations.Any(other =>
@@ -25,7 +23,6 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation.ObjectiveEvalua
                         assistantId => other.Combination.Assistants.Contains(assistantId)
                     )
                 );
-
                 return isCollided ? count + 1 : count;
             });
         }

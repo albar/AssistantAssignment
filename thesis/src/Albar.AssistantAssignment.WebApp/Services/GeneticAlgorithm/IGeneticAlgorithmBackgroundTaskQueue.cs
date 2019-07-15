@@ -16,10 +16,10 @@ namespace Albar.AssistantAssignment.WebApp.Services.GeneticAlgorithm
             Dictionary<AssignmentObjective, double> coefficients,
             PopulationCapacity capacity);
 
-        bool Remove(Guid taskId);
-        bool Build(Guid taskId);
-        bool Start(Guid taskId, TerminationKind kind, int value);
-        bool Stop(Guid taskId);
+        bool Remove(string taskId);
+        bool Build(string taskId);
+        bool Start(string taskId, TerminationKind kind, int value);
+        bool Stop(string taskId);
         void Enqueue(Func<CancellationToken, Task> task);
         Task<Func<CancellationToken, Task>> DequeueTask(CancellationToken token);
     }
