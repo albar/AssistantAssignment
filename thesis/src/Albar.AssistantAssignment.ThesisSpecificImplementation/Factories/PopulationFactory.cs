@@ -42,7 +42,7 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation.Factories
                 var genotype = _mapper.DataRepository.Schedules.SelectMany(schedule =>
                 {
                     var id = _mapper.DataRepository.AssistantCombinations
-                        .Where(c => c.Subject == schedule.Subject)
+                        .Where(c => c.Subject.Equals(schedule.Subject))
                         .OrderBy(_ => randomize.Next())
                         .First().Id;
                     return ByteConverter.GetByte(_mapper.DataRepository.GeneByteSize, id);

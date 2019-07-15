@@ -8,12 +8,12 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation.ObjectiveEvalua
     public class AverageOfNormalizedAssessmentEvaluator :
         IObjectiveEvaluator<AssignmentObjective>
     {
-        private readonly DataRepository _repository;
+        private readonly IDataRepository<AssignmentObjective> _repository;
 
         public AverageOfNormalizedAssessmentEvaluator(
             IDataRepository<AssignmentObjective> repository)
         {
-            _repository = (DataRepository) repository;
+            _repository = repository;
         }
 
         public double Evaluate(IAssignmentChromosome<AssignmentObjective> chromosome)

@@ -6,6 +6,16 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation.Data
 {
     public class Assistant : IAssistant
     {
+        public Assistant(
+            int id,
+            ImmutableArray<ISubject> subjects,
+            ImmutableDictionary<ISubject, Dictionary<AssistantAssessment, double>> subjectAssessments)
+        {
+            Id = id;
+            Subjects = subjects;
+            SubjectAssessments = subjectAssessments;
+        }
+
         public int Id { get; set; }
         public ImmutableArray<ISubject> Subjects { get; set; }
         public ImmutableDictionary<ISubject, Dictionary<AssistantAssessment, double>> SubjectAssessments { get; set; }

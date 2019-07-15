@@ -5,6 +5,20 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation.Data
 {
     public class Schedule : ISchedule
     {
+        public Schedule(
+            int id,
+            ISubject subject,
+            DayOfWeek day,
+            SessionOfDay session,
+            int lab)
+        {
+            Id = id;
+            Subject = subject;
+            Day = day;
+            Session = session;
+            Lab = lab;
+        }
+
         public int Id { get; set; }
         public ISubject Subject { get; set; }
         public DayOfWeek Day { get; set; }

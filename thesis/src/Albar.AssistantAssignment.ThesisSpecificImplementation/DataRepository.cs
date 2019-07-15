@@ -14,18 +14,16 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
         public DataRepository(
             ImmutableArray<ISubject> subjects,
             ImmutableArray<ISchedule> schedules,
-            ImmutableArray<IAssistant> assistants,
-            IReadOnlyDictionary<AssignmentObjective, double> coefficients)
+            ImmutableArray<IAssistant> assistants
+        )
         {
             Subjects = subjects;
             Schedules = schedules;
             Assistants = assistants;
-            ObjectiveCoefficients = coefficients;
             AssistantCombinations = CombineAssistants();
         }
 
         public byte GeneByteSize { get; private set; }
-        public IReadOnlyDictionary<AssignmentObjective, double> ObjectiveCoefficients { get; }
         public ImmutableArray<ISubject> Subjects { get; }
         public ImmutableArray<ISchedule> Schedules { get; }
         public ImmutableArray<IAssistant> Assistants { get; }

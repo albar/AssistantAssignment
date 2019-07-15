@@ -3,6 +3,8 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation.Data
     public enum AssistantAssessment
     {
         BasicKnowledge,
-        LearningAbility
+        LearningAbility,
+        PublicSpeaking,
+        Hospitality
     }
 }

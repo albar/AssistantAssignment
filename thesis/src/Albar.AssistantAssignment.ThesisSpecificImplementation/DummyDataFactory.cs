@@ -13,12 +13,7 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
         {
             var assessments = Enum.GetValues(typeof(AssistantAssessment)).Cast<AssistantAssessment>().ToArray();
             var subjects = Enumerable.Range(0, count).Select(
-                id => new Subject
-                {
-                    Id = id,
-                    AssessmentThreshold = assessments.ToDictionary(assessment => assessment, _ => 8d),
-                    AssistantCountPerScheduleRequirement = 3
-                }
+                id => new Subject(id, 3, assessments.ToDictionary(assessment => assessment, _ => 8d))
             );
             return new HashSet<ISubject>(subjects);
         }
@@ -40,14 +35,13 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
                 Schedule newSchedule;
                 do
                 {
-                    newSchedule = new Schedule
-                    {
-                        Id = schedule.Key,
-                        Subject = schedule.Value,
-                        Day = (DayOfWeek) randomize.Next(0, days - 1),
-                        Session = (SessionOfDay) randomize.Next(0, sessions - 1),
-                        Lab = randomize.Next(1, 20)
-                    };
+                    newSchedule = new Schedule(
+                        schedule.Key,
+                        schedule.Value,
+                        (DayOfWeek) randomize.Next(0, days - 1),
+                        (SessionOfDay) randomize.Next(0, sessions - 1),
+                        randomize.Next(1, 20)
+                    );
                 } while (!all.Add(newSchedule));
 
                 return all;
@@ -94,12 +88,7 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
 
                 var assistantAssessments = assistantSubjects.ToImmutableDictionary(subject => subject, subjectId =>
                     assessments.ToDictionary(assessment => assessment, _ => (double) randomize.Next(6, 9)));
-                return new Assistant
-                {
-                    Id = id,
-                    Subjects = assistantSubjects,
-                    SubjectAssessments = assistantAssessments
-                };
+                return new Assistant(id, assistantSubjects, assistantAssessments);
             }).ToArray();
             foreach (var subject in subjectStorage)
             {

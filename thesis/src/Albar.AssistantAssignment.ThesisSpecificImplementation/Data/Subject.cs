@@ -6,11 +6,19 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation.Data
 {
     public class Subject : ISubject
     {
-        public int Id { get; set; }
+        public Subject(
+            int id, int assistantCountPerScheduleRequirement,
+            IReadOnlyDictionary<AssistantAssessment, double> assessmentThreshold)
+        {
+            Id = id;
+            AssistantCountPerScheduleRequirement = assistantCountPerScheduleRequirement;
+            AssessmentThreshold = assessmentThreshold;
+        }
+        public int Id { get; }
         public ImmutableArray<IAssistant> Assistants { get; set; }
         public ImmutableArray<ISchedule> Schedules { get; set; }
-        public int AssistantCountPerScheduleRequirement { get; set; }
-        public IReadOnlyDictionary<AssistantAssessment, double> AssessmentThreshold { get; set; }
+        public int AssistantCountPerScheduleRequirement { get; }
+        public IReadOnlyDictionary<AssistantAssessment, double> AssessmentThreshold { get; }
 
         private bool Equals(Subject other)
         {
