@@ -26,7 +26,7 @@
                         @click="select(subject)"
                 >
                     <v-list-tile-content>
-                        <v-list-tile-title>{{ subject.code }}</v-list-tile-title>
+                        <v-list-tile-title>{{ subject.code || subject.id }}</v-list-tile-title>
                     </v-list-tile-content>
                 </v-list-tile>
             </v-list>
@@ -37,7 +37,7 @@
                 <v-list>
                     <v-list-tile>
                         <v-list-tile-title class="title">
-                            Data Group "{{ group.name }}"
+                            Data Group "{{ group.name || group.id }}"
                         </v-list-tile-title>
                     </v-list-tile>
                 </v-list>
@@ -101,7 +101,7 @@
                                 <template v-slot:items="props">
                                     <td>{{ props.index + 1 }}</td>
                                     <td>{{ props.item.npm }}</td>
-                                    <td class="text-xs-right" v-for="assessment in assessments" :key="assessment.value">{{
+                                    <td class="text-xs-center" v-for="assessment in assessments" :key="assessment.value">{{
                                         props.item.assessment[assessment.value] }}
                                     </td>
                                 </template>
@@ -127,14 +127,12 @@
             }
         },
         mounted() {
-            axios.get(`http://localhost:5000/api/data/group/${this.$route.params.id}/subject?assistants=true&schedules=true`)
-                .then(result => {
-                    this.group = result.data.group
-                    this.subjects = result.data.subjects
-                    if (this.subjects.length > 0) {
-                        this.selectedSubject = this.subjects[0]
-                    }
-                })
+            this.loadData();
+        },
+        watch: {
+            '$route'()  {
+                this.loadData();
+            }
         },
         computed: {
             scheduleHeader() {
@@ -164,6 +162,16 @@
             }
         },
         methods: {
+            loadData() {
+                axios.get(`http://localhost:5000/api/data/group/${this.$route.params.id}/subject?assistants=true&schedules=true`)
+                    .then(result => {
+                        this.group = result.data.group
+                        this.subjects = result.data.subjects
+                        if (this.subjects.length > 0) {
+                            this.selectedSubject = this.subjects[0]
+                        }
+                    })
+            },
             select(subject) {
                 this.selectedSubject = subject
             },

@@ -177,7 +177,6 @@ namespace Albar.AssistantAssignment.ConsoleApp
                 {"-c", "capacity"},
                 {"-t", "time"},
                 {"-e", "evolution"}
-                // other arguments
             };
 
             return new ConfigurationBuilder()
@@ -219,7 +218,6 @@ namespace Albar.AssistantAssignment.ConsoleApp
                 subjects.ToImmutableArray(),
                 schedules.ToImmutableArray(),
                 assistants.ToImmutableArray()
-//                coefficient
             );
         }
     }

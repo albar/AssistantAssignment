@@ -1,10 +1,9 @@
 ﻿using Albar.AssistantAssignment.WebApp.Hubs;
 using Albar.AssistantAssignment.WebApp.Services;
 using Albar.AssistantAssignment.WebApp.Services.DatabaseTask;
-using Albar.AssistantAssignment.WebApp.Services.GeneticAlgorithm;
+using Albar.AssistantAssignment.WebApp.Services.ParallelGeneticAlgorithm;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -55,7 +54,7 @@ namespace Albar.AssistantAssignment.WebApp
             services.AddHostedService<QueuedDatabaseBackgroundTask>();
             services.AddSingleton<IDatabaseBackgroundTaskQueue, DatabaseBackgroundTaskQueue>();
 
-            services.AddHostedService<QueuedGeneticAlgorithmBackgroundTask>();
+            services.AddHostedService<QueuedParallelGeneticAlgorithmBackgroundTask>();
             services.AddSingleton<IGeneticAlgorithmBackgroundTaskQueue, GeneticAlgorithmBackgroundTaskQueue>();
         }
 

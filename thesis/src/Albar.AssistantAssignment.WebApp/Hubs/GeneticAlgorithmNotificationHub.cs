@@ -1,5 +1,4 @@
-using Albar.AssistantAssignment.WebApp.Services;
-using Albar.AssistantAssignment.WebApp.Services.GeneticAlgorithm;
+using Albar.AssistantAssignment.WebApp.Services.ParallelGeneticAlgorithm;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Albar.AssistantAssignment.WebApp.Hubs

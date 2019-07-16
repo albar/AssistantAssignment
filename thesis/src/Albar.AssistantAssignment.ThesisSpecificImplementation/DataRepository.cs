@@ -32,7 +32,7 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
         private ImmutableArray<IAssistantCombination> CombineAssistants()
         {
             var combined = Subjects.SelectMany(subject =>
-                Assistants.Where(assistant => assistant.Subjects.Contains(subject))
+                Assistants.Where(assistant => assistant.Subjects.Any(s => s.Id == subject.Id))
                     .Combine(subject.AssistantCountPerScheduleRequirement)
                     .Select(combination => new
                     {

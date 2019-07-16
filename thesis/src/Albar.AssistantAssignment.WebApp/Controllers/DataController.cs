@@ -10,7 +10,6 @@ using Albar.AssistantAssignment.WebApp.Services.DatabaseTask;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.Logging;
 
 namespace Albar.AssistantAssignment.WebApp.Controllers
@@ -59,20 +58,16 @@ namespace Albar.AssistantAssignment.WebApp.Controllers
         [HttpGet("group/{id}/subject")]
         public JsonResult Subject(int id, bool schedules = false, bool assistants = false)
         {
-            var group = _database.Groups
-                .Where(g => g.Id == id)
-                .Include(g => g.Subjects)
-                .When(schedules, query => query.ThenInclude(subject => subject.Schedules))
-                .Include(g => g.Subjects)
-                .When(assistants, query =>
-                    query.ThenInclude(subject => subject.AssistantSubjects)
-                        .ThenInclude(ass => ass.Assistant)
-                )
-                .First();
-
+            var group = _database.Groups.FirstOrDefault(g => g.Id == id);
             if (group == null) return new JsonResult(NotFound());
 
-            var subjects = group.Subjects
+            var subjects = _database.Subjects.Where(s => s.Group.Id == id)
+                .When(schedules, query => query.Include(subject => subject.Schedules))
+                .When(assistants, query =>
+                    query.Include(subject => subject.AssistantSubjects)
+                        .ThenInclude(ass => ass.Assistant)
+                )
+                .ToList()
                 .Select(subject => new
                 {
                     subject.Id,
@@ -268,14 +263,11 @@ namespace Albar.AssistantAssignment.WebApp.Controllers
         }
 
         [HttpPost("generate")]
-        public JsonResult CreateDataRandomly(string name)
+        public JsonResult CreateDataRandomly()
         {
             var taskId = _taskQueue.Enqueue(async (database, token) =>
             {
-                var group = new Group
-                {
-                    Name = name
-                };
+                var group = new Group();
 
                 var randomize = new Random();
                 var subjects = Enumerable.Range(0, 5).Select(_ =>
@@ -340,7 +332,7 @@ namespace Albar.AssistantAssignment.WebApp.Controllers
                                 .Cast<AssistantAssessment>()
                                 .ToDictionary(
                                     assessment => assessment,
-                                    _ => (double) randomize.Next(7, 9)
+                                    _ => 7 + randomize.NextDouble() * 9 % 2
                                 )
                         };
                         subject.AssistantSubjects.Add(assistantSubject);
@@ -374,15 +366,12 @@ namespace Albar.AssistantAssignment.WebApp.Controllers
 
     public static class ConditionalQueryExtension
     {
-        public static IQueryable<TEntity> When<TEntity, TPreviousProperty, TProperty>(
-            this IIncludableQueryable<TEntity, TPreviousProperty> source,
+        public static IQueryable<TEntity> When<TEntity>(
+            this IQueryable<TEntity> source,
             bool condition,
-            Func<
-                IIncludableQueryable<TEntity, TPreviousProperty>,
-                IIncludableQueryable<TEntity, TProperty>
-            > nested)
+            Func<IQueryable<TEntity>, IQueryable<TEntity>> nested)
         {
-            return condition ? (IQueryable<TEntity>) nested.Invoke(source) : source;
+            return condition ? nested.Invoke(source) : source;
         }
     }
 }

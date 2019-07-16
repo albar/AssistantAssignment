@@ -79,7 +79,7 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
             var requiredParentCount = (int) Math.Ceiling((1 + Math.Sqrt(4 * capacity.Minimum + 1)) / 2);
             var subjectsAssessmentThreshold = _repository.Subjects
                 .ToDictionary(subject => subject, subject => ((Subject) subject).AssessmentThreshold);
-            return chromosomes.OrderBy(chromosome => chromosome.Fitness)
+            return chromosomes.OrderByDescending(chromosome => chromosome.Fitness)
                 .Take(requiredParentCount).Combine(2).ToInnerArray()
                 .Select(parents =>
                 {

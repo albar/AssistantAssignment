@@ -1,0 +1,265 @@
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Albar.AssistantAssignment.Algorithm;
+using Albar.AssistantAssignment.ThesisSpecificImplementation;
+using Albar.AssistantAssignment.ThesisSpecificImplementation.Factories;
+using Albar.AssistantAssignment.ThesisSpecificImplementation.ObjectiveEvaluators;
+using Albar.AssistantAssignment.WebApp.Hubs;
+using Albar.AssistantAssignment.WebApp.Models;
+using Albar.AssistantAssignment.WebApp.Services.DatabaseTask;
+using Bunnypro.GeneticAlgorithm.Abstractions;
+using Bunnypro.GeneticAlgorithm.Core;
+using Bunnypro.GeneticAlgorithm.MultiObjective.NSGA2;
+using Bunnypro.GeneticAlgorithm.Primitives;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.Extensions.Logging;
+
+namespace Albar.AssistantAssignment.WebApp.Services.ParallelGeneticAlgorithm
+{
+    public class GeneticAlgorithmBackgroundTaskQueue : IGeneticAlgorithmBackgroundTaskQueue
+    {
+        private readonly IDatabaseBackgroundTaskQueue _databaseBackgroundTaskQueue;
+        private readonly IGeneticAlgorithmTaskListener _notification;
+        private readonly ILogger<GeneticAlgorithmBackgroundTaskQueue> _logger;
+
+        private readonly HashSet<AssignmentDataRepository> _repositories = new HashSet<AssignmentDataRepository>();
+
+        private readonly ConcurrentQueue<Func<string, CancellationTokenSource, Task<(GeneticEvolutionStates, bool)>>>
+            _queue = new ConcurrentQueue<Func<string, CancellationTokenSource, Task<(GeneticEvolutionStates, bool)>>>();
+
+        private readonly HashSet<GeneticAlgorithmTask> _tasks = new HashSet<GeneticAlgorithmTask>();
+
+        private IEnumerable<GeneticAlgorithmRunningTask>
+            RunningTasks => _tasks.Where(task => task.RunningTask != null).Select(task => task.RunningTask);
+
+        private readonly SemaphoreSlim _sign = new SemaphoreSlim(0);
+
+        public GeneticAlgorithmBackgroundTaskQueue(
+            IDatabaseBackgroundTaskQueue databaseBackgroundTaskQueue,
+            IHubContext<GeneticAlgorithmNotificationHub, IGeneticAlgorithmTaskListener> notification,
+            ILogger<GeneticAlgorithmBackgroundTaskQueue> logger)
+        {
+            _databaseBackgroundTaskQueue = databaseBackgroundTaskQueue;
+            _notification = notification.Clients.All;
+            _logger = logger;
+        }
+
+        public IEnumerable<IGeneticAlgorithmTask> Tasks => _tasks;
+
+        public IGeneticAlgorithmTask Build(
+            Group group,
+            Dictionary<AssignmentObjective, double> coefficients,
+            PopulationCapacity capacity)
+        {
+            var id = Guid.NewGuid().ToString();
+            _logger.LogInformation($"Enqueue for Build Task {id}");
+            var task = new GeneticAlgorithmTask(id, group, coefficients, capacity);
+            _tasks.Add(task);
+            var repository = _repositories.FirstOrDefault(repo => repo.Group.Id == group.Id);
+            if (repository != null)
+            {
+                _notification.BuildingTask(id);
+                task.State = GeneticAlgorithmTaskState.BuildingTask;
+                task.Build(repository);
+                _logger.LogInformation($"Task {id} has been Build");
+                _notification.TaskBuildFinished(id);
+                task.State = GeneticAlgorithmTaskState.TaskBuildFinished;
+            }
+            else
+            {
+                _databaseBackgroundTaskQueue.Enqueue(async (database, token) =>
+                {
+                    _logger.LogInformation($"Building Repository for Task {id}");
+                    await _notification.BuildingRepositoryTask(id);
+                    task.State = GeneticAlgorithmTaskState.BuildingRepositoryTask;
+
+                    repository = _repositories.FirstOrDefault(repo => repo.Group.Id == group.Id);
+                    if (repository != null) task.Build(repository);
+                    repository = await AssignmentDataRepository.BuildAsync(database, group, token);
+                    _repositories.Add(repository);
+
+                    await _notification.BuildingTask(id);
+                    task.State = GeneticAlgorithmTaskState.BuildingTask;
+
+                    task.Build(repository);
+
+                    _logger.LogInformation($"Task {id} has been Build");
+                    await _notification.TaskBuildFinished(id);
+                    task.State = GeneticAlgorithmTaskState.TaskBuildFinished;
+                });
+            }
+
+            return task;
+        }
+
+        public bool Remove(string taskId)
+        {
+            var task = _tasks.FirstOrDefault(t => t.Id == taskId);
+            if (task == null || task.RunningTask != null) return false;
+            _tasks.Remove(task);
+            _logger.LogInformation($"Task {taskId} Removed");
+            _notification.TaskRemoved(taskId);
+            return true;
+        }
+
+        public bool Start(string taskId, Func<GeneticEvolutionStates, bool> termination)
+        {
+            var task = _tasks.FirstOrDefault(t => t.Id == taskId);
+            if (task == null || task.IsRunning) return false;
+
+            _logger.LogInformation($"Enqueue Running Task {taskId}");
+            _queue.Enqueue((id, source) =>
+            {
+                _logger.LogInformation($"Running Task {taskId}. RunningId: {id}");
+                _notification.RunningTask(taskId);
+                task.State = GeneticAlgorithmTaskState.RunningTask;
+                task.RunningTask = new GeneticAlgorithmRunningTask(taskId, id, source);
+                var ga = task.GeneticAlgorithm;
+                var population = task.Population;
+
+                bool MonitoredTermination(GeneticEvolutionStates state)
+                {
+                    var chromosome = population.Chromosomes.Cast<AssignmentChromosome<AssignmentObjective>>()
+                        .OrderBy(ch => ch.Fitness)
+                        .Last();
+
+                    _notification.EvolvedOnce(taskId, state, new
+                    {
+                        chromosome.Fitness,
+                        chromosome.ObjectiveValues
+                    });
+                    task.EvolutionState = state;
+                    return termination.Invoke(state);
+                }
+
+                _notification.TaskIsRunning(taskId);
+                return ga.TryEvolveUntil(population, MonitoredTermination, source.Token);
+            });
+            _sign.Release();
+            return true;
+        }
+
+        public bool Stop(string taskId)
+        {
+            _logger.LogInformation($"Stopping Task {taskId}");
+            _notification.StoppingTask(taskId);
+            var runningTask = RunningTasks.FirstOrDefault(rtask => rtask.TaskId == taskId);
+            runningTask?.TokenSource?.Cancel();
+            return runningTask != null;
+        }
+
+        public async Task<Func<string, CancellationTokenSource, Task<(GeneticEvolutionStates, bool)>>> DequeueAsync(
+            CancellationToken token)
+        {
+            await _sign.WaitAsync(token);
+            _queue.TryDequeue(out var task);
+            return task;
+        }
+
+        public void BackgroundTaskFinished(string runningTaskId, (GeneticEvolutionStates, bool) result)
+        {
+            var task = _tasks.FirstOrDefault(t => t.RunningTask?.RunningTaskId == runningTaskId);
+            if (task == null) return;
+            task.RunningTask = null;
+            _logger.LogInformation($"Running Task {task.Id} with RunningId: {runningTaskId} Finished");
+            _notification.TaskFinished(task.Id, result.Item1);
+            task.State = GeneticAlgorithmTaskState.TaskFinished;
+        }
+
+        private class GeneticAlgorithmTask : IGeneticAlgorithmTask, IEquatable<GeneticAlgorithmTask>
+        {
+            public GeneticAlgorithmTask(
+                string id,
+                Group group,
+                IReadOnlyDictionary<AssignmentObjective, double> coefficients,
+                PopulationCapacity capacity)
+            {
+                Id = id;
+                Group = group;
+                Coefficients = coefficients;
+                Capacity = capacity;
+            }
+
+            public void Build(AssignmentDataRepository repository)
+            {
+                var genotypePhenotypeMapper = new GenotypePhenotypeMapper(repository);
+
+                var reproduction = new AssignmentReproduction<AssignmentObjective>(
+                    genotypePhenotypeMapper,
+                    new ReproductionSelection(repository)
+                );
+                var objectiveEvaluator = new AssignmentChromosomesEvaluator<AssignmentObjective>(Coefficients)
+                {
+                    {AssignmentObjective.AssistantScheduleCollision, new AssistantScheduleCollisionEvaluator()},
+                    {AssignmentObjective.AboveThresholdAssessment, new AboveThresholdAssessmentEvaluator()},
+                    {AssignmentObjective.BelowThresholdAssessment, new BelowThresholdAssessmentEvaluator()},
+                    {
+                        AssignmentObjective.AverageOfNormalizedAssessment,
+                        new AverageOfNormalizedAssessmentEvaluator(repository)
+                    }
+                };
+                var nsga = new NSGA2<AssignmentObjective>(
+                    reproduction,
+                    objectiveEvaluator,
+                    Coefficients
+                );
+                var factory = new PopulationFactory<AssignmentObjective>(genotypePhenotypeMapper, objectiveEvaluator);
+                GeneticAlgorithm = new GeneticAlgorithm(nsga);
+                Population = factory.Create(Capacity);
+                Repository = repository;
+            }
+
+            public AssignmentDataRepository Repository { get; private set; }
+            public string Id { get; }
+            public Group Group { get; }
+            public IGeneticAlgorithm GeneticAlgorithm { get; private set; }
+            public IPopulation Population { get; private set; }
+            public IReadOnlyDictionary<AssignmentObjective, double> Coefficients { get; }
+            public PopulationCapacity Capacity { get; }
+            public bool IsRunning => RunningTask != null;
+            public GeneticEvolutionStates EvolutionState { get; set; }
+            public GeneticAlgorithmTaskState State { get; set; }
+            public GeneticAlgorithmRunningTask RunningTask { get; set; }
+
+            public bool Equals(GeneticAlgorithmTask other)
+            {
+                if (ReferenceEquals(null, other)) return false;
+                return ReferenceEquals(this, other) || string.Equals(Id, other.Id);
+            }
+
+            public override bool Equals(object obj)
+            {
+                if (ReferenceEquals(null, obj)) return false;
+                if (ReferenceEquals(this, obj)) return true;
+                return obj.GetType() == GetType() && Equals((GeneticAlgorithmTask) obj);
+            }
+
+            public override int GetHashCode()
+            {
+                return Id != null ? Id.GetHashCode() : 0;
+            }
+        }
+
+        private class GeneticAlgorithmRunningTask
+        {
+            public GeneticAlgorithmRunningTask(
+                string taskId,
+                string runningTaskId,
+                CancellationTokenSource tokenSource)
+            {
+                TaskId = taskId;
+                RunningTaskId = runningTaskId;
+                TokenSource = tokenSource;
+            }
+
+            public string TaskId { get; }
+            public string RunningTaskId { get; }
+            public CancellationTokenSource TokenSource { get; }
+        }
+    }
+}
