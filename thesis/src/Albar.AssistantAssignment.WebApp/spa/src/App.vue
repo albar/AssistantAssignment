@@ -70,7 +70,7 @@
                         <v-list-tile>
                             <v-list-tile-content>
                                 <v-btn depressed small outline block color="grey" @click="dialog = false">
-                                    Close
+                                    Minimize
                                 </v-btn>
                             </v-list-tile-content>
                         </v-list-tile>
