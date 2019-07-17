@@ -6,5 +6,8 @@ namespace Albar.AssistantAssignment.DataAbstractions
     {
         int Id { get; }
         ISubject Subject { get; }
+        DayOfWeek Day { get; }
+        SessionOfDay Session { get; }
+        int Lab { get; }
     }
 }

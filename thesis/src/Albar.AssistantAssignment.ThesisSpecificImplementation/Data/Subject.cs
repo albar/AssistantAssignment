@@ -15,6 +15,7 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation.Data
             AssessmentThreshold = assessmentThreshold;
         }
         public int Id { get; }
+        public string Code { get; set; }
         public ImmutableArray<IAssistant> Assistants { get; set; }
         public ImmutableArray<ISchedule> Schedules { get; set; }
         public int AssistantCountPerScheduleRequirement { get; }

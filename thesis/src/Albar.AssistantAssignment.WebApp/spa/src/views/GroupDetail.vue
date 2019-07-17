@@ -26,7 +26,7 @@
                         @click="select(subject)"
                 >
                     <v-list-tile-content>
-                        <v-list-tile-title>{{ subject.code || subject.id }}</v-list-tile-title>
+                        <v-list-tile-title>{{ subject.code || `Subject ${subject.id}` }}</v-list-tile-title>
                     </v-list-tile-content>
                 </v-list-tile>
             </v-list>
@@ -37,7 +37,7 @@
                 <v-list>
                     <v-list-tile>
                         <v-list-tile-title class="title">
-                            Data Group "{{ group.name || group.id }}"
+                            Data Group "{{ group.name || `Data ${group.id}` }}"
                         </v-list-tile-title>
                     </v-list-tile>
                 </v-list>

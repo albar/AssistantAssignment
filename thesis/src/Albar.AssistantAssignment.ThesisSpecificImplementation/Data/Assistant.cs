@@ -17,6 +17,7 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation.Data
         }
 
         public int Id { get; set; }
+        public string Npm { get; set; }
         public ImmutableArray<ISubject> Subjects { get; set; }
         public ImmutableDictionary<ISubject, Dictionary<AssistantAssessment, double>> SubjectAssessments { get; set; }
 

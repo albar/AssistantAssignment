@@ -61,7 +61,7 @@ namespace Albar.AssistantAssignment.ConsoleApp
             // Initialization
             var population = new PopulationFactory<AssignmentObjective>(genotypePhenotypeMapper, objectiveEvaluator)
                 .Create(capacity);
-            await objectiveEvaluator.EvaluateAll(population.Chromosomes.Cast<IChromosome<AssignmentObjective>>());
+//            await objectiveEvaluator.EvaluateAll(population.Chromosomes.Cast<IChromosome<AssignmentObjective>>());
 
             var result = await ga.EvolveUntil(population, state =>
             {
@@ -71,6 +71,8 @@ namespace Albar.AssistantAssignment.ConsoleApp
                 {
                     throw new Exception("Not Valid");
                 }
+
+//                return population.Chromosomes.Any(c => c.Fitness >= 1);
 
                 return termination(state);
             });

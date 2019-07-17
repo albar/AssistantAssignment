@@ -24,7 +24,7 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation.Factories
         public IPopulation Create(PopulationCapacity capacity)
         {
             var chromosomes = Create(capacity.Minimum);
-            _evaluator.EvaluateAll(chromosomes.Cast<IChromosome<T>>());
+            _evaluator.EvaluateAll(chromosomes.Cast<IChromosome<T>>()).Wait();
 
             return new AssignmentPopulation
             {

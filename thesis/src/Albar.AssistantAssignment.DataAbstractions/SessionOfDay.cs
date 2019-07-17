@@ -1,4 +1,4 @@
-namespace Albar.AssistantAssignment.ThesisSpecificImplementation.Data
+namespace Albar.AssistantAssignment.DataAbstractions
 {
     public enum SessionOfDay
     {

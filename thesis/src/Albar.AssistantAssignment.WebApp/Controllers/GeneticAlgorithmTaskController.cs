@@ -11,16 +11,16 @@ namespace Albar.AssistantAssignment.WebApp.Controllers
 {
     [Route("/api/ga")]
     [ApiController]
-    public class GeneticAlgorithmController : ControllerBase
+    public class GeneticAlgorithmTaskController : ControllerBase
     {
         private readonly AssignmentDatabase _database;
         private readonly IGeneticAlgorithmBackgroundTaskQueue _queue;
-        private readonly ILogger<GeneticAlgorithmController> _logger;
+        private readonly ILogger<GeneticAlgorithmTaskController> _logger;
 
-        public GeneticAlgorithmController(
+        public GeneticAlgorithmTaskController(
             AssignmentDatabase database,
             IGeneticAlgorithmBackgroundTaskQueue queue,
-            ILogger<GeneticAlgorithmController> logger)
+            ILogger<GeneticAlgorithmTaskController> logger)
         {
             _database = database;
             _queue = queue;
@@ -39,11 +39,14 @@ namespace Albar.AssistantAssignment.WebApp.Controllers
                 task.Coefficients,
                 task.Capacity,
                 task.EvolutionState,
-                SubjectCount = task.Repository.Subjects.Length,
-                ScheduleCount = task.Repository.Schedules.Length,
-                AssistantCount = task.Repository.Assistants.Length
+                Repository = new
+                {
+                    SubjectCount = task.Repository.Subjects.Length,
+                    ScheduleCount = task.Repository.Schedules.Length,
+                    AssistantCount = task.Repository.Assistants.Length
+                }
             }).ToArray();
-            
+
             return new JsonResult(tasks);
         }
 
@@ -66,10 +69,16 @@ namespace Albar.AssistantAssignment.WebApp.Controllers
                 task.Coefficients,
                 task.Capacity,
                 task.EvolutionState,
+                Repository = new
+                {
+                    SubjectCount = task.Repository?.Subjects.Length,
+                    ScheduleCount = task.Repository?.Schedules.Length,
+                    AssistantCount = task.Repository?.Assistants.Length
+                }
             };
             return new JsonResult(result);
         }
-        
+
         public class BuildBody
         {
             public int Group { get; set; }
@@ -106,13 +115,13 @@ namespace Albar.AssistantAssignment.WebApp.Controllers
             if (!exists) return NotFound();
             return new JsonResult(true);
         }
-        
+
         public class StartConfiguration
         {
             public TerminationKind Kind { get; set; }
             public int Value { get; set; }
         }
-        
+
         [HttpPatch("{task}")]
         public IActionResult Stop(string task)
         {

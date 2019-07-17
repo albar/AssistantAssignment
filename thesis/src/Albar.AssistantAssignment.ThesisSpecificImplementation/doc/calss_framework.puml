@@ -1,0 +1,55 @@
+@startuml
+
+namespace Bunnypro.GeneticAlgorithm.Primitives {
+    class PopulationCapacity <<(S,#FF7700)>>
+    {
+        +int Minimum { get }
+        +int Maximum { get }
+    }
+}
+
+namespace Bunnypro.GeneticAlgorithm.Abstractions {
+    interface IChromosome
+    {
+        +double Fitness { get set }
+        +ImmutableArray<object> Genotype { get }
+        +object Phenotype { get }
+    }
+}
+
+namespace Bunnypro.GeneticAlgorithm.MultiObjective.Primitives {
+    class ObjectiveValues<T: Enum> <<(S,#FF7700)>>
+    {
+        -IReadOnlyDictionary<T, double> _values
+    }
+}
+
+namespace Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions {    
+    interface IChromosome<T: Enum>
+    {
+        +ObjectiveValues<T> ObjectiveValues { get set }
+    }
+    
+    interface IMultiObjectiveGeneticOperation<T: Enum>
+    {
+        +Task<IEnumerable<IChromosome<T>>> Operate(IEnumerable<IChromosome<T>>, PopulationCapacity[, CancellationToken])
+    }
+}
+
+namespace Bunnypro.GeneticAlgorithm.MultiObjective.Core {    
+    class NormalizedObjectiveValuesFitnessEvaluator<T: Enum>
+    {
+        -<<readonly>> IDictionary<T, Optimum> _optimum
+        -<<readonly>> IDictionary<T, double> _coefficient
+        #<<virtual>> void EvaluateObjectiveValuesAll(IEnumerable<IChromosome<T>>)
+    }
+}
+
+Bunnypro.GeneticAlgorithm.Primitives -[hidden]> Bunnypro.GeneticAlgorithm.Abstractions
+Bunnypro.GeneticAlgorithm.Primitives -[hidden]> Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions
+Bunnypro.GeneticAlgorithm.Abstractions --[hidden]> Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions
+Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions --[hidden]> Bunnypro.GeneticAlgorithm.MultiObjective.Core
+Bunnypro.GeneticAlgorithm.MultiObjective.Core --[hidden]> Bunnypro.GeneticAlgorithm.MultiObjective.Primitives
+Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions -[hidden]> Bunnypro.GeneticAlgorithm.MultiObjective.Primitives
+
+@enduml

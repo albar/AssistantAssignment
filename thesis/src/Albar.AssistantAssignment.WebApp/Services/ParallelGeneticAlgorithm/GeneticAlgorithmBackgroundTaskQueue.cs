@@ -60,39 +60,34 @@ namespace Albar.AssistantAssignment.WebApp.Services.ParallelGeneticAlgorithm
             _logger.LogInformation($"Enqueue for Build Task {id}");
             var task = new GeneticAlgorithmTask(id, group, coefficients, capacity);
             _tasks.Add(task);
-            var repository = _repositories.FirstOrDefault(repo => repo.Group.Id == group.Id);
-            if (repository != null)
+            _databaseBackgroundTaskQueue.Enqueue(async (database, token) =>
             {
-                _notification.BuildingTask(id);
-                task.State = GeneticAlgorithmTaskState.BuildingTask;
-                task.Build(repository);
-                _logger.LogInformation($"Task {id} has been Build");
-                _notification.TaskBuildFinished(id);
-                task.State = GeneticAlgorithmTaskState.TaskBuildFinished;
-            }
-            else
-            {
-                _databaseBackgroundTaskQueue.Enqueue(async (database, token) =>
+                var repository = _repositories.FirstOrDefault(repo => repo.Group.Id == group.Id);
+                if (repository == null)
                 {
                     _logger.LogInformation($"Building Repository for Task {id}");
                     await _notification.BuildingRepositoryTask(id);
                     task.State = GeneticAlgorithmTaskState.BuildingRepositoryTask;
 
-                    repository = _repositories.FirstOrDefault(repo => repo.Group.Id == group.Id);
-                    if (repository != null) task.Build(repository);
                     repository = await AssignmentDataRepository.BuildAsync(database, group, token);
                     _repositories.Add(repository);
+                }
 
-                    await _notification.BuildingTask(id);
-                    task.State = GeneticAlgorithmTaskState.BuildingTask;
+                await _notification.BuildingTask(id);
+                task.State = GeneticAlgorithmTaskState.BuildingTask;
 
-                    task.Build(repository);
+                task.Build(repository);
+                _logger.LogInformation($"Task {id} has been Build");
 
-                    _logger.LogInformation($"Task {id} has been Build");
-                    await _notification.TaskBuildFinished(id);
-                    task.State = GeneticAlgorithmTaskState.TaskBuildFinished;
+
+                await _notification.TaskBuildFinished(id, new
+                {
+                    SubjectCount = task.Repository.Subjects.Length,
+                    ScheduleCount = task.Repository.Schedules.Length,
+                    AssistantCount = task.Repository.Assistants.Length
                 });
-            }
+                task.State = GeneticAlgorithmTaskState.TaskBuildFinished;
+            });
 
             return task;
         }
@@ -120,6 +115,7 @@ namespace Albar.AssistantAssignment.WebApp.Services.ParallelGeneticAlgorithm
                 task.State = GeneticAlgorithmTaskState.RunningTask;
                 task.RunningTask = new GeneticAlgorithmRunningTask(taskId, id, source);
                 var ga = task.GeneticAlgorithm;
+                task.Population = task.PopulationFactory.Create(task.Capacity);
                 var population = task.Population;
 
                 bool MonitoredTermination(GeneticEvolutionStates state)
@@ -128,7 +124,12 @@ namespace Albar.AssistantAssignment.WebApp.Services.ParallelGeneticAlgorithm
                         .OrderBy(ch => ch.Fitness)
                         .Last();
 
-                    _notification.EvolvedOnce(taskId, state, new
+                    _notification.EvolvedOnce(taskId, new
+                    {
+                        state.EvolutionCount,
+                        state.EvolutionTime,
+                        chromosomeCount = population.Chromosomes.Count
+                    }, new
                     {
                         chromosome.Fitness,
                         chromosome.ObjectiveValues
@@ -167,7 +168,12 @@ namespace Albar.AssistantAssignment.WebApp.Services.ParallelGeneticAlgorithm
             if (task == null) return;
             task.RunningTask = null;
             _logger.LogInformation($"Running Task {task.Id} with RunningId: {runningTaskId} Finished");
-            _notification.TaskFinished(task.Id, result.Item1);
+            _notification.TaskFinished(task.Id, new
+            {
+                result.Item1.EvolutionCount,
+                result.Item1.EvolutionTime,
+                chromosomeCount = task.Population.Chromosomes.Count
+            });
             task.State = GeneticAlgorithmTaskState.TaskFinished;
         }
 
@@ -208,9 +214,9 @@ namespace Albar.AssistantAssignment.WebApp.Services.ParallelGeneticAlgorithm
                     objectiveEvaluator,
                     Coefficients
                 );
-                var factory = new PopulationFactory<AssignmentObjective>(genotypePhenotypeMapper, objectiveEvaluator);
+                PopulationFactory =
+                    new PopulationFactory<AssignmentObjective>(genotypePhenotypeMapper, objectiveEvaluator);
                 GeneticAlgorithm = new GeneticAlgorithm(nsga);
-                Population = factory.Create(Capacity);
                 Repository = repository;
             }
 
@@ -218,13 +224,14 @@ namespace Albar.AssistantAssignment.WebApp.Services.ParallelGeneticAlgorithm
             public string Id { get; }
             public Group Group { get; }
             public IGeneticAlgorithm GeneticAlgorithm { get; private set; }
-            public IPopulation Population { get; private set; }
+            public IPopulation Population { get; set; }
             public IReadOnlyDictionary<AssignmentObjective, double> Coefficients { get; }
             public PopulationCapacity Capacity { get; }
             public bool IsRunning => RunningTask != null;
             public GeneticEvolutionStates EvolutionState { get; set; }
             public GeneticAlgorithmTaskState State { get; set; }
             public GeneticAlgorithmRunningTask RunningTask { get; set; }
+            public PopulationFactory<AssignmentObjective> PopulationFactory { get; set; }
 
             public bool Equals(GeneticAlgorithmTask other)
             {

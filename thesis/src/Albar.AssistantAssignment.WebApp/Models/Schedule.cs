@@ -1,4 +1,5 @@
 using System;
+using Albar.AssistantAssignment.DataAbstractions;
 using Albar.AssistantAssignment.ThesisSpecificImplementation.Data;
 
 namespace Albar.AssistantAssignment.WebApp.Models

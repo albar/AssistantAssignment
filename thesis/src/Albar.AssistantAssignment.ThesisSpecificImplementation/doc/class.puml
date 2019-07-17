@@ -16,8 +16,8 @@ namespace Bunnypro.GeneticAlgorithm.Abstractions {
     }
 }
 
-'hide Bunnypro.GeneticAlgorithm.Primitives
-'hide Bunnypro.GeneticAlgorithm.Abstractions
+hide Bunnypro.GeneticAlgorithm.Primitives
+hide Bunnypro.GeneticAlgorithm.Abstractions
 
 namespace Bunnypro.GeneticAlgorithm.MultiObjective.Primitives {
     class ObjectiveValues<T: Enum> <<(S,#FF7700)>>
@@ -27,12 +27,11 @@ namespace Bunnypro.GeneticAlgorithm.MultiObjective.Primitives {
 }
 
 namespace Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions {
-    Bunnypro.GeneticAlgorithm.Abstractions.IChromosome <|-- IChromosome
-    
-    IMultiObjectiveGeneticOperation ..> IChromosome
-    IMultiObjectiveGeneticOperation ..> Bunnypro.GeneticAlgorithm.Primitives.PopulationCapacity
+'    Bunnypro.GeneticAlgorithm.Abstractions.IChromosome <|-- IChromosome
+'    IMultiObjectiveGeneticOperation ..> IChromosome
+'    IMultiObjectiveGeneticOperation ..> Bunnypro.GeneticAlgorithm.Primitives.PopulationCapacity
 
-    IChromosome o-- Bunnypro.GeneticAlgorithm.MultiObjective.Primitives.ObjectiveValues
+'    IChromosome o-- Bunnypro.GeneticAlgorithm.MultiObjective.Primitives.ObjectiveValues
     
     interface IChromosome<T: Enum>
     {
@@ -46,15 +45,9 @@ namespace Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions {
 }
 
 namespace Bunnypro.GeneticAlgorithm.MultiObjective.Core {
-    Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions.IChromosomeEvaluator <|-- NormalizedObjectiveValuesFitnessEvaluator
-    NormalizedObjectiveValuesFitnessEvaluator o-- Bunnypro.GeneticAlgorithm.MultiObjective.Core.NormalizedObjectiveValuesFitnessEvaluator.Optimum
-    NormalizedObjectiveValuesFitnessEvaluator ..> Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions.IChromosome
-    
-    enum Bunnypro.GeneticAlgorithm.MultiObjective.Core.NormalizedObjectiveValuesFitnessEvaluator.Optimum
-    {
-        Minimum
-        Maximum
-    }
+'    Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions.IChromosomeEvaluator <|-- NormalizedObjectiveValuesFitnessEvaluator
+'    NormalizedObjectiveValuesFitnessEvaluator o-- Bunnypro.GeneticAlgorithm.MultiObjective.Core.NormalizedObjectiveValuesFitnessEvaluator.Optimum
+'    NormalizedObjectiveValuesFitnessEvaluator ..> Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions.IChromosome
     
     class NormalizedObjectiveValuesFitnessEvaluator<T: Enum>
     {
@@ -64,11 +57,11 @@ namespace Bunnypro.GeneticAlgorithm.MultiObjective.Core {
     }
 }
 
-'hide Bunnypro.GeneticAlgorithm.MultiObjective.Primitives
-'hide Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions
-'hide Bunnypro.GeneticAlgorithm.MultiObjective.Core
+hide Bunnypro.GeneticAlgorithm.MultiObjective.Primitives
+hide Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions
+hide Bunnypro.GeneticAlgorithm.MultiObjective.Core
 
-namespace Albar.Assignment.DataAbstraction {
+namespace Albar.Assignment.DataAbstractions {
     interface IAssistant
     {
         +int Id { get }
@@ -90,31 +83,33 @@ namespace Albar.Assignment.DataAbstraction {
     }
 }
 
-namespace Albar.Assignment.Abstractions {
-    Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions.IChromosome <|-- IAssignmentChromosome
-    ICrossoverSelection <|-- IReproductionSelection
-    IMutationSelection <|-- IReproductionSelection
+hide Albar.Assignment.DataAbstractions
 
-    IAssignmentChromosome o-- IScheduleSolutionRepresentation
+namespace Albar.Assignment.Abstractions {
+'    Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions.IChromosome <|-- IAssignmentChromosome
+'    ICrossoverSelection <|-- IReproductionSelection
+'    IMutationSelection <|-- IReproductionSelection
+
+'    IAssignmentChromosome o-- IScheduleSolutionRepresentation
     
-    ICrossoverSelection ..> IAssignmentChromosome
-    ICrossoverSelection ..> Bunnypro.GeneticAlgorithm.Primitives.PopulationCapacity
-    IMutationSelection ..> IAssignmentChromosome
-    IMutationSelection ..> Bunnypro.GeneticAlgorithm.Primitives.PopulationCapacity
+'    ICrossoverSelection ..> IAssignmentChromosome
+'    ICrossoverSelection ..> Bunnypro.GeneticAlgorithm.Primitives.PopulationCapacity
+'    IMutationSelection ..> IAssignmentChromosome
+'    IMutationSelection ..> Bunnypro.GeneticAlgorithm.Primitives.PopulationCapacity
     
-    IDataRepository o-- Albar.Assignment.DataAbstraction.ISubject
-    IDataRepository o-- Albar.Assignment.DataAbstraction.ISchedule
-    IDataRepository o-- Albar.Assignment.DataAbstraction.IAssistant
-    IDataRepository o-- IAssistantCombination
+'    IDataRepository o-- Albar.Assignment.DataAbstraction.ISubject
+'    IDataRepository o-- Albar.Assignment.DataAbstraction.ISchedule
+'    IDataRepository o-- Albar.Assignment.DataAbstraction.IAssistant
+'    IDataRepository o-- IAssistantCombination
     
-    IGenotypePhenotypeMapper o-- IDataRepository
-    IGenotypePhenotypeMapper ..> IAssignmentChromosome
-    IGenotypePhenotypeMapper ..> IScheduleSolutionRepresentation
+'    IGenotypePhenotypeMapper o-- IDataRepository
+'    IGenotypePhenotypeMapper ..> IAssignmentChromosome
+'    IGenotypePhenotypeMapper ..> IScheduleSolutionRepresentation
     
-    IObjectiveEvaluator ..> IAssignmentChromosome
+'    IObjectiveEvaluator ..> IAssignmentChromosome
     
-    IScheduleSolutionRepresentation o-- Albar.Assignment.DataAbstraction.ISchedule
-    IScheduleSolutionRepresentation o-- IAssistantCombination
+'    IScheduleSolutionRepresentation o-- Albar.Assignment.DataAbstraction.ISchedule
+'    IScheduleSolutionRepresentation o-- IAssistantCombination
 
     interface IReproductionSelection<T: Enum>
     
@@ -171,8 +166,8 @@ namespace Albar.Assignment.Abstractions {
     }
     
     namespace Primitives {
-        PreparedCrossoverParent o-- Albar.Assignment.Abstractions.IAssignmentChromosome
-        PreparedMutationParent o-- Albar.Assignment.Abstractions.IAssignmentChromosome
+'        PreparedCrossoverParent o-- Albar.Assignment.Abstractions.IAssignmentChromosome
+'        PreparedMutationParent o-- Albar.Assignment.Abstractions.IAssignmentChromosome
         
         class PreparedCrossoverParent<T: Enum> <<(S,#FF7700)>>
         {
@@ -189,32 +184,34 @@ namespace Albar.Assignment.Abstractions {
     }
 }
 
+hide Albar.Assignment.Abstractions
+
 namespace Albar.Assignment.Algorithm {
-    Albar.Assignment.Abstractions.IAssignmentChromosome <|-down- AssignmentChromosome
-    Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions.IMultiObjectiveGeneticOperation <|-right- AssignmentCrossover
-    Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions.IMultiObjectiveGeneticOperation <|-right- AssignmentMutation
-    Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions.IMultiObjectiveGeneticOperation <|-right- AssignmentReproduction
-    Albar.Assignment.Abstractions.IAssistantCombination <|-down- AssistantCombination
+'    Albar.Assignment.Abstractions.IAssignmentChromosome <|-down- AssignmentChromosome
+'    Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions.IMultiObjectiveGeneticOperation <|-right- AssignmentCrossover
+'    Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions.IMultiObjectiveGeneticOperation <|-right- AssignmentMutation
+'    Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions.IMultiObjectiveGeneticOperation <|-right- AssignmentReproduction
+'    Albar.Assignment.Abstractions.IAssistantCombination <|-down- AssistantCombination
     
-    AssignmentChromosome o-down- Albar.Assignment.Abstractions.IScheduleSolutionRepresentation
+'    AssignmentChromosome o-down- Albar.Assignment.Abstractions.IScheduleSolutionRepresentation
     
-    AssignmentCrossover o-down- Albar.Assignment.Abstractions.ICrossoverSelection
-    AssignmentCrossover o-down- Albar.Assignment.Abstractions.IGenotypePhenotypeMapper
-    AssignmentCrossover .down.> Albar.Assignment.Abstractions.IAssignmentChromosome
+'    AssignmentCrossover o-down- Albar.Assignment.Abstractions.ICrossoverSelection
+'    AssignmentCrossover o-down- Albar.Assignment.Abstractions.IGenotypePhenotypeMapper
+'    AssignmentCrossover .down.> Albar.Assignment.Abstractions.IAssignmentChromosome
     
-    AssignmentMutation o-down- Albar.Assignment.Abstractions.IMutationSelection
-    AssignmentMutation o-down- Albar.Assignment.Abstractions.IGenotypePhenotypeMapper
-    AssignmentMutation .down.> Albar.Assignment.Abstractions.IAssignmentChromosome
+'    AssignmentMutation o-down- Albar.Assignment.Abstractions.IMutationSelection
+'    AssignmentMutation o-down- Albar.Assignment.Abstractions.IGenotypePhenotypeMapper
+'    AssignmentMutation .down.> Albar.Assignment.Abstractions.IAssignmentChromosome
     
-    AssignmentReproduction o-down- Albar.Assignment.Abstractions.IGenotypePhenotypeMapper
-    AssignmentReproduction o-down- Albar.Assignment.Abstractions.IReproductionSelection
-    AssignmentReproduction o-down- Albar.Assignment.Abstractions.ICrossoverSelection
-    AssignmentReproduction o-down- Albar.Assignment.Abstractions.IMutationSelection
-    AssignmentReproduction *-- AssignmentCrossover
-    AssignmentReproduction *-- AssignmentMutation
+'    AssignmentReproduction o-down- Albar.Assignment.Abstractions.IGenotypePhenotypeMapper
+'    AssignmentReproduction o-down- Albar.Assignment.Abstractions.IReproductionSelection
+'    AssignmentReproduction o-down- Albar.Assignment.Abstractions.ICrossoverSelection
+'    AssignmentReproduction o-down- Albar.Assignment.Abstractions.IMutationSelection
+'    AssignmentReproduction *-- AssignmentCrossover
+'    AssignmentReproduction *-- AssignmentMutation
     
-    AssistantCombination o-down- Albar.Assignment.DataAbstraction.ISubject
-    AssistantCombination o-down- Albar.Assignment.DataAbstraction.IAssistant
+'    AssistantCombination o-down- Albar.Assignment.DataAbstraction.ISubject
+'    AssistantCombination o-down- Albar.Assignment.DataAbstraction.IAssistant
     
     class AssignmentChromosome<T: Enum>
     class AssistantCombination
@@ -250,65 +247,70 @@ namespace Albar.Assignment.Algorithm {
     hide Albar.Assignment.Algorithm.Utilities
 }
 
-namespace Albar.Assignment.ThesisSpecificImplementation {
-    Bunnypro.GeneticAlgorithm.MultiObjective.Core.NormalizedObjectiveValuesFitnessEvaluator <|-down- AssignmentChromosomesEvaluator
-    Albar.Assignment.Abstractions.IDataRepository <|-down- DataRepository
-    Albar.Assignment.Abstractions.IGenotypePhenotypeMapper <|-down- GenotypePhenotypeMapper
-    Albar.Assignment.Abstractions.IReproductionSelection <|-down- ReproductionSelection
-    Albar.Assignment.Abstractions.IScheduleSolutionRepresentation <|-down- ScheduleSolutionRepresentation
-   
-    AssignmentChromosomesEvaluator o-down- Albar.Assignment.Abstractions.IObjectiveEvaluator
-    AssignmentChromosomesEvaluator .up.> Albar.Assignment.Abstractions.IAssignmentChromosome
-   
-    class GenotypePhenotypeMapper
-    class ScheduleSolutionRepresentation
-    enum AssignmentObjective
-    
-    class AssignmentChromosomesEvaluator<T: Enum>
-    {
-        +void Add(T, IObjectiveEvaluator<T>)
-        #void EvaluateObjectiveValuesAll(IEnumerable<IChromosome<T>>)
-    }
-    
-    class DataRepository
-    {
-        -ImmutableArray<IAssistantCombination> CombineAssistants(ImmutableArray<ISubject>)
-    }
-    
-    class ReproductionSelection
-    {
-        -<<readonly>> IGenotypePhenotypeMapper<AssignmentObjective> _mapper
-    }
+hide Albar.Assignment.Algorithm
+'hide Albar.Assignment.ThesisSpecificImplementation
 
-    enum AssignmentObjective
-    {
-        AssistantScheduleCollision,
-        BelowThresholdAssessment,
-        AboveThresholdAssessment,
-        AverageOfNormalizedAssessment
-    }
+namespace Albar.Assignment.ThesisSpecificImplementation {
+'    Bunnypro.GeneticAlgorithm.MultiObjective.Core.NormalizedObjectiveValuesFitnessEvaluator <|-down- AssignmentChromosomesEvaluator
+'    Albar.Assignment.Abstractions.IDataRepository <|-down- DataRepository
+'    Albar.Assignment.Abstractions.IGenotypePhenotypeMapper <|-down- GenotypePhenotypeMapper
+'    Albar.Assignment.Abstractions.IReproductionSelection <|-down- ReproductionSelection
+'    Albar.Assignment.Abstractions.IScheduleSolutionRepresentation <|-down- ScheduleSolutionRepresentation
+   
+'    AssignmentChromosomesEvaluator o-down- Albar.Assignment.Abstractions.IObjectiveEvaluator
+'    AssignmentChromosomesEvaluator .up.> Albar.Assignment.Abstractions.IAssignmentChromosome
+   
+'    class GenotypePhenotypeMapper
+'    class ScheduleSolutionRepresentation
+'    
+'    class AssignmentChromosomesEvaluator<T: Enum>
+'    {
+'        +void Add(T, IObjectiveEvaluator<T>)
+'        #void EvaluateObjectiveValuesAll(IEnumerable<IChromosome<T>>)
+'    }
+'    
+'    class DataRepository
+'    {
+'        -ImmutableArray<IAssistantCombination> CombineAssistants(ImmutableArray<ISubject>)
+'    }
+'    
+'    class ReproductionSelection
+'    {
+'        -<<readonly>> IGenotypePhenotypeMapper<AssignmentObjective> _mapper
+'    }
+'
+'    enum AssignmentObjective
+'    {
+'        AssistantScheduleCollision,
+'        BelowThresholdAssessment,
+'        AboveThresholdAssessment,
+'        AverageOfNormalizedAssessment
+'    }
     
-    namespace ObjectiveEvaluators {
-        Albar.Assignment.Abstractions.IObjectiveEvaluator <|-down- AssistantScheduleCollisionEvaluator
-        Albar.Assignment.Abstractions.IObjectiveEvaluator <|-down- AboveThresholdAssessmentEvaluator
-        Albar.Assignment.Abstractions.IObjectiveEvaluator <|-down- BelowThresholdAssessmentEvaluator
-        Albar.Assignment.Abstractions.IObjectiveEvaluator <|-down- AverageOfNormalizedAssessmentEvaluator
-        
-        class AssistantScheduleCollisionEvaluator
-        class AboveThresholdAssessmentEvaluator
-        class BelowThresholdAssessmentEvaluator
-        class AverageOfNormalizedAssessmentEvaluator
-    }
+'    namespace ObjectiveEvaluators {
+''        Albar.Assignment.Abstractions.IObjectiveEvaluator <|-down- AssistantScheduleCollisionEvaluator
+''        Albar.Assignment.Abstractions.IObjectiveEvaluator <|-down- AboveThresholdAssessmentEvaluator
+''        Albar.Assignment.Abstractions.IObjectiveEvaluator <|-down- BelowThresholdAssessmentEvaluator
+''        Albar.Assignment.Abstractions.IObjectiveEvaluator <|-down- AverageOfNormalizedAssessmentEvaluator
+'
+'        class AssistantScheduleCollisionEvaluator
+'        class AboveThresholdAssessmentEvaluator
+'        class BelowThresholdAssessmentEvaluator
+'        class AverageOfNormalizedAssessmentEvaluator
+'    }
+
+'    hide Albar.Assignment.ThesisSpecificImplementation.ObjectiveEvaluators    
+'    hide Albar.Assignment.ThesisSpecificImplementation.Data
 
     namespace Data {
-        Albar.Assignment.DataAbstraction.ISubject <|-down- Subject
-        Albar.Assignment.DataAbstraction.IAssistant <|-down- Assistant
-        Albar.Assignment.DataAbstraction.ISchedule <|-down- Schedule
-        
-        Subject o-down- AssistantAssessment
-        Assistant o-down- AssistantAssessment
-        Schedule o-down- SessionOfDay
-        
+'        Albar.Assignment.DataAbstraction.ISubject <|-down- Subject
+'        Albar.Assignment.DataAbstraction.IAssistant <|-down- Assistant
+'        Albar.Assignment.DataAbstraction.ISchedule <|-down- Schedule
+
+'        Subject o-down- AssistantAssessment
+'        Assistant o-down- AssistantAssessment
+'        Schedule o-down- SessionOfDay
+
         enum AssistantAssessment
         {
             AssistantScheduleCollision,
@@ -316,7 +318,7 @@ namespace Albar.Assignment.ThesisSpecificImplementation {
             AboveThresholdAssessment,
             AverageOfNormalizedAssessment
         }
-        
+
         enum SessionOfDay
         {
             First
@@ -325,23 +327,35 @@ namespace Albar.Assignment.ThesisSpecificImplementation {
             Fourth
             Fifth
         }
-        
+
         class Assistant
         {
             + ImmutableDictionary<Subject, Dictionary<AssistantAssessment, double>> SubjectAssessments { get }
         }
-        
+
         class Schedule
         {
             + DayOfWeek Day { get }
             + SessionOfDay Session { get }
             + int Lab { get }
         }
-        
+
         class Subject
         {
             + IDictionary<AssistantAssessment, double> AssessmentThreshold { get }
         }
     }
 }
+
+'Albar.Assignment.DataAbstractions -[hidden]> Albar.Assignment.Algorithm
+'Albar.Assignment.DataAbstractions --[hidden]> Albar.Assignment.Abstractions
+'Albar.Assignment.DataAbstractions -[hidden]> Albar.Assignment.ThesisSpecificImplementation
+'Albar.Assignment.ThesisSpecificImplementation --[hidden]> Albar.Assignment.Algorithm
+'Albar.Assignment.Abstractions --[hidden]> Bunnypro.GeneticAlgorithm.Primitives
+'Albar.Assignment.Algorithm --[hidden]> Bunnypro.GeneticAlgorithm.Primitives
+'Albar.Assignment.Abstractions --[hidden]> Bunnypro.GeneticAlgorithm.Primitives
+'Albar.Assignment.ThesisSpecificImplementation --[hidden]> Bunnypro.GeneticAlgorithm.Primitives
+
+Albar.Assignment.Algorithm ---[hidden]> Albar.Assignment.ThesisSpecificImplementation
+
 @enduml

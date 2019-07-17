@@ -35,7 +35,7 @@
                         :to="`/${group.id}`"
                 >
                     <v-list-tile-content>
-                        <v-list-tile-title>{{ group.name || group.id }}</v-list-tile-title>
+                        <v-list-tile-title>{{ group.name || `Data ${group.id}` }}</v-list-tile-title>
                     </v-list-tile-content>
                 </v-list-tile>
             </v-list>
@@ -85,9 +85,10 @@
                                 </v-card-title>
                                 <v-card-text>
                                     Data
-                                    <v-select :items="groups.map(group => ({value: group.id, text: group.name || group.id}))"
-                                              label="Data Group"
-                                              v-model="newTask.group"
+                                    <v-select
+                                            :items="groups.map(group => ({value: group.id, text: group.name || `Data ${group.id}` }))"
+                                            label="Data Group"
+                                            v-model="newTask.group"
                                     ></v-select>
 
                                     Objective Coefficients
@@ -138,39 +139,31 @@
                                             </v-list-tile>
                                             <v-list-tile>
                                                 <v-list-tile-content>Data Group</v-list-tile-content>
-                                                <v-list-tile-content class="align-end">{{ selectedTask.group.name || selectedTask.group.id }}
+                                                <v-list-tile-content class="align-end">{{ selectedTask.group.name ||
+                                                    `Data ${selectedTask.group.id}` }}
                                                 </v-list-tile-content>
                                             </v-list-tile>
                                             <v-list-tile>
                                                 <v-list-tile-content>Subject Count</v-list-tile-content>
                                                 <v-list-tile-content class="align-end">
-                                                    {{ selectedTask.subjectCount }}
+                                                    {{ selectedTask.repository.subjectCount }}
                                                 </v-list-tile-content>
                                             </v-list-tile>
                                             <v-list-tile>
                                                 <v-list-tile-content>Schedule Count</v-list-tile-content>
                                                 <v-list-tile-content class="align-end">
-                                                    {{ selectedTask.scheduleCount }}
+                                                    {{ selectedTask.repository.scheduleCount }}
                                                 </v-list-tile-content>
                                             </v-list-tile>
                                             <v-list-tile>
                                                 <v-list-tile-content>Assistant Count</v-list-tile-content>
                                                 <v-list-tile-content class="align-end">
-                                                    {{ selectedTask.assistantCount }}
+                                                    {{ selectedTask.repository.assistantCount }}
                                                 </v-list-tile-content>
                                             </v-list-tile>
                                             <v-divider></v-divider>
                                             <v-list-tile>
-                                                <v-list-tile-title><h5>Evolution State</h5></v-list-tile-title>
-                                            </v-list-tile>
-                                            <v-list-tile v-for="(value, state) in selectedTask.evolutionState"
-                                                         :key="state">
-                                                <v-list-tile-content>{{ state }}</v-list-tile-content>
-                                                <v-list-tile-content class="align-end">{{ value }}</v-list-tile-content>
-                                            </v-list-tile>
-                                            <v-divider></v-divider>
-                                            <v-list-tile>
-                                                <v-list-tile-title><h5>Population Capacity</h5></v-list-tile-title>
+                                                <v-list-tile-title><h4>Population Capacity</h4></v-list-tile-title>
                                             </v-list-tile>
                                             <v-list-tile v-for="(value, capacity) in selectedTask.capacity"
                                                          :key="capacity">
@@ -179,7 +172,7 @@
                                             </v-list-tile>
                                             <v-divider></v-divider>
                                             <v-list-tile>
-                                                <v-list-tile-title><h5>Coefficients</h5></v-list-tile-title>
+                                                <v-list-tile-title><h4>Coefficients</h4></v-list-tile-title>
                                             </v-list-tile>
                                             <v-list-tile v-for="(value, coefficient) in selectedTask.coefficients"
                                                          :key="coefficient">
@@ -197,18 +190,31 @@
                                                     <v-list-tile-title><h3>Detail Process</h3></v-list-tile-title>
                                                 </v-list-tile-content>
                                             </v-list-tile>
+                                            <v-list-tile>
+                                                <v-list-tile-title><h4>Evolution State</h4></v-list-tile-title>
+                                            </v-list-tile>
+                                            <v-list-tile v-for="(value, state) in selectedTask.evolutionState"
+                                                         :key="state">
+                                                <v-list-tile-content>{{ state }}</v-list-tile-content>
+                                                <v-list-tile-content class="align-end">{{ value }}</v-list-tile-content>
+                                            </v-list-tile>
+                                            <v-divider></v-divider>
                                             <template v-if="selectedTask.bestChromosome">
                                                 <v-list-tile>
                                                     <v-list-tile-title><h4>Best Chromosome</h4></v-list-tile-title>
                                                 </v-list-tile>
                                                 <v-list-tile>
                                                     <v-list-tile-content>Fitness</v-list-tile-content>
-                                                    <v-list-tile-content class="align-end">{{ selectedTask.bestChromosome.fitness }}</v-list-tile-content>
+                                                    <v-list-tile-content class="align-end">{{
+                                                        selectedTask.bestChromosome.fitness }}
+                                                    </v-list-tile-content>
                                                 </v-list-tile>
-                                                <v-list-tile v-for="(value, objective) in selectedTask.bestChromosome.objectiveValues"
-                                                             :key="objective">
+                                                <v-list-tile
+                                                        v-for="(value, objective) in selectedTask.bestChromosome.objectiveValues"
+                                                        :key="objective">
                                                     <v-list-tile-content>{{ objective }}</v-list-tile-content>
-                                                    <v-list-tile-content class="align-end">{{ value }}</v-list-tile-content>
+                                                    <v-list-tile-content class="align-end">{{ value }}
+                                                    </v-list-tile-content>
                                                 </v-list-tile>
                                             </template>
                                         </v-list>
@@ -245,6 +251,12 @@
                                                     {{ selectedTask.isRunning ? 'Stop' : 'Start' }}
                                                 </v-btn>
                                             </v-list-tile>
+                                            <v-list-tile style="margin-top: 20px">
+                                                <v-btn depressed outline block :disabled="!canSeeResult"
+                                                       @click="viewResult">
+                                                    View Result
+                                                </v-btn>
+                                            </v-list-tile>
                                         </v-list>
                                     </v-card>
                                 </v-flex>
@@ -252,6 +264,84 @@
                         </v-container>
                     </v-card>
                 </v-content>
+            </v-card>
+        </v-dialog>
+        <v-dialog v-model="resultDialog" scrollable :width="result ? 'auto': '300'">
+            <v-card v-if="result">
+                <v-card-title class="headline">Optimization Result</v-card-title>
+                <v-card-text>
+                    <v-data-table
+                            :headers="resultTable.header"
+                            :items="resultTable.values"
+                            hide-actions
+                    >
+                        <template v-slot:items="props">
+                            <td>{{ props.index + 1 }}</td>
+                            <td v-for="key in resultTableColumn" :key="key">{{ props.item.values[key.value] }}</td>
+                            <td>
+                            <td>
+                                <v-btn depressed small outline block color="grey" @click="showDetail(props.item.id)">
+                                    Detail
+                                </v-btn>
+                            </td>
+                        </template>
+                    </v-data-table>
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                            color="green darken-1"
+                            flat="flat"
+                            @click="resultDialog = false"
+                    >
+                        Close
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+            <v-card v-else
+                    color="primary"
+                    dark
+            >
+                <v-card-text>
+                    Retrieving Data
+                    <v-progress-linear
+                            indeterminate
+                            color="white"
+                            class="mb-0"
+                    ></v-progress-linear>
+                </v-card-text>
+            </v-card>
+        </v-dialog>
+        <v-dialog v-model="resultDetailDialog" scrollable>
+            <v-card v-if="selectedResultDetailId >= 0">
+                <v-card-title class="headline">Detail Result</v-card-title>
+                <v-card-text>
+                    <v-data-table
+                            :headers="resultDetail.header"
+                            :items="resultDetail.content"
+                            hide-actions
+                    >
+                        <template v-slot:items="props">
+                            <td>{{ props.index + 1 }}</td>
+                            <td>{{ props.item.subject.code || props.item.subject.id }}</td>
+                            <td>{{ props.item.schedule.day }}</td>
+                            <td>{{ props.item.schedule.session }}</td>
+                            <td>{{ props.item.schedule.lab }}</td>
+                            <td>{{ props.item.assistants.join(', ') }}</td>
+                            <td style="color: red">{{ props.item.collided ? 'Collided' : '' }}</td>
+                        </template>
+                    </v-data-table>
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                            color="green darken-1"
+                            flat="flat"
+                            @click="resultDetailDialog = false"
+                    >
+                        Close
+                    </v-btn>
+                </v-card-actions>
             </v-card>
         </v-dialog>
         <v-content>
@@ -275,6 +365,13 @@
         components: {
             HelloWorld
         },
+        watch: {
+            resultDialog(val, old) {
+                if (val === true) {
+                    this.result = null;
+                }
+            }
+        },
         data() {
             return {
                 groups: [],
@@ -290,7 +387,11 @@
                     kind: 0,
                     value: 0,
                     kinds: ["Manual", "Time Limit", "Evolution Count Limit"]
-                }
+                },
+                resultDialog: false,
+                result: null,
+                resultDetailDialog: false,
+                selectedResultDetailId: null,
             }
         },
         mounted() {
@@ -314,7 +415,6 @@
             const commonNotifications = [
                 "BuildingTask",
                 "BuildingRepositoryTask",
-                "TaskBuildFinished",
                 "TaskRemoved",
                 "RunningTask",
                 "TaskIsRunning",
@@ -324,12 +424,23 @@
             commonNotifications.forEach(kind => {
                 this.notification.on(kind, taskId => {
                     const task = this.tasks.find(task => task.id === taskId);
+                    if (!task) return;
                     task.state = kind;
                 })
             });
 
+            this.notification.on("TaskBuildFinished", (taskId, repository) => {
+                setTimeout(() => {
+                    const task = this.tasks.find(task => task.id === taskId);
+                    if (!task) return;
+                    task.repository = repository;
+                    task.state = "TaskBuildFinished";
+                }, 1000);
+            });
+
             this.notification.on("EvolvedOnce", (taskId, state, best) => {
                 const task = this.tasks.find(task => task.id === taskId);
+                if (!task) return;
                 task.evolutionState = state;
                 task.bestChromosome = best;
                 // console.log(best);
@@ -337,10 +448,63 @@
 
             this.notification.on("TaskFinished", (taskId, state) => {
                 const task = this.tasks.find(task => task.id === taskId);
+                if (!task) return;
                 task.evolutionState = state;
                 task.isRunning = false;
                 task.state = "Finished";
             })
+        },
+        computed: {
+            canSeeResult() {
+                return this.selectedTask &&
+                    !this.selectedTask.isRunning &&
+                    this.selectedTask.evolutionState &&
+                    this.selectedTask.evolutionState.evolutionCount > 0;
+            },
+            resultTableColumn() {
+                if (!this.result) return [];
+                let header = [
+                    ...this.resultTable.header
+                ];
+                header.shift();
+                return header
+            },
+            resultTable() {
+                if (!this.result) return {};
+                const values = this.result.map(r => ({id: r.id, values: r.values}));
+                if (values.length === 0) return {};
+                const header = Object.keys(values[0].values).map(name => ({text: name, value: name, sortable: false}));
+
+                return {
+                    header: [
+                        {text: 'No', value: null, sortable: false},
+                        ...header,
+                        {text: '', value: null, sortable: false}
+                    ],
+                    values
+                }
+            },
+            resultDetail() {
+                if (!this.result) return [];
+                const selectedResult = this.result.find(r => r.id === this.selectedResultDetailId);
+                if (!selectedResult) return [];
+                const header = [
+                    {text: 'No', sortable: false},
+                    {text: 'Subject', sortable: false},
+                    {text: 'Day', sortable: true, value: 'schedule.day'},
+                    {text: 'Session', sortable: true, value: 'schedule.session'},
+                    {text: 'Lab', sortable: false},
+                    {text: 'Assistants', sortable: false},
+                    {sortable: false}
+                ];
+                return {
+                    header,
+                    content: selectedResult.solutions.map(solution => ({
+                        ...solution,
+                        collided: this.isCollided(solution, selectedResult.solutions)
+                    }))
+                }
+            }
         },
         methods: {
             open() {
@@ -390,6 +554,7 @@
                     this.tasks.push(result.data);
                     this.newTask = null;
                     this.states.creatingTask = false;
+                    this.selectedTask.state = "Building"
                 })
             },
 
@@ -410,6 +575,7 @@
                 };
                 axios.post(`http://localhost:5000/api/ga/${this.selectedTask.id}`, termination).then(result => {
                     this.selectedTask.isRunning = true;
+                    this.selectedTask.bestChromosome = null;
                 });
             },
             stopEvolution() {
@@ -419,7 +585,28 @@
             },
             generateData() {
                 axios.post('http://localhost:5000/api/data/generate')
-                    .then(() => {})
+                    .then(() => {
+                    })
+            },
+            viewResult() {
+                if (!this.canSeeResult) return;
+                this.resultDialog = true;
+                axios.get(`http://localhost:5000/api/ga/${this.selectedTask.id}/result`)
+                    .then(result => {
+                        this.result = result.data
+                    })
+            },
+            showDetail(id) {
+                this.selectedResultDetailId = id;
+                this.resultDetailDialog = true;
+            },
+            isCollided(solution, solutions) {
+                return solutions.some(s =>
+                    s.id !== solution.id &&
+                    s.schedule.day === solution.schedule.day &&
+                    s.schedule.session === solution.schedule.session &&
+                    solution.assistants.some(a => s.assistants.includes(a))
+                )
             }
         }
     }

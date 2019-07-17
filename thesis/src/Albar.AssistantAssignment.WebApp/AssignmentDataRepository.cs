@@ -42,7 +42,10 @@ namespace Albar.AssistantAssignment.WebApp
                     subject.Id,
                     subject.AssistantPerScheduleCount,
                     subject.AssessmentsThreshold
-                );
+                )
+                {
+                    Code = subject.Code
+                };
 
                 subjectData.Schedules = subject.Schedules.Select(schedule => (ISchedule) new Schedule(
                     schedule.Id,
@@ -74,7 +77,10 @@ namespace Albar.AssistantAssignment.WebApp
 
                     return (IAssistant) new Assistant(
                         assistant.Id, assistantSubjects, assistantAssessments
-                    );
+                    )
+                    {
+                        Npm = assistant.Npm.ToString()
+                    };
                 }).ToImmutableArray();
 
             foreach (var subject1 in subjects)
