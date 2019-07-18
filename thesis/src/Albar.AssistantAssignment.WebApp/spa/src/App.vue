@@ -247,7 +247,7 @@
                                                 ></v-text-field>
                                             </v-list-tile>
                                             <v-list-tile>
-                                                <v-btn depressed outline block @click="toggleEvolution">
+                                                <v-btn depressed outline block @click="toggleEvolution" :disabled="!selectedTask.repository || !selectedTask.repository.scheduleCount">
                                                     {{ selectedTask.isRunning ? 'Stop' : 'Start' }}
                                                 </v-btn>
                                             </v-list-tile>

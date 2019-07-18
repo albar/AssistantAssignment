@@ -1,10 +1,12 @@
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using Albar.AssistantAssignment.Algorithm;
 using Albar.AssistantAssignment.ThesisSpecificImplementation;
 using Albar.AssistantAssignment.WebApp.Services.ParallelGeneticAlgorithm;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using ByteConverter = Albar.AssistantAssignment.Algorithm.Utilities.ByteConverter;
 
 namespace Albar.AssistantAssignment.WebApp.Controllers
 {
@@ -48,6 +50,7 @@ namespace Albar.AssistantAssignment.WebApp.Controllers
                     {
                         Id = id,
                         Values = values,
+                        Genotype = string.Join(":", chromosome.Genotype.Select(g => ByteConverter.ToString(new []{g}))),
                         Solutions = chromosome.Phenotype.Select(solution => new
                             {
                                 solution.Schedule.Id,

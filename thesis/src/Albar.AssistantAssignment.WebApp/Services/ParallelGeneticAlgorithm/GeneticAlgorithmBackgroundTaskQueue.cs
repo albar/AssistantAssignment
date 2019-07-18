@@ -16,7 +16,6 @@ using Bunnypro.GeneticAlgorithm.Core;
 using Bunnypro.GeneticAlgorithm.MultiObjective.NSGA2;
 using Bunnypro.GeneticAlgorithm.Primitives;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Logging;
 
 namespace Albar.AssistantAssignment.WebApp.Services.ParallelGeneticAlgorithm
