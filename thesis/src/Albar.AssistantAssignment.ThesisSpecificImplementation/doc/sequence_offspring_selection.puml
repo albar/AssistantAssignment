@@ -1,4 +1,5 @@
 @startuml
+skinparam monochrome true
 [-> OffspringSelection: Select Offspring with specific Capacity
 OffspringSelection -> FastNonDominatedSorting: Pareto Sorting
 FastNonDominatedSorting --> OffspringSelection: Pareto Fronts

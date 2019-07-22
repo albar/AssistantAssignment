@@ -1,4 +1,5 @@
 @startuml
+skinparam monochrome true
 [-> PopulationInitialization: Create Population with specific Capacity
 loop until minimum Capacity fulfilled
     PopulationInitialization -> DataRepository: Create Genotype

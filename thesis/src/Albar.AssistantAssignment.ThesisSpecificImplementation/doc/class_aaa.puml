@@ -1,5 +1,5 @@
 @startuml
-
+skinparam monochrome true
 namespace Albar.Assignment.DataAbstractions {
     interface IAssistant
     {
@@ -23,7 +23,7 @@ namespace Albar.Assignment.DataAbstractions {
 }
 
 hide Albar.Assignment.DataAbstractions
-'hide Albar.Assignment.Abstractions
+hide Albar.Assignment.Abstractions
 
 namespace Albar.Assignment.Abstractions {
     interface IReproductionSelection<T: Enum>
