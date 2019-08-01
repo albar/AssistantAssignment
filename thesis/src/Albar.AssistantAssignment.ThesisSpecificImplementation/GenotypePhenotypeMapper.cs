@@ -13,9 +13,9 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
 {
     public class GenotypePhenotypeMapper : IGenotypePhenotypeMapper<AssignmentObjective>
     {
-        public IDataRepository<AssignmentObjective> DataRepository { get; }
+        public IDataRepository DataRepository { get; }
 
-        public GenotypePhenotypeMapper(IDataRepository<AssignmentObjective> repository)
+        public GenotypePhenotypeMapper(IDataRepository repository)
         {
             DataRepository = repository;
         }
@@ -31,15 +31,23 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
             return genotype.Chunk(DataRepository.GeneByteSize).ToInnerArray()
                 .Select((gene, locus) =>
                 {
-                    return new ScheduleSolutionRepresentation
+                    try
                     {
-                        Schedule = (Schedule) DataRepository.Schedules[locus],
-                        AssistantCombination = (AssistantCombination) DataRepository
-                            .AssistantCombinations
-                            .First(combination =>
-                                combination.Id == ByteConverter.ToInt32(gene)
-                            )
-                    };
+                        var schedule = (Schedule) DataRepository.Schedules[locus];
+                        var combination = (AssistantCombination) DataRepository
+                            .AssistantCombinations[ByteConverter.ToInt32(gene)];
+                        return new ScheduleSolutionRepresentation
+                        {
+                            Schedule = schedule,
+                            AssistantCombination = combination
+                        };
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                        Console.WriteLine($"gene: {string.Join("", gene)}, locus: {locus}");
+                        throw;
+                    }
                 });
         }
 

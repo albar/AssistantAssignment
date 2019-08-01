@@ -7,6 +7,6 @@ namespace Albar.AssistantAssignment.DataAbstractions
     {
         int Id { get; }
         string Npm { get; }
-        ImmutableArray<ISubject> Subjects { get; }
+        ImmutableArray<int> Subjects { get; }
     }
 }

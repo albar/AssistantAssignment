@@ -81,9 +81,9 @@ namespace Albar.AssistantAssignment.WebApp.Services.ParallelGeneticAlgorithm
 
                 await _notification.TaskBuildFinished(id, new
                 {
-                    SubjectCount = task.Repository.Subjects.Length,
-                    ScheduleCount = task.Repository.Schedules.Length,
-                    AssistantCount = task.Repository.Assistants.Length
+                    SubjectCount = task.Repository.Subjects.Count,
+                    ScheduleCount = task.Repository.Schedules.Count,
+                    AssistantCount = task.Repository.Assistants.Count
                 });
                 task.State = GeneticAlgorithmTaskState.TaskBuildFinished;
             });
@@ -176,6 +176,16 @@ namespace Albar.AssistantAssignment.WebApp.Services.ParallelGeneticAlgorithm
             task.State = GeneticAlgorithmTaskState.TaskFinished;
         }
 
+        public void BackgroundTaskFailed(string runningTaskId)
+        {
+            var task = _tasks.FirstOrDefault(t => t.RunningTask?.RunningTaskId == runningTaskId);
+            if (task == null) return;
+            task.RunningTask = null;
+            _logger.LogInformation($"Running Task {task.Id} with RunningId: {runningTaskId} Failed");
+            _notification.TaskFailed(task.Id);
+            task.State = GeneticAlgorithmTaskState.TaskFailed;
+        }
+
         private class GeneticAlgorithmTask : IGeneticAlgorithmTask, IEquatable<GeneticAlgorithmTask>
         {
             public GeneticAlgorithmTask(
@@ -201,8 +211,8 @@ namespace Albar.AssistantAssignment.WebApp.Services.ParallelGeneticAlgorithm
                 var objectiveEvaluator = new AssignmentChromosomesEvaluator<AssignmentObjective>(Coefficients)
                 {
                     {AssignmentObjective.AssistantScheduleCollision, new AssistantScheduleCollisionEvaluator()},
-                    {AssignmentObjective.AboveThresholdAssessment, new AboveThresholdAssessmentEvaluator()},
-                    {AssignmentObjective.BelowThresholdAssessment, new BelowThresholdAssessmentEvaluator()},
+                    {AssignmentObjective.AboveThresholdAssessment, new AboveThresholdAssessmentEvaluator(repository)},
+                    {AssignmentObjective.BelowThresholdAssessment, new BelowThresholdAssessmentEvaluator(repository)},
                     {
                         AssignmentObjective.AverageOfNormalizedAssessment,
                         new AverageOfNormalizedAssessmentEvaluator(repository)

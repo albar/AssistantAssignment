@@ -9,12 +9,12 @@ using Bunnypro.Enumerable.Combine;
 
 namespace Albar.AssistantAssignment.ThesisSpecificImplementation
 {
-    public class DataRepository : IDataRepository<AssignmentObjective>
+    public class DataRepository : IDataRepository
     {
         public DataRepository(
-            ImmutableArray<ISubject> subjects,
-            ImmutableArray<ISchedule> schedules,
-            ImmutableArray<IAssistant> assistants
+            ImmutableDictionary<int, ISubject> subjects,
+            ImmutableDictionary<int, ISchedule> schedules,
+            ImmutableDictionary<int, IAssistant> assistants
         )
         {
             Subjects = subjects;
@@ -24,23 +24,24 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
         }
 
         public byte GeneByteSize { get; private set; }
-        public ImmutableArray<ISubject> Subjects { get; }
-        public ImmutableArray<ISchedule> Schedules { get; }
-        public ImmutableArray<IAssistant> Assistants { get; }
-        public ImmutableArray<IAssistantCombination> AssistantCombinations { get; }
+        public ImmutableDictionary<int, ISubject> Subjects { get; }
+        public ImmutableDictionary<int, ISchedule> Schedules { get; }
+        public ImmutableDictionary<int, IAssistant> Assistants { get; }
+        public ImmutableDictionary<int, IAssistantCombination> AssistantCombinations { get; }
 
-        private ImmutableArray<IAssistantCombination> CombineAssistants()
+        private ImmutableDictionary<int, IAssistantCombination> CombineAssistants()
         {
-            var combined = Subjects.SelectMany(subject =>
-                Assistants.Where(assistant => assistant.Subjects.Any(s => s.Id == subject.Id))
+            var combined = Subjects.Values.SelectMany(subject =>
+                Assistants.Values.Where(assistant => assistant.Subjects.Contains(subject.Id))
                     .Combine(subject.AssistantCountPerScheduleRequirement)
                     .Select(combination => new
                     {
-                        Subject = subject,
-                        AssistantsAssessments = combination.Cast<Assistant>()
+                        Subject = subject.Id,
+                        AssistantsAssessments = combination
+                            .Cast<Assistant>()
                             .ToDictionary(
-                                assistant => assistant,
-                                assistant => assistant.SubjectAssessments[subject]
+                                assistant => assistant.Id,
+                                assistant => assistant.SubjectAssessments[subject.Id]
                             )
                     })
             ).ToArray();
@@ -60,7 +61,7 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
                     combination.AssistantsAssessments.Select(assistant => assistant.Key),
                     assessmentCombination
                 );
-            }).Cast<IAssistantCombination>().ToImmutableArray();
+            }).Cast<IAssistantCombination>().ToImmutableDictionary(c => c.Id, c => c);
         }
     }
 }

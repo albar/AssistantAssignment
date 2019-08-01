@@ -453,6 +453,13 @@
                 task.isRunning = false;
                 task.state = "Finished";
             })
+
+            this.notification.on("TaskFailed", (taskId) => {
+                const task = this.tasks.find(task => task.id === taskId);
+                if (!task) return;
+                task.isRunning = false;
+                task.state = "Failed";
+            })
         },
         computed: {
             canSeeResult() {

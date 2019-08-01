@@ -7,7 +7,7 @@ namespace Albar.AssistantAssignment.Abstractions
     public interface IAssistantCombination : IEquatable<IAssistantCombination>
     {
         int Id { get; }
-        ISubject Subject { get; }
-        ImmutableArray<IAssistant> Assistants { get; }
+        int Subject { get; }
+        ImmutableArray<int> Assistants { get; }
     }
 }

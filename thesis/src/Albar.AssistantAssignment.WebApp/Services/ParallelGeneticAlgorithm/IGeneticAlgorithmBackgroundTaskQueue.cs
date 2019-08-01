@@ -27,5 +27,6 @@ namespace Albar.AssistantAssignment.WebApp.Services.ParallelGeneticAlgorithm
             CancellationToken token);
 
         void BackgroundTaskFinished(string runningTaskId, (GeneticEvolutionStates, bool) result);
+        void BackgroundTaskFailed(string runningTaskId);
     }
 }

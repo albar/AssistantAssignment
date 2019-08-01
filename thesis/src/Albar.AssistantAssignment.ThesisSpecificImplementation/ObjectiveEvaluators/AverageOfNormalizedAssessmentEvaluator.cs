@@ -10,19 +10,20 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation.ObjectiveEvalua
     public class AverageOfNormalizedAssessmentEvaluator :
         IObjectiveEvaluator<AssignmentObjective>
     {
-        private readonly Dictionary<ISubject, Dictionary<AssistantAssessment, Func<double, double>>>
+        private readonly Dictionary<int, Dictionary<AssistantAssessment, Func<double, double>>>
             _subjectAssessmentNormalizer;
 
         public AverageOfNormalizedAssessmentEvaluator(
-            IDataRepository<AssignmentObjective> repository)
+            IDataRepository repository)
         {
             var assessments = Enum.GetValues(typeof(AssistantAssessment))
                 .Cast<AssistantAssessment>().ToArray();
 
-            _subjectAssessmentNormalizer = repository.Subjects.ToDictionary(subject => subject, subject =>
+            _subjectAssessmentNormalizer = repository.Subjects.ToDictionary(subject => subject.Key, subject =>
             {
                 var subjectCombinedAssistantAssessments = repository.AssistantCombinations
-                    .Where(combination => combination.Subject.Equals(subject))
+                    .Select(combination => combination.Value)
+                    .Where(combination => combination.Subject.Equals(subject.Key))
                     .Cast<AssistantCombination>()
                     .Select(combination => combination.MaxAssessments)
                     .ToArray();

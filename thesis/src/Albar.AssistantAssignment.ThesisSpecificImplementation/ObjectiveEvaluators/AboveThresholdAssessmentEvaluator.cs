@@ -7,13 +7,20 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation.ObjectiveEvalua
     public class AboveThresholdAssessmentEvaluator :
         IObjectiveEvaluator<AssignmentObjective>
     {
+        private readonly IDataRepository _repository;
+
+        public AboveThresholdAssessmentEvaluator(IDataRepository repository)
+        {
+            _repository = repository;
+        }
+        
         public double Evaluate(IAssignmentChromosome<AssignmentObjective> chromosome)
         {
             return chromosome.Phenotype.Cast<ScheduleSolutionRepresentation>()
                 .Aggregate(0, (count, solution) =>
                 {
-                    var relatedSubject = (Subject) solution.Schedule.Subject;
-                    var state = relatedSubject.AssessmentThreshold.All(threshold =>
+                    var subject = (Subject) _repository.Subjects[solution.Schedule.Subject];
+                    var state = subject.AssessmentThreshold.All(threshold =>
                         solution.AssistantCombination.MaxAssessments[threshold.Key] >=
                         threshold.Value
                     );

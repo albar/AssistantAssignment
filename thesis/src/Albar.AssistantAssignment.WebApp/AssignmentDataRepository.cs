@@ -16,10 +16,10 @@ namespace Albar.AssistantAssignment.WebApp
     public class AssignmentDataRepository : DataRepository, IEquatable<AssignmentDataRepository>
     {
         public AssignmentDataRepository(
-            Group @group,
-            ImmutableArray<ISubject> subjects,
-            ImmutableArray<ISchedule> schedules,
-            ImmutableArray<IAssistant> assistants) :
+            Group group,
+            ImmutableDictionary<int, ISubject> subjects,
+            ImmutableDictionary<int, ISchedule> schedules,
+            ImmutableDictionary<int, IAssistant> assistants) :
             base(subjects, schedules, assistants)
         {
             Group = group;
@@ -29,7 +29,7 @@ namespace Albar.AssistantAssignment.WebApp
 
         public static async Task<AssignmentDataRepository> BuildAsync(
             AssignmentDatabase database,
-            Group @group,
+            Group group,
             CancellationToken token)
         {
             var allSubjects = await database.Subjects.Where(subject => subject.Group.Id == group.Id)
@@ -44,19 +44,13 @@ namespace Albar.AssistantAssignment.WebApp
                     subject.AssessmentsThreshold
                 )
                 {
-                    Code = subject.Code
+                    Code = subject.Code,
+                    Schedules = subject.Schedules.Select(schedule => schedule.Id).ToImmutableArray()
                 };
 
-                subjectData.Schedules = subject.Schedules.Select(schedule => (ISchedule) new Schedule(
-                    schedule.Id,
-                    subjectData,
-                    schedule.Day,
-                    schedule.Session,
-                    schedule.Lab
-                )).ToImmutableArray();
 
                 return (ISubject) subjectData;
-            }).ToImmutableArray();
+            }).ToImmutableDictionary(s => s.Id, s => s);
 
             var assistants = database.Assistants.Where(assistant => assistant.Group.Id == group.Id)
                 .Include(assistant => assistant.AssistantSubjects)
@@ -64,34 +58,41 @@ namespace Albar.AssistantAssignment.WebApp
                 .Select(assistant =>
                 {
                     var assistantSubjects = subjects.Where(subject =>
-                        assistant.AssistantSubjects.Any(ass => subject.Id == ass.SubjectId)
-                    ).ToImmutableArray();
+                        assistant.AssistantSubjects.Any(ass => subject.Value.Id == ass.SubjectId)
+                    ).Select(s => s.Value.Id).ToImmutableArray();
 
                     var assistantAssessments = assistantSubjects
                         .ToImmutableDictionary(
                             subject => subject,
                             subject => assistant.AssistantSubjects
-                                .First(ass => ass.SubjectId == subject.Id)
+                                .First(ass => ass.SubjectId == subject)
                                 .Assessments
                         );
 
                     return (IAssistant) new Assistant(
-                        assistant.Id, assistantSubjects, assistantAssessments
+                        assistant.Id,
+                        assistantSubjects,
+                        assistantAssessments
                     )
                     {
                         Npm = assistant.Npm.ToString()
                     };
-                }).ToImmutableArray();
+                }).ToImmutableDictionary(a => a.Id, a => a);
 
             foreach (var subject1 in subjects)
             {
-                var subject = (Subject) subject1;
+                var subject = (Subject) subject1.Value;
                 subject.Assistants = assistants
-                    .Where(assistant => assistant.Subjects.Contains(subject))
+                    .Where(assistant => assistant.Value.Subjects.Contains(subject.Id))
+                    .Select(assistant => assistant.Value.Id)
                     .ToImmutableArray();
             }
 
-            var schedules = subjects.SelectMany(subject => subject.Schedules).ToImmutableArray();
+            var schedules = allSubjects.SelectMany(subject => subject.Schedules)
+                .Select((schedule, position) => new {Schedule = schedule, Position = position})
+                .ToImmutableDictionary(pair => pair.Position, pair => (ISchedule) new Schedule(
+                    pair.Schedule.Id, pair.Schedule.Subject.Id, pair.Schedule.Day, pair.Schedule.Session, pair.Schedule.Lab)
+                );
 
             return new AssignmentDataRepository(group, subjects, schedules, assistants);
         }

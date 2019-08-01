@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Albar.AssistantAssignment.WebApp.Services.ParallelGeneticAlgorithm;
+using Bunnypro.GeneticAlgorithm.Primitives;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -30,21 +31,31 @@ namespace Albar.AssistantAssignment.WebApp.Services
                 _logger.LogInformation("Waiting Task");
                 var task = await _queue.DequeueAsync(token);
                 _logger.LogInformation("Dequeuing Task");
+                var taskId = Guid.NewGuid().ToString();
+                var tokenSource = new CancellationTokenSource();
+                Func<Task> taskRunner = async () =>
+                {
+                    try
+                    {
+                        var result = await task.Invoke(taskId, tokenSource);
+                        _queue.BackgroundTaskFinished(taskId, result);
+                        DisposeAndRemoveTask(taskId);
+                    }
+                    catch (Exception e)
+                    {
+                        _queue.BackgroundTaskFailed(taskId);
+                        _logger.LogError(e, e.Message);
+                        throw;
+                    }
+                };
                 try
                 {
-                    var taskId = Guid.NewGuid().ToString();
-                    var tokenSource = new CancellationTokenSource();
-
                     _logger.LogInformation("Running Task");
                     var runningTask = new GeneticAlgorithmTask
                     {
                         TaskId = taskId,
                         TokenSource = tokenSource,
-                        RunningTask = task.Invoke(taskId, tokenSource).ContinueWith(backgroundTask =>
-                        {
-                            _queue.BackgroundTaskFinished(taskId, backgroundTask.Result);
-                            DisposeAndRemoveTask(taskId);
-                        })
+                        RunningTask = taskRunner.Invoke()
                     };
                     _logger.LogInformation("Task is Running");
                     runningTasks.Add(runningTask);

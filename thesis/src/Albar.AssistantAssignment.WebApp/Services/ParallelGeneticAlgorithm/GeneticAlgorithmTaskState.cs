@@ -12,5 +12,6 @@ namespace Albar.AssistantAssignment.WebApp.Services.ParallelGeneticAlgorithm
         EvolvedOnce,
         StoppingTask,
         TaskFinished,
+        TaskFailed
     }
 }

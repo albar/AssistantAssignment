@@ -56,8 +56,8 @@ namespace Albar.AssistantAssignment.WebApp.Controllers
                                 solution.Schedule.Id,
                                 Subject = new
                                 {
-                                    solution.Schedule.Subject.Id,
-                                    solution.Schedule.Subject.Code
+                                    Id = solution.Schedule.Subject,
+                                    selectedTask.Repository.Subjects[solution.Schedule.Subject].Code
                                 },
                                 Schedule = new
                                 {
@@ -65,7 +65,8 @@ namespace Albar.AssistantAssignment.WebApp.Controllers
                                     Session = solution.Schedule.Session.ToString(),
                                     solution.Schedule.Lab
                                 },
-                                Assistants = solution.AssistantCombination.Assistants.Select(a => a.Npm).ToArray()
+                                Assistants = solution.AssistantCombination.Assistants
+                                    .Select(a => selectedTask.Repository.Assistants[a].Npm).ToArray()
                             })
                             .OrderBy(solution => solution.Subject.Id)
                             .ThenBy(solution => solution.Schedule.Day)

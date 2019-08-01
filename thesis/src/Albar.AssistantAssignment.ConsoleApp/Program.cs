@@ -48,8 +48,8 @@ namespace Albar.AssistantAssignment.ConsoleApp
                 new AssignmentChromosomesEvaluator<AssignmentObjective>(coefficients)
                 {
                     {AssignmentObjective.AssistantScheduleCollision, new AssistantScheduleCollisionEvaluator()},
-                    {AssignmentObjective.AboveThresholdAssessment, new AboveThresholdAssessmentEvaluator()},
-                    {AssignmentObjective.BelowThresholdAssessment, new BelowThresholdAssessmentEvaluator()},
+                    {AssignmentObjective.AboveThresholdAssessment, new AboveThresholdAssessmentEvaluator(repository)},
+                    {AssignmentObjective.BelowThresholdAssessment, new BelowThresholdAssessmentEvaluator(repository)},
                     {
                         AssignmentObjective.AverageOfNormalizedAssessment,
                         new AverageOfNormalizedAssessmentEvaluator(repository)
@@ -65,9 +65,11 @@ namespace Albar.AssistantAssignment.ConsoleApp
 
             var result = await ga.EvolveUntil(population, state =>
             {
-                if ((from chromosome in population.Chromosomes.Cast<AssignmentChromosome<AssignmentObjective>>() from representation in chromosome.Phenotype let subject = representation.Schedule.Subject select representation.AssistantCombination.Assistants.All(assistant =>
-                    subject.Assistants.Contains(assistant)
-                )).Any(isValid => !isValid))
+                if (population.Chromosomes.Cast<AssignmentChromosome<AssignmentObjective>>()
+                    .SelectMany(chromosome => chromosome.Phenotype)
+                    .Select(representation =>
+                        representation.AssistantCombination.Assistants.All(assistant =>
+                            repository.Subjects[representation.Schedule.Subject].Assistants.Contains(assistant))).Any(isValid => !isValid))
                 {
                     throw new Exception("Not Valid");
                 }
@@ -95,7 +97,7 @@ namespace Albar.AssistantAssignment.ConsoleApp
 
             Console.WriteLine("Evolution Count: {0}", result.EvolutionCount);
             Console.WriteLine("Evolution Time: {0}", result.EvolutionTime);
-            Console.WriteLine("Schedule Count {0}", repository.Schedules.Length);
+            Console.WriteLine("Schedule Count {0}", repository.Schedules.Count);
             Console.WriteLine("Chromosomes Count {0}", population.Chromosomes.Count);
 
             var fronts = new FastNonDominatedSort<AssignmentObjective>(coefficients)
@@ -141,14 +143,14 @@ namespace Albar.AssistantAssignment.ConsoleApp
             var best = (AssignmentChromosome<AssignmentObjective>) population.Chromosomes
                 .OrderByDescending(c => c.Fitness).First();
 
-            foreach (var assistant in repository.Assistants)
+            foreach (var assistant in repository.Assistants.Values)
             {
                 Console.WriteLine(
                     "Assistant: {0}, Subjects: {1}, Schedules: {2}",
                     assistant.Id,
-                    string.Join(",", assistant.Subjects.Select(s => s.Id)),
+                    string.Join(",", assistant.Subjects),
                     best.Phenotype.Count(solution =>
-                        solution.AssistantCombination.Assistants.Contains(assistant)
+                        solution.AssistantCombination.Assistants.Contains(assistant.Id)
                     )
                 );
             }
@@ -161,10 +163,10 @@ namespace Albar.AssistantAssignment.ConsoleApp
             foreach (var solution in solutions)
             {
                 Console.WriteLine("Schedule: {0}", solution.Schedule.Id);
-                Console.WriteLine("\tSubject: {0}", solution.Schedule.Subject.Id);
+                Console.WriteLine("\tSubject: {0}", solution.Schedule.Subject);
                 Console.WriteLine("\tDay: {0} Session: {1}", solution.Schedule.Day, solution.Schedule.Session);
                 Console.WriteLine("\tAssistants: {0}",
-                    string.Join(", ", solution.AssistantCombination.Assistants.Select(a => a.Id)));
+                    string.Join(", ", solution.AssistantCombination.Assistants));
             }
             
             Console.WriteLine("All Valid");
@@ -211,15 +213,15 @@ namespace Albar.AssistantAssignment.ConsoleApp
             return (populationCapacity, termination);
         }
 
-        private static IDataRepository<AssignmentObjective> ExtractDataConfiguration()
+        private static IDataRepository ExtractDataConfiguration()
         {
             var subjects = DummyDataFactory.CreateSubject(5);
-            var schedules = DummyDataFactory.CreateSchedule(subjects.Cast<Subject>());
-            var assistants = DummyDataFactory.CreateAssistant(subjects.Cast<Subject>());
+            var schedules = DummyDataFactory.CreateSchedule(subjects.Values.Cast<Subject>());
+            var assistants = DummyDataFactory.CreateAssistant(subjects.Values.Cast<Subject>());
             return new DataRepository(
-                subjects.ToImmutableArray(),
-                schedules.ToImmutableArray(),
-                assistants.ToImmutableArray()
+                subjects,
+                schedules,
+                assistants
             );
         }
     }

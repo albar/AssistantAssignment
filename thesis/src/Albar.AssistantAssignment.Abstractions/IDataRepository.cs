@@ -1,16 +1,14 @@
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using Albar.AssistantAssignment.DataAbstractions;
 
 namespace Albar.AssistantAssignment.Abstractions
 {
-    public interface IDataRepository<T> where T : Enum
+    public interface IDataRepository
     {
         byte GeneByteSize { get; }
-        ImmutableArray<ISubject> Subjects { get; }
-        ImmutableArray<ISchedule> Schedules { get; }
-        ImmutableArray<IAssistant> Assistants { get; }
-        ImmutableArray<IAssistantCombination> AssistantCombinations { get; }
+        ImmutableDictionary<int, ISubject> Subjects { get; }
+        ImmutableDictionary<int, ISchedule> Schedules { get; }
+        ImmutableDictionary<int, IAssistant> Assistants { get; }
+        ImmutableDictionary<int, IAssistantCombination> AssistantCombinations { get; }
     }
 }

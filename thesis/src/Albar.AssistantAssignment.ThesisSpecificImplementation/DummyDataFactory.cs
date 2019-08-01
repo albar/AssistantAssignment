@@ -9,16 +9,17 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
 {
     public static class DummyDataFactory
     {
-        public static HashSet<ISubject> CreateSubject(int count)
+        public static ImmutableDictionary<int, ISubject> CreateSubject(int count)
         {
             var assessments = Enum.GetValues(typeof(AssistantAssessment)).Cast<AssistantAssessment>().ToArray();
             var subjects = Enumerable.Range(0, count).Select(
                 id => new Subject(id, 3, assessments.ToDictionary(assessment => assessment, _ => 8d))
             );
-            return new HashSet<ISubject>(subjects);
+            return subjects.ToImmutableDictionary(subject => subject.Id, subject => (ISubject) subject);
         }
 
-        public static HashSet<ISchedule> CreateSchedule(IEnumerable<Subject> subjects, int min = 5, int max = 10)
+        public static ImmutableDictionary<int, ISchedule> CreateSchedule(IEnumerable<Subject> subjects, int min = 5,
+            int max = 10)
         {
             var randomize = new Random();
             var subjectArray = subjects as Subject[] ?? subjects.ToArray();
@@ -30,14 +31,14 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
             var days = Enum.GetNames(typeof(DayOfWeek)).Length;
             var sessions = Enum.GetNames(typeof(SessionOfDay)).Length;
 
-            var result = schedules.Aggregate(new HashSet<ISchedule>(), (all, schedule) =>
+            var results = schedules.Aggregate(new HashSet<ISchedule>(), (all, schedule) =>
             {
                 Schedule newSchedule;
                 do
                 {
                     newSchedule = new Schedule(
                         schedule.Key,
-                        schedule.Value,
+                        schedule.Value.Id,
                         (DayOfWeek) randomize.Next(0, days - 1),
                         (SessionOfDay) randomize.Next(0, sessions - 1),
                         randomize.Next(1, 20)
@@ -49,18 +50,19 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
 
             foreach (var subject in subjectArray)
             {
-                subject.Schedules = result.Where(s => s.Subject.Equals(subject)).ToImmutableArray();
+                subject.Schedules = results.Where(result => result.Subject.Equals(subject.Id))
+                    .Select(s => s.Id).ToImmutableArray();
             }
 
-            return result;
+            return results.ToImmutableDictionary(h => h.Id, h => h);
         }
 
-        public static HashSet<IAssistant> CreateAssistant(IEnumerable<Subject> subjects)
+        public static ImmutableDictionary<int, IAssistant> CreateAssistant(IEnumerable<Subject> subjects)
         {
-            var subjectArray = subjects as Subject[] ?? subjects.ToArray();
-            var assistantStorage = new List<ImmutableArray<ISubject>>();
-            var subjectAssistantsCount = subjectArray.ToDictionary(
-                subject => subject, subject => new[] {subject.Schedules.Length + 3, 0}
+            var subjectDictionary = subjects.ToImmutableDictionary(subject => subject.Id, subject => subject);
+            var assistantSubjectsStorage = new List<ImmutableArray<int>>();
+            var subjectAssistantsCount = subjectDictionary.ToDictionary(
+                subject => subject.Key, subject => new[] {subject.Value.Schedules.Length + 3, 0}
             );
             do
             {
@@ -71,34 +73,34 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
                         s.Value[1]++;
                         return s.Key;
                     })
-                    .Cast<ISubject>()
                     .ToImmutableArray();
-                assistantStorage.Add(subjectIds);
+                assistantSubjectsStorage.Add(subjectIds);
             } while (subjectAssistantsCount.Any(s => s.Value[1] < s.Value[0]));
 
-            var subjectStorage = subjectArray.ToDictionary(subject => subject, _ => new HashSet<int>());
+            var subjectStorage = subjectDictionary.ToDictionary(subject => subject.Key, _ => new HashSet<int>());
             var randomize = new Random();
             var assessments = Enum.GetValues(typeof(AssistantAssessment)).Cast<AssistantAssessment>().ToArray();
-            var assistants = assistantStorage.Select((assistantSubjects, id) =>
+            var assistants = assistantSubjectsStorage.Select((assistantSubjects, id) =>
             {
                 foreach (var subject in subjectStorage.Where(subject => assistantSubjects.Contains(subject.Key)))
                 {
                     subject.Value.Add(id);
                 }
 
-                var assistantAssessments = assistantSubjects.ToImmutableDictionary(subject => subject, subjectId =>
+                var assistantAssessments = assistantSubjects.ToImmutableDictionary(subject => subject, __ =>
                     assessments.ToDictionary(assessment => assessment, _ => (double) randomize.Next(6, 9)));
-                return new Assistant(id, assistantSubjects, assistantAssessments);
+
+                return (IAssistant) new Assistant(id, assistantSubjects, assistantAssessments);
             }).ToArray();
             foreach (var subject in subjectStorage)
             {
-                subject.Key.Assistants = assistants
+                subjectDictionary[subject.Key].Assistants = assistants
                     .Where(assistant => subject.Value.Contains(assistant.Id))
-                    .Cast<IAssistant>()
+                    .Select(assistant => assistant.Id)
                     .ToImmutableArray();
             }
 
-            return new HashSet<IAssistant>(assistants);
+            return assistants.ToImmutableDictionary(a => a.Id, a => a);
         }
     }
 }

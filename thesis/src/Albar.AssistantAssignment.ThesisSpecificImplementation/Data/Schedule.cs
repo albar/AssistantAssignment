@@ -7,7 +7,7 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation.Data
     {
         public Schedule(
             int id,
-            ISubject subject,
+            int subject,
             DayOfWeek day,
             SessionOfDay session,
             int lab)
@@ -20,7 +20,7 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation.Data
         }
 
         public int Id { get; set; }
-        public ISubject Subject { get; set; }
+        public int Subject { get; set; }
         public DayOfWeek Day { get; set; }
         public SessionOfDay Session { get; set; }
         public int Lab { get; set; }

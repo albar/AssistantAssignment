@@ -8,8 +8,8 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation.Data
     {
         public Assistant(
             int id,
-            ImmutableArray<ISubject> subjects,
-            ImmutableDictionary<ISubject, Dictionary<AssistantAssessment, double>> subjectAssessments)
+            ImmutableArray<int> subjects,
+            ImmutableDictionary<int, Dictionary<AssistantAssessment, double>> subjectAssessments)
         {
             Id = id;
             Subjects = subjects;
@@ -18,8 +18,8 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation.Data
 
         public int Id { get; set; }
         public string Npm { get; set; }
-        public ImmutableArray<ISubject> Subjects { get; set; }
-        public ImmutableDictionary<ISubject, Dictionary<AssistantAssessment, double>> SubjectAssessments { get; set; }
+        public ImmutableArray<int> Subjects { get; set; }
+        public ImmutableDictionary<int, Dictionary<AssistantAssessment, double>> SubjectAssessments { get; set; }
 
         private bool Equals(Assistant other)
         {

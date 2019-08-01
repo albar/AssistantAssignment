@@ -19,9 +19,9 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
 {
     public class ReproductionSelection : IReproductionSelection<AssignmentObjective>
     {
-        private readonly IDataRepository<AssignmentObjective> _repository;
+        private readonly IDataRepository _repository;
 
-        public ReproductionSelection(IDataRepository<AssignmentObjective> repository)
+        public ReproductionSelection(IDataRepository repository)
         {
             _repository = repository;
         }
@@ -78,17 +78,16 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
         {
             var requiredParentCount = (int) Math.Ceiling((1 + Math.Sqrt(4 * capacity.Minimum + 1)) / 2);
             var subjectsAssessmentThreshold = _repository.Subjects
-                .ToDictionary(subject => subject, subject => ((Subject) subject).AssessmentThreshold);
+                .ToDictionary(subject => subject.Key, subject => ((Subject) subject.Value).AssessmentThreshold);
             return chromosomes.OrderByDescending(chromosome => chromosome.Fitness)
                 .Take(requiredParentCount).Combine(2).ToInnerArray()
                 .Select(parents =>
                 {
                     var parentsAssessments = parents.Select(parent =>
                         parent.Genotype.Chunk(_repository.GeneByteSize).ToInnerArray()
-                    ).Select(genotype =>
-                        genotype.Select(gene => _repository.AssistantCombinations
-                            .First(combination => combination.Id == ByteConverter.ToInt32(gene))
-                        ).Cast<AssistantCombination>().Select(combination =>
+                    ).Select(genotype => genotype
+                        .Select(gene => _repository.AssistantCombinations[ByteConverter.ToInt32(gene)])
+                        .Cast<AssistantCombination>().Select(combination =>
                             IsBelowThreshold(
                                 combination.MaxAssessments,
                                 subjectsAssessmentThreshold[combination.Subject])

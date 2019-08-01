@@ -18,7 +18,7 @@ namespace Albar.AssistantAssignment.Algorithm
     {
         private readonly IMutationSelection<T> _selection;
         private readonly IGenotypePhenotypeMapper<T> _mapper;
-        private Dictionary<ISubject, IAssistantCombination[]> _subjectAssistantCombination;
+        private readonly Dictionary<int, IAssistantCombination[]> _subjectAssistantCombination;
 
         public AssignmentMutation(
             IMutationSelection<T> selection,
@@ -26,7 +26,9 @@ namespace Albar.AssistantAssignment.Algorithm
         {
             _selection = selection;
             _mapper = mapper;
-            _subjectAssistantCombination = _mapper.DataRepository.AssistantCombinations.GroupBy(asc => asc.Subject)
+            _subjectAssistantCombination = _mapper.DataRepository.AssistantCombinations
+                .Select(combination => combination.Value)
+                .GroupBy(asc => asc.Subject)
                 .ToDictionary(group => group.Key, group => group.ToArray());
         }
 

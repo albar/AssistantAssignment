@@ -14,5 +14,6 @@ namespace Albar.AssistantAssignment.WebApp.Services.ParallelGeneticAlgorithm
         Task StoppingTask(string id);
         Task TaskFinished(string id, object states);
         Task TaskIsRunning(string id);
+        Task TaskFailed(string id);
     }
 }

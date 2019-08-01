@@ -7,8 +7,8 @@ namespace Albar.AssistantAssignment.DataAbstractions
     {
         int Id { get; }
         string Code { get; }
-        ImmutableArray<IAssistant> Assistants { get; }
-        ImmutableArray<ISchedule> Schedules { get; }
+        ImmutableArray<int> Assistants { get; }
+        ImmutableArray<int> Schedules { get; }
         int AssistantCountPerScheduleRequirement { get; }
     }
 }

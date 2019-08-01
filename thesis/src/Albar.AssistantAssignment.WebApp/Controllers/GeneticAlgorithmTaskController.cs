@@ -41,9 +41,9 @@ namespace Albar.AssistantAssignment.WebApp.Controllers
                 task.EvolutionState,
                 Repository = new
                 {
-                    SubjectCount = task.Repository.Subjects.Length,
-                    ScheduleCount = task.Repository.Schedules.Length,
-                    AssistantCount = task.Repository.Assistants.Length
+                    SubjectCount = task.Repository.Subjects.Count,
+                    ScheduleCount = task.Repository.Schedules.Count,
+                    AssistantCount = task.Repository.Assistants.Count
                 }
             }).ToArray();
 
@@ -71,9 +71,9 @@ namespace Albar.AssistantAssignment.WebApp.Controllers
                 task.EvolutionState,
                 Repository = new
                 {
-                    SubjectCount = task.Repository?.Subjects.Length,
-                    ScheduleCount = task.Repository?.Schedules.Length,
-                    AssistantCount = task.Repository?.Assistants.Length
+                    SubjectCount = task.Repository?.Subjects.Count,
+                    ScheduleCount = task.Repository?.Schedules.Count,
+                    AssistantCount = task.Repository?.Assistants.Count
                 }
             };
             return new JsonResult(result);
