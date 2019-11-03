@@ -1,0 +1,3 @@
+[submodule "libs/ga"]
+	path = libs/ga
+	url = git@github.com:bunnypro/GeneticAlgorithm.Net.git

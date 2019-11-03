@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\libs\ga\src\Core\Bunnypro.GeneticAlgorithm.Core.csproj" />
+    <ProjectReference Include="..\..\libs\ga\src\MultiObjective.NSGA2\Bunnypro.GeneticAlgorithm.MultiObjective.NSGA2.csproj" />
+    <ProjectReference Include="..\Albar.AssistantAssignment.Abstractions\Albar.AssistantAssignment.Abstractions.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Bunnypro.Enumerable.Chunk" />
+    <PackageReference Include="Bunnypro.Enumerable.Combine" />
+    <PackageReference Include="Bunnypro.Enumerable.Utility" />
+  </ItemGroup>
+</Project>

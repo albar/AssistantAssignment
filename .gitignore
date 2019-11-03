@@ -34,4 +34,5 @@ msbuild.log
 msbuild.err
 msbuild.wrn
 node_modules
-*.nupkg
+
+src/Albar.AssistantAssignment.ConsoleApp

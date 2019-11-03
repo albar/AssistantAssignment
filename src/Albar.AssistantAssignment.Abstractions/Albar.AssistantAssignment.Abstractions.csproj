@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\libs\ga\src\MultiObjective.Abstractions\Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions.csproj" />
+    <ProjectReference Include="..\Albar.AssistantAssignment.DataAbstractions\Albar.AssistantAssignment.DataAbstractions.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+</Project>
