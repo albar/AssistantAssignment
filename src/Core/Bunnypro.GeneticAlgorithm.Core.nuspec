@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Bunnypro.GeneticAlgorithm.Core</id>
+    <title>Bunnypro.GeneticAlgorithm.Core</title>
+    <version>0.1.0</version>
+    <authors>Mubarrid Albar</authors>
+    <owners>albar</owners>
+    <licenseUrl>https://github.com/bunnypro/GeneticAlgorithm.Net/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/bunnypro/GeneticAlgorithm.Net</projectUrl>
+    <repository type="git" url="https://github.com/bunnypro/GeneticAlgorithm.Net"/>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Basic implementation of Genetic Algorithm</description>
+  </metadata>
+  <files>
+    <file src="**" exclude="bin\**\*;obj\**\*;**\*.nupkg;**\*.cs;**\*.csproj;**\*.pdb;**\*.json" />
+  </files>
+</package>
