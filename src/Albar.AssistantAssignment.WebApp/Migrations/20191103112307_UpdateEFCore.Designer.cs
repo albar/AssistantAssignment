@@ -3,14 +3,16 @@ using System;
 using Albar.AssistantAssignment.WebApp;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Albar.AssistantAssignment.WebApp.Migrations
 {
     [DbContext(typeof(AssignmentDatabase))]
-    partial class AssignmentDatabaseModelSnapshot : ModelSnapshot
+    [Migration("20191103112307_UpdateEFCore")]
+    partial class UpdateEFCore
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

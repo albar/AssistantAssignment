@@ -353,7 +353,7 @@
 <script>
     import HelloWorld from './components/HelloWorld'
     import axios from 'axios'
-    import * as signalR from '@aspnet/signalr'
+    import * as signalR from '@microsoft/signalr'
 
     const notification = new signalR.HubConnectionBuilder()
         .withUrl('http://localhost:5000/notification')

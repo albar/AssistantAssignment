@@ -241,9 +241,9 @@ namespace Albar.AssistantAssignment.WebApp.Controllers
                 var schedules = await createScheduleTask;
                 await createAssistantSubjectTask;
 
-                var lastTasks = new[]
+                var lastTasks = new []
                 {
-                    database.Groups.AddAsync(group, token),
+                    database.Groups.AddAsync(group, token).AsTask(),
                     database.Subjects.AddRangeAsync(subjects, token),
                     database.Assistants.AddRangeAsync(assistants, token),
                     database.Schedules.AddRangeAsync(schedules, token)
