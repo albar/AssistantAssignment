@@ -4,11 +4,14 @@ using System.Linq;
 using Albar.AssistantAssignment.Abstractions;
 using Albar.AssistantAssignment.Algorithm;
 using Albar.AssistantAssignment.Algorithm.Utilities;
+using Albar.AssistantAssignment.ThesisSpecificImplementation;
+using Albar.AssistantAssignment.WebApp.Services.DatabaseTask;
+using Albar.AssistantAssignment.WebApp.Services.GenericBackgroundTask;
 using Bunnypro.GeneticAlgorithm.Abstractions;
 using Bunnypro.GeneticAlgorithm.MultiObjective.Abstractions;
 using Bunnypro.GeneticAlgorithm.Primitives;
 
-namespace Albar.AssistantAssignment.ThesisSpecificImplementation.Factories
+namespace Albar.AssistantAssignment.WebApp.Factories
 {
     public class PopulationFactory<T> where T : Enum
     {

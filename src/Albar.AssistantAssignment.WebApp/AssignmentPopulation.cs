@@ -1,6 +1,6 @@
 using Bunnypro.GeneticAlgorithm.Core;
 
-namespace Albar.AssistantAssignment.ThesisSpecificImplementation
+namespace Albar.AssistantAssignment.WebApp
 {
     public class AssignmentPopulation : Population
     {
