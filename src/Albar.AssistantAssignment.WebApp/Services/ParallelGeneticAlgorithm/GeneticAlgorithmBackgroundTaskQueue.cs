@@ -6,11 +6,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using Albar.AssistantAssignment.Algorithm;
 using Albar.AssistantAssignment.ThesisSpecificImplementation;
-using Albar.AssistantAssignment.ThesisSpecificImplementation.Factories;
+using Albar.AssistantAssignment.WebApp.Factories;
 using Albar.AssistantAssignment.ThesisSpecificImplementation.ObjectiveEvaluators;
 using Albar.AssistantAssignment.WebApp.Hubs;
 using Albar.AssistantAssignment.WebApp.Models;
+using Albar.AssistantAssignment.WebApp.PopulationTracker;
 using Albar.AssistantAssignment.WebApp.Services.DatabaseTask;
+using Albar.AssistantAssignment.WebApp.Services.GenericBackgroundTask;
 using Bunnypro.GeneticAlgorithm.Abstractions;
 using Bunnypro.GeneticAlgorithm.Core;
 using Bunnypro.GeneticAlgorithm.MultiObjective.NSGA2;
@@ -22,6 +24,7 @@ namespace Albar.AssistantAssignment.WebApp.Services.ParallelGeneticAlgorithm
 {
     public class GeneticAlgorithmBackgroundTaskQueue : IGeneticAlgorithmBackgroundTaskQueue
     {
+        private readonly IGenericBackgroundTaskQueue _genericBackgroundTaskQueue;
         private readonly IDatabaseBackgroundTaskQueue _databaseBackgroundTaskQueue;
         private readonly IGeneticAlgorithmTaskListener _notification;
         private readonly ILogger<GeneticAlgorithmBackgroundTaskQueue> _logger;
@@ -39,10 +42,12 @@ namespace Albar.AssistantAssignment.WebApp.Services.ParallelGeneticAlgorithm
         private readonly SemaphoreSlim _sign = new SemaphoreSlim(0);
 
         public GeneticAlgorithmBackgroundTaskQueue(
+            IGenericBackgroundTaskQueue genericBackgroundTaskQueue,
             IDatabaseBackgroundTaskQueue databaseBackgroundTaskQueue,
             IHubContext<GeneticAlgorithmNotificationHub, IGeneticAlgorithmTaskListener> notification,
             ILogger<GeneticAlgorithmBackgroundTaskQueue> logger)
         {
+            _genericBackgroundTaskQueue = genericBackgroundTaskQueue;
             _databaseBackgroundTaskQueue = databaseBackgroundTaskQueue;
             _notification = notification.Clients.All;
             _logger = logger;
@@ -114,7 +119,7 @@ namespace Albar.AssistantAssignment.WebApp.Services.ParallelGeneticAlgorithm
                 task.State = GeneticAlgorithmTaskState.RunningTask;
                 task.RunningTask = new GeneticAlgorithmRunningTask(taskId, id, source);
                 var ga = task.GeneticAlgorithm;
-                task.Population = task.PopulationFactory.Create(task.Capacity);
+                task.Population = task.PopulationFactory.Create(task.Capacity, new EvolutionTracker(id, _genericBackgroundTaskQueue));
                 var population = task.Population;
 
                 bool MonitoredTermination(GeneticEvolutionStates state)

@@ -16,7 +16,7 @@ namespace Albar.AssistantAssignment.WebApp
         public DbSet<Schedule> Schedules { get; set; }
         public DbSet<Assistant> Assistants { get; set; }
 
-        public AssignmentDatabase(DbContextOptions options) : base(options)
+        public AssignmentDatabase(DbContextOptions<AssignmentDatabase> options) : base(options)
         {
         }
 

@@ -24,12 +24,12 @@ namespace Albar.AssistantAssignment.WebApp.Factories
             _evaluator = evaluator;
         }
 
-        public IPopulation Create(PopulationCapacity capacity)
+        public IPopulation Create(PopulationCapacity capacity, IPopulationEventHandler eventHandler)
         {
             var chromosomes = Create(capacity.Minimum);
             _evaluator.EvaluateAll(chromosomes.Cast<IChromosome<T>>()).Wait();
 
-            return new AssignmentPopulation
+            return new AssignmentPopulation(eventHandler)
             {
                 Capacity = capacity,
                 Chromosomes = chromosomes.Cast<IChromosome>().ToImmutableHashSet()

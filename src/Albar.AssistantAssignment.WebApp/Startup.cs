@@ -1,10 +1,11 @@
 ﻿using Albar.AssistantAssignment.WebApp.Hubs;
+using Albar.AssistantAssignment.WebApp.PopulationTracker;
 using Albar.AssistantAssignment.WebApp.Services;
 using Albar.AssistantAssignment.WebApp.Services.DatabaseTask;
+using Albar.AssistantAssignment.WebApp.Services.GenericBackgroundTask;
 using Albar.AssistantAssignment.WebApp.Services.ParallelGeneticAlgorithm;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -49,6 +50,10 @@ namespace Albar.AssistantAssignment.WebApp
             services.AddSignalR().AddNewtonsoftJsonProtocol();
 
             services.AddDbContext<AssignmentDatabase>(option => option.UseSqlite("Data Source=assignment.db"));
+            services.AddDbContext<EvolutionTrackerDatabase>(option => option.UseSqlite("Data Source=evolutions.db"));
+
+            services.AddHostedService<QueuedGenericBackgroundTaskService>();
+            services.AddSingleton<IGenericBackgroundTaskQueue, GenericBackgroundTaskQueue>();
 
             services.AddHostedService<QueuedDatabaseBackgroundTask>();
             services.AddSingleton<IDatabaseBackgroundTaskQueue, DatabaseBackgroundTaskQueue>();
