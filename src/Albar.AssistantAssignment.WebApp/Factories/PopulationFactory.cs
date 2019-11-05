@@ -29,10 +29,11 @@ namespace Albar.AssistantAssignment.WebApp.Factories
             var chromosomes = Create(capacity.Minimum);
             _evaluator.EvaluateAll(chromosomes.Cast<IChromosome<T>>()).Wait();
 
-            return new AssignmentPopulation(eventHandler)
+            return new AssignmentPopulation
             {
                 Capacity = capacity,
-                Chromosomes = chromosomes.Cast<IChromosome>().ToImmutableHashSet()
+                Chromosomes = chromosomes.Cast<IChromosome>().ToImmutableHashSet(),
+                EventHandler = eventHandler
             };
         }
 
