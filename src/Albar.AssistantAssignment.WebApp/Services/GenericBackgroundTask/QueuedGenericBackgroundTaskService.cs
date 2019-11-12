@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -28,7 +29,9 @@ namespace Albar.AssistantAssignment.WebApp.Services.GenericBackgroundTask
             while (!stoppingToken.IsCancellationRequested)
             {
                 var backgroundTask = await _queue.DequeueAsync(stoppingToken);
-                var task = backgroundTask.Invoke(_provider, stoppingToken);
+                var scope = _provider.CreateScope();
+                var task = backgroundTask.Invoke(scope.ServiceProvider, stoppingToken)
+                    .ContinueWith(_ => scope.Dispose());
                 if (backgroundTask.RunInParallel)
                 {
                     parallelTasks.Add(task);

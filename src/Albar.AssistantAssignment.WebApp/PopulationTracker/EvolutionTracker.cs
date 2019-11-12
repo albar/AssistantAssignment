@@ -79,8 +79,7 @@ namespace Albar.AssistantAssignment.WebApp.PopulationTracker
         {
             _queue.Enqueue(async (provider, token) =>
             {
-                using var scope = provider.CreateScope();
-                await using var database = scope.ServiceProvider.GetRequiredService<EvolutionTrackerDatabase>();
+                await using var database = provider.GetRequiredService<EvolutionTrackerDatabase>();
                 await action.Invoke(database);
                 await database.SaveChangesAsync(token);
             });
