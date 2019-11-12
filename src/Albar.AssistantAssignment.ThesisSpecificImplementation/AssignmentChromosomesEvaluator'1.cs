@@ -29,19 +29,19 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
             _evaluators.Add(objective, evaluator);
         }
 
-        protected override async Task<IEnumerable<IChromosome<T>>> EvaluateObjectiveValuesAll(
+        protected override async Task EvaluateObjectiveValuesAll(
             IEnumerable<IChromosome<T>> chromosomes,
             CancellationToken token = default)
         {
             if (_evaluators.Count != Enum.GetNames(typeof(T)).Length)
                 throw new Exception("Some assignment objective evaluator is not implemented");
-            var evaluableChromosome = chromosomes.Where(chromosome => chromosome.Fitness <= 0).ToArray();
-            var chromosomeEvaluationTasks = evaluableChromosome.Select(async chromosome =>
-            {
-                chromosome.ObjectiveValues = await EvaluateObjectiveValues(chromosome);
-            });
+            var chromosomeEvaluationTasks = chromosomes
+                .Where(chromosome => chromosome.Fitness <= 0)
+                .Select(async chromosome =>
+                {
+                    chromosome.ObjectiveValues = await EvaluateObjectiveValues(chromosome);
+                });
             await Task.WhenAll(chromosomeEvaluationTasks);
-            return evaluableChromosome;
         }
 
         private async Task<ObjectiveValues<T>> EvaluateObjectiveValues(IChromosome<T> chromosome)
