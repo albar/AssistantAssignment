@@ -30,6 +30,7 @@ namespace Albar.AssistantAssignment.ThesisSpecificImplementation
             IEnumerable<IAssignmentChromosome<AssignmentObjective>> chromosomes,
             PopulationCapacity capacity)
         {
+            // return new PreparedMutationParent<AssignmentObjective>[0];
             var chromosomeArray = chromosomes.ToArray();
             return chromosomeArray
                 .Where(chromosome =>

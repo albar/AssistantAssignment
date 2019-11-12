@@ -119,7 +119,7 @@ namespace Albar.AssistantAssignment.WebApp.Services.ParallelGeneticAlgorithm
                 task.State = GeneticAlgorithmTaskState.RunningTask;
                 task.RunningTask = new GeneticAlgorithmRunningTask(taskId, id, source);
                 var ga = task.GeneticAlgorithm;
-                task.Population = task.PopulationFactory.Create(task.Capacity, new EvolutionTracker(id, _genericBackgroundTaskQueue));
+                task.Population = task.PopulationFactory.Create(task.Capacity, null);
                 var population = task.Population;
 
                 bool MonitoredTermination(GeneticEvolutionStates state)

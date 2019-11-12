@@ -33,7 +33,7 @@ namespace Albar.AssistantAssignment.WebApp.Factories
             {
                 Capacity = capacity,
                 Chromosomes = chromosomes.Cast<IChromosome>().ToImmutableHashSet(),
-                EventHandler = eventHandler
+                // EventHandler = eventHandler
             };
         }
 
