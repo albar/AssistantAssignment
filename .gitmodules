@@ -1,0 +1,3 @@
+[submodule "libs/ea"]
+	path = libs/ea
+	url = git@github.com:bunnypro/EvolutionaryAlgorithm.git
