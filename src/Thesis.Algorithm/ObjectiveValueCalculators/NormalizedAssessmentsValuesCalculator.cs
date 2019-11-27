@@ -9,9 +9,9 @@ namespace Thesis.Algorithm.ObjectiveValueCalculators
 {
     public class NormalizedAssessmentsValuesCalculator : ObjectiveValueCalculatorBase
     {
-        public override Objectives Objective => Objectives.NormalizedAssessmentsValues;
-        public override bool NeedToBeNormalized => false;
-        public override Optimum Optimum => Optimum.Maximum;
+        public override Objectives Objective { get; } = Objectives.NormalizedAssessmentsValues;
+        public override bool NeedToBeNormalized { get; } = false;
+        public override Optimum Optimum { get; } = Optimum.Maximum;
 
         public override async Task<double> CalculateAsync(Chromosome chromosome, CancellationToken token)
         {
@@ -33,11 +33,10 @@ namespace Thesis.Algorithm.ObjectiveValueCalculators
 
             var normalizers = await Task.WhenAll(normalizerTasks);
 
-            var tasks = chromosome.Phenotype.Select(phenotype =>
-                Task.Run(() =>
-                    normalizers.Select(normalizer =>
-                        normalizer.Value.Invoke(phenotype.AssesmentsValues[normalizer.Key]))
-                , token));
+            var tasks = chromosome.Phenotype.Select(phenotype => Task.Run(() =>
+                normalizers.Select(normalizer =>
+                    normalizer.Value.Invoke(phenotype.AssesmentsValues[normalizer.Key])),
+                token));
 
             var results = await Task.WhenAll(tasks);
             return results.SelectMany(values => values).Average();

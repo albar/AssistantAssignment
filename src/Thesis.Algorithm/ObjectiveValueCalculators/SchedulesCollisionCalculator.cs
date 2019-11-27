@@ -15,9 +15,9 @@ namespace Thesis.Algorithm.ObjectiveValueCalculators
             _schedules = repository.Schedules;
         }
 
-        public override Objectives Objective => Objectives.SchedulesCollision;
-        public override bool NeedToBeNormalized => true;
-        public override Optimum Optimum => Optimum.Minimum;
+        public override Objectives Objective { get; } = Objectives.SchedulesCollision;
+        public override bool NeedToBeNormalized { get; } = true;
+        public override Optimum Optimum { get; } = Optimum.Minimum;
 
         public override Task<double> CalculateAsync(Chromosome chromosome, CancellationToken token)
         {
