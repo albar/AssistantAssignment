@@ -42,6 +42,7 @@ namespace Thesis.WebApp.Services.GeneticAlgorithmRunnerService
             var calculators = new ObjectiveValueCalculatorBase[]
             {
                 new SchedulesCollisionCalculator(_repository),
+                new AboveAverageCalculator(_repository),
                 new NormalizedAssessmentsValuesCalculator(),
             }.ToImmutableHashSet();
             _evaluator = new ChromosomeEvaluator(phenotypeResolver, calculators);

@@ -43,6 +43,7 @@ namespace Thesis.ConsoleApp
             var calculators = new ObjectiveValueCalculatorBase[]
             {
                 new SchedulesCollisionCalculator(repository),
+                new AboveAverageCalculator(repository),
                 new NormalizedAssessmentsValuesCalculator(),
             }.ToImmutableHashSet();
             var evaluator = new ChromosomeEvaluator(resolver, calculators);
