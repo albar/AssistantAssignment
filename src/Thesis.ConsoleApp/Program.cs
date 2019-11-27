@@ -36,6 +36,8 @@ namespace Thesis.ConsoleApp
                 db = 1;
             }
 
+            Console.WriteLine("Preparing ..");
+            var preparationStartTime = DateTime.Now;
             var repository = await BuildRepositoryAsync(db);
             var crossover = new Crossover(repository);
             var mutation = new Mutation(repository);
@@ -57,35 +59,42 @@ namespace Thesis.ConsoleApp
                 mutation,
                 evaluator,
                 reinsertion);
+            Console.WriteLine($"Preparation Time = {DateTime.Now - preparationStartTime}");
+
+            var initializationstartTime = DateTime.Now;
             var chromosomes = await factory.CreateAsync(population, default);
             await evaluator.EvaluateAsync(chromosomes, default);
+            Console.WriteLine($"Initialization Time = {DateTime.Now - initializationstartTime}");
 
             var count = 0;
-            var startTime = DateTime.Now;
-
             var cts = new CancellationTokenSource();
+            var prefix = "Evolution Count =";
+            Console.Write(prefix);
             ga.OnEvolvedOnce += value =>
             {
-                if (count >= evolution - 1)
+                count++;
+                if (count >= evolution)
                 {
                     cts.Cancel();
                 }
-                count++;
+                Console.Write($" {count}");
+                Console.CursorLeft = prefix.Length;
             };
 
+            var evolutionStartTime = DateTime.Now;
             var result = await ga.EvolveAsync(chromosomes, cts.Token);
-
-            var duplicated = result.Count(chromosome =>
-                result.Count(other => chromosome.Genotype.SequenceEqual(other.Genotype)) > 1);
-            Console.WriteLine($"Contain Duplicate = {duplicated}");
+            var evolutionTime = DateTime.Now - evolutionStartTime;
+            Console.WriteLine();
             Console.WriteLine($"Schedule Count = {repository.Schedules.Length}");
             await evaluator.EvaluateAsync(result, default);
-            Console.WriteLine($"Evolution Count = {count}");
-            Console.WriteLine($"Evolution Time = {DateTime.Now - startTime}");
+            Console.WriteLine($"Evolution Time = {evolutionTime}");
             var fronts = FastNondominatedSorter.Sort(result, new Comparer());
+
+            var fronCount = 0;
             foreach (var front in fronts)
             {
-                Console.WriteLine("Front");
+                fronCount++;
+                Console.WriteLine($"\nFront {fronCount}");
                 foreach (var chromosome in front.OrderByDescending(chr => chr.Fitness.Values.Average()))
                 {
                     Console.Write("Original = ");
@@ -93,21 +102,8 @@ namespace Thesis.ConsoleApp
                     Console.Write(". Normalized = ");
                     Console.WriteLine(string.Join(", ", chromosome.Fitness.Values));
                 }
-                Console.WriteLine();
             }
             Console.ReadKey();
-        }
-
-        private static void Print(IEnumerable<Chromosome> chromosomes)
-        {
-            Console.Clear();
-            foreach (var chromosome in chromosomes)
-            {
-                Console.Write("Original = ");
-                Console.Write(string.Join(", ", chromosome.OriginalObjectivesValue.Values));
-                Console.Write(". Normalized = ");
-                Console.WriteLine(string.Join(", ", chromosome.Fitness.Values));
-            }
         }
 
         private static async Task<IDataRepository> BuildRepositoryAsync(int db)
