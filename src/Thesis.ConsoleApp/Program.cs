@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EvolutionaryAlgorithm.GeneticAlgorithm.NSGA2;
+using EvolutionaryAlgorithm.GeneticAlgorithm.NSGA2.OffspingSelectors;
 using Microsoft.EntityFrameworkCore;
 using Thesis.Algorithm;
 using Thesis.Algorithm.ObjectiveValueCalculators;
@@ -51,10 +52,11 @@ namespace Thesis.ConsoleApp
             }.ToImmutableHashSet();
 
             var evaluator = new ChromosomeEvaluator(resolver, calculators);
-            var reinsertion = new EuclideanBasedOffspringSelector<Chromosome, Objectives, ObjectivesValue>(
+            var selector = new EuclideanDistanceOffspringSelector<Chromosome, Objectives, ObjectivesValue>(
                 Enum.GetValues(typeof(Objectives)).Cast<Objectives>(),
-                new ObjectivesValueMapper(),
-                ObjectivesValue.ObjectivesValueComparer);
+                new ObjectivesValueMapper());
+            var reinsertion = new NSGAReinsertion<Chromosome, ObjectivesValue>(
+                ObjectivesValue.ObjectivesValueComparer, selector);
             var factory = new ChromosomeFactory(repository);
             var ga = new NSGA2<Chromosome, Objectives>(
                 crossover,
