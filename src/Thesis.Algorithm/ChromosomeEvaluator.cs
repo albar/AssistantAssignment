@@ -80,8 +80,8 @@ namespace Thesis.Algorithm
             var normalizersTasks = _calculators.Select(
                 calculator => Task.Run(() =>
                 {
-                    return new KeyValuePair<ObjectiveValueCalculatorBase, Func<double, double>>(
-                        calculator, GenerateObjectiveValueNormalizer(calculator, chromosomes));
+                    return new KeyValuePair<Objectives, Func<double, double>>(
+                        calculator.Objective, GenerateObjectiveValueNormalizer(calculator, chromosomes));
                 }, token));
 
             var normalizers = await Task.WhenAll(normalizersTasks);
@@ -89,9 +89,9 @@ namespace Thesis.Algorithm
             var tasks = chromosomes.Select(chromosome => Task.Run(() =>
             {
                 var normalizedValues = normalizers.ToDictionary(
-                    normalizer => normalizer.Key.Objective,
+                    normalizer => normalizer.Key,
                     normalizer => normalizer.Value.Invoke(
-                        chromosome.OriginalObjectivesValue[normalizer.Key.Objective]));
+                        chromosome.OriginalObjectivesValue[normalizer.Key]));
 
                 chromosome.Fitness = new ObjectivesValue(normalizedValues);
             }, token));
@@ -108,7 +108,8 @@ namespace Thesis.Algorithm
             }
 
             var ordered = chromosomes.Select(chromosome =>
-                    chromosome.OriginalObjectivesValue[calculator.Objective] * (int)calculator.Optimum)
+                    chromosome.OriginalObjectivesValue[calculator.Objective] *
+                    (int)calculator.Optimum)
                 .OrderBy(value => value)
                 .ToArray();
 
