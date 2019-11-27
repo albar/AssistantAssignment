@@ -4,6 +4,7 @@ namespace Thesis.Algorithm
     {
         SchedulesCollision,
         AboveAverage,
+        AboveThreshold,
         NormalizedAssessmentsValues,
     }
 }

@@ -34,8 +34,12 @@ namespace Thesis.DatabaseDataRepositoryBuilder
                     schedulesBuilder.AddRange(schedules);
 
                     var course = new Course(subject.Id, subject.AssistantSubjects
-                        .Select(assistantSubject => assistantSubject.AssistantId)
-                        .ToImmutableHashSet());
+                            .Select(assistantSubject => assistantSubject.AssistantId)
+                            .ToImmutableHashSet(),
+                        subject.AssessmentsThreshold.ToImmutableDictionary(
+                            assesment => assesment.Key,
+                            assesment => assesment.Value
+                        ));
 
                     coursesBuilder.Add(course);
                 }, token);

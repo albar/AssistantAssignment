@@ -46,8 +46,10 @@ namespace Thesis.ConsoleApp
             {
                 new SchedulesCollisionCalculator(repository),
                 new AboveAverageCalculator(repository),
+                new AboveThresholdCalculator(repository),
                 new NormalizedAssessmentsValuesCalculator(),
             }.ToImmutableHashSet();
+
             var evaluator = new ChromosomeEvaluator(resolver, calculators);
             var reinsertion = new EuclideanBasedOffspringSelector<Chromosome, Objectives, ObjectivesValue>(
                 Enum.GetValues(typeof(Objectives)).Cast<Objectives>(),
