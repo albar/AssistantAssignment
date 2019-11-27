@@ -30,7 +30,12 @@ namespace Thesis.Algorithm.ObjectiveValueCalculators
             );
 
             var tasks = chromosome.Phenotype.Select(phenotype =>
-                Task.Run(() => AboveAverage(averages, phenotype.AssesmentsValues), token));
+                Task.Run(() =>
+                {
+                    var isAbove = AboveAverage(averages, phenotype.AssesmentsValues);
+                    phenotype.IsAboveThreshold = isAbove;
+                    return isAbove;
+                }, token));
 
             var result = await Task.WhenAll(tasks);
             return result.Count(isAbove => isAbove);

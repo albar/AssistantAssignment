@@ -7,5 +7,6 @@ namespace Thesis.Algorithm
     {
         public ImmutableDictionary<Assesments, double> AssesmentsValues { get; set; }
         public bool IsCollided { get; set; }
+        public bool IsAboveThreshold { get; set; }
     }
 }
