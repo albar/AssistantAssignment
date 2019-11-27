@@ -26,8 +26,9 @@ namespace Thesis.Algorithm.Reproductions
         public async Task<IEnumerable<Chromosome>> ReproduceAsync(
             ImmutableHashSet<Chromosome> parents, CancellationToken token)
         {
-            var reproducibleParents = parents.Where(NeedToBeMutated);
-            var tasks = reproducibleParents.Select(parent => MutateAsync(parent, token));
+            var tasks = parents.Where(NeedToBeMutated)
+                .Select(parent => MutateAsync(parent, token));
+
             return await Task.WhenAll(tasks);
         }
 
@@ -37,17 +38,19 @@ namespace Thesis.Algorithm.Reproductions
                 Task.Run(() =>
                 {
                     if (!phenotype.IsCollided)
-                        return new Gene(parent.Genotype[scheduleId].AssistantsIds);
+                        return parent.Genotype[scheduleId];
 
                     var ids = _coursesAssistants[_schedules[scheduleId].CourseId]
                         .OrderBy(_ => _random.Next())
                         .Take(_schedules[scheduleId].RequiredAssistantsCount)
                         .ToImmutableHashSet();
+
                     return new Gene(ids);
                 }, token));
 
             var result = await Task.WhenAll(tasks);
             var genotype = result.ToImmutableArray();
+
             return new Chromosome(genotype);
         }
 
