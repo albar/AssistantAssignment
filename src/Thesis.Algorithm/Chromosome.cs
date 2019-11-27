@@ -21,8 +21,6 @@ namespace Thesis.Algorithm
 
         public ObjectivesValue Fitness { get; set; }
         public ObjectivesValue OriginalObjectivesValue { get; set; }
-
-        ObjectivesValue IChromosome<ObjectivesValue>.Fitness => Fitness;
         public ImmutableArray<Gene> Genotype { get; }
         public ImmutableArray<PhenotypeRepresentation> Phenotype { get; set; }
 
