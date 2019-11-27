@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
@@ -26,8 +25,8 @@ namespace Thesis.Algorithm
             var builder = ImmutableHashSet.CreateBuilder<Chromosome>();
             while (builder.Count < count)
             {
-                var worker = Enumerable.Range(0, count).Select(_ => CreateAsync(token));
-                var result = await Task.WhenAll(worker);
+                var tasks = Enumerable.Range(0, count).Select(_ => CreateAsync(token));
+                var result = await Task.WhenAll(tasks);
                 builder.UnionWith(result);
             }
             return builder.ToImmutable();
@@ -36,19 +35,18 @@ namespace Thesis.Algorithm
         public async Task<Chromosome> CreateAsync(CancellationToken token)
         {
             var random = new Random();
-            var worker = _schedules.Select((schedule, index) =>
+            var tasks = _schedules.Select((schedule, index) =>
                 Task.Run(() =>
                 {
-                    var combination = _coursesAssistants[schedule.CourseId]
+                    var ids = _coursesAssistants[schedule.CourseId]
                         .OrderBy(_ => random.Next())
                         .Take(schedule.RequiredAssistantsCount)
                         .ToImmutableHashSet();
-                    return new KeyValuePair<int, ImmutableHashSet<int>>(index, combination);
+                    return new Gene(ids);
                 }, token));
-            var result = await Task.WhenAll(worker);
-            var genotype = result.OrderBy(kv => kv.Key)
-                .Select(kv => new Gene(kv.Value))
-                .ToImmutableArray();
+
+            var result = await Task.WhenAll(tasks);
+            var genotype = result.ToImmutableArray();
             return new Chromosome(genotype);
         }
     }

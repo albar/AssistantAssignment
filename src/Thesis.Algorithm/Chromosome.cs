@@ -14,8 +14,8 @@ namespace Thesis.Algorithm
             Genotype = genotype;
             unchecked
             {
-                _hashCode = Genotype.Aggregate(1, (acumulated, gene) =>
-                    (acumulated * 397) ^ gene.GetHashCode());
+                _hashCode = Genotype.Aggregate(1, (accumulated, gene) =>
+                    (accumulated * 397) ^ gene.GetHashCode());
             }
         }
 

@@ -38,6 +38,7 @@ namespace Thesis.Algorithm.ObjectiveValueCalculators
                     normalizers.Select(normalizer =>
                         normalizer.Value.Invoke(phenotype.AssesmentsValues[normalizer.Key]))
                 , token));
+
             var results = await Task.WhenAll(tasks);
             return results.SelectMany(values => values).Average();
         }

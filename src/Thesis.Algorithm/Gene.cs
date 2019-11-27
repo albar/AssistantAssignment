@@ -8,9 +8,9 @@ namespace Thesis.Algorithm
     {
         private readonly int _hashCode;
 
-        public Gene(ImmutableHashSet<int> sssistantsIds)
+        public Gene(ImmutableHashSet<int> assistantsIds)
         {
-            AssistantsIds = sssistantsIds;
+            AssistantsIds = assistantsIds;
             unchecked
             {
                 _hashCode = AssistantsIds.OrderBy(id => id)

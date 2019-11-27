@@ -42,7 +42,7 @@ namespace Thesis.Algorithm
         private async Task CalculateFitnessAsync(IEnumerable<Chromosome> chromosomes, CancellationToken token)
         {
             await CalculateOriginalObjectivesValueAsync(chromosomes, token);
-            await CalculateNormalizedObjectivesValueAsync(chromosomes, token);
+            await CalculateNormalizedObjectivesValuesAsync(chromosomes, token);
         }
 
         private async Task CalculateOriginalObjectivesValueAsync(
@@ -54,13 +54,13 @@ namespace Thesis.Algorithm
             .Select(async chromosome =>
             {
                 chromosome.OriginalObjectivesValue = new ObjectivesValue(
-                    await CalculateObjectivesValuesAsync(chromosome, token));
+                    await CalculateObjectivesValueAsync(chromosome, token));
             });
 
             await Task.WhenAll(tasks);
         }
 
-        private async Task<IReadOnlyDictionary<Objectives, double>> CalculateObjectivesValuesAsync(
+        private async Task<IReadOnlyDictionary<Objectives, double>> CalculateObjectivesValueAsync(
             Chromosome chromosome, CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
@@ -72,7 +72,7 @@ namespace Thesis.Algorithm
             return result.ToDictionary(kv => kv.Key, kv => kv.Value);
         }
 
-        private async Task CalculateNormalizedObjectivesValueAsync(
+        private async Task CalculateNormalizedObjectivesValuesAsync(
             IEnumerable<Chromosome> chromosomes,
             CancellationToken token)
         {
@@ -81,15 +81,17 @@ namespace Thesis.Algorithm
                 calculator => Task.Run(() =>
                 {
                     return new KeyValuePair<ObjectiveValueCalculatorBase, Func<double, double>>(
-                        calculator, GenerateNormalizer(calculator, chromosomes));
+                        calculator, GenerateObjectiveValueNormalizer(calculator, chromosomes));
                 }, token));
 
             var normalizers = await Task.WhenAll(normalizersTasks);
 
             var tasks = chromosomes.Select(chromosome => Task.Run(() =>
             {
-                var normalizedValues = normalizers.ToDictionary(normalizer => normalizer.Key.Objective, normalizer =>
-                    normalizer.Value.Invoke(chromosome.OriginalObjectivesValue[normalizer.Key.Objective]));
+                var normalizedValues = normalizers.ToDictionary(
+                    normalizer => normalizer.Key.Objective,
+                    normalizer => normalizer.Value.Invoke(
+                        chromosome.OriginalObjectivesValue[normalizer.Key.Objective]));
 
                 chromosome.Fitness = new ObjectivesValue(normalizedValues);
             }, token));
@@ -97,7 +99,7 @@ namespace Thesis.Algorithm
             await Task.WhenAll(tasks);
         }
 
-        private Func<double, double> GenerateNormalizer(
+        private Func<double, double> GenerateObjectiveValueNormalizer(
             ObjectiveValueCalculatorBase calculator, IEnumerable<Chromosome> chromosomes)
         {
             if (!calculator.NeedToBeNormalized)
@@ -105,8 +107,8 @@ namespace Thesis.Algorithm
                 return value => value * (int)calculator.Optimum;
             }
 
-            var ordered = chromosomes
-                .Select(chromosome => chromosome.OriginalObjectivesValue[calculator.Objective] * (int)calculator.Optimum)
+            var ordered = chromosomes.Select(chromosome =>
+                    chromosome.OriginalObjectivesValue[calculator.Objective] * (int)calculator.Optimum)
                 .OrderBy(value => value)
                 .ToArray();
 
