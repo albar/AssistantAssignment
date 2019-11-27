@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EvolutionaryAlgorithm.GeneticAlgorithm.NSGA2;
-using EvolutionaryAlgorithm.GeneticAlgorithm.NSGA2.OffspingSelectors;
+using EvolutionaryAlgorithm.GeneticAlgorithm.NSGA2.OffspringSelectors;
 using Microsoft.EntityFrameworkCore;
 using Thesis.Algorithm;
 using Thesis.Algorithm.ObjectiveValueCalculators;
