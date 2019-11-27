@@ -68,12 +68,23 @@ namespace Thesis.ConsoleApp
             await evaluator.EvaluateAsync(chromosomes, default);
             Console.WriteLine($"Initialization Time = {DateTime.Now - initializationstartTime}");
 
+            var existenceCount = chromosomes.ToDictionary(
+                chromosome => chromosome.GetHashCode(),
+                Chromosome => 1);
+
             var count = 0;
             var cts = new CancellationTokenSource();
             var prefix = "Evolution Count =";
             Console.Write(prefix);
             ga.OnEvolvedOnce += value =>
             {
+                foreach (var chromosome in value)
+                {
+                    if (!existenceCount.TryAdd(chromosome.GetHashCode(), 1))
+                    {
+                        existenceCount[chromosome.GetHashCode()]++;
+                    }
+                }
                 count++;
                 if (count >= evolution)
                 {
@@ -90,6 +101,7 @@ namespace Thesis.ConsoleApp
             Console.WriteLine($"Schedule Count = {repository.Schedules.Length}");
             await evaluator.EvaluateAsync(result, default);
             Console.WriteLine($"Evolution Time = {evolutionTime}");
+            Console.WriteLine($"Unique Chromosome = {existenceCount.Count}");
             var fronts = FastNondominatedSorter.Sort(result, new Comparer());
 
             var fronCount = 0;
@@ -99,6 +111,7 @@ namespace Thesis.ConsoleApp
                 Console.WriteLine($"\nFront {fronCount}");
                 foreach (var chromosome in front.OrderByDescending(chr => chr.Fitness.Values.Average()))
                 {
+                    Console.Write($"Exists Count = {existenceCount[chromosome.GetHashCode()]}, ");
                     Console.Write("Original = ");
                     Console.Write(string.Join(", ", chromosome.OriginalObjectivesValue.Values));
                     Console.Write(". Normalized = ");
