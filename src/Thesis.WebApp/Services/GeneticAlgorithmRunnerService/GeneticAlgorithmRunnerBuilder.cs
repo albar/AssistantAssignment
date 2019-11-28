@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using EvolutionaryAlgorithm.Abstraction;
 using EvolutionaryAlgorithm.GeneticAlgorithm.NSGA2;
-using EvolutionaryAlgorithm.GeneticAlgorithm.NSGA2.OffspingSelectors;
+using EvolutionaryAlgorithm.GeneticAlgorithm.NSGA2.OffspringSelectors;
 using Thesis.Algorithm;
 using Thesis.Algorithm.ObjectiveValueCalculators;
 using Thesis.Algorithm.Reproductions;
@@ -78,7 +78,7 @@ namespace Thesis.WebApp.Services.GeneticAlgorithmRunnerService
 
         private NSGA2<Chromosome, Objectives> BuildNsga2()
         {
-            var selector = new EuclideanDistanceOffspringSelector<Chromosome, Objectives, ObjectivesValue>(
+            var selector = new NSGA2LastFrontOffspringSelector<Chromosome, Objectives, ObjectivesValue>(
                 Enum.GetValues(typeof(Objectives)).Cast<Objectives>(),
                 new ObjectivesValueMapper());
             var reinsertion = new NSGAReinsertion<Chromosome, ObjectivesValue>(

@@ -50,9 +50,8 @@ namespace Thesis.ConsoleApp
                 new AboveThresholdCalculator(repository),
                 new NormalizedAssessmentsValuesCalculator(),
             }.ToImmutableHashSet();
-
             var evaluator = new ChromosomeEvaluator(resolver, calculators);
-            var selector = new EuclideanDistanceOffspringSelector<Chromosome, Objectives, ObjectivesValue>(
+            var selector = new EuclideanAllOffspringSelector<Chromosome, Objectives, ObjectivesValue>(
                 Enum.GetValues(typeof(Objectives)).Cast<Objectives>(),
                 new ObjectivesValueMapper());
             var reinsertion = new NSGAReinsertion<Chromosome, ObjectivesValue>(
