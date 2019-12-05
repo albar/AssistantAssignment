@@ -25,7 +25,7 @@ namespace Thesis.Algorithm
             var builder = ImmutableHashSet.CreateBuilder<Chromosome>();
             while (builder.Count < count)
             {
-                var tasks = Enumerable.Range(0, count).Select(_ => CreateAsync(token));
+                var tasks = Enumerable.Range(0, count - builder.Count).Select(_ => CreateAsync(token));
                 var result = await Task.WhenAll(tasks);
                 builder.UnionWith(result);
             }
