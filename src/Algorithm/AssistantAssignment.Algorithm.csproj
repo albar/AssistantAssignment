@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Data\Types\AssistantAssignment.Data.Types.csproj" />
+    <ProjectReference Include="..\..\libs\ea\src\GeneticAlgorithm.NSGA2\EvolutionaryAlgorithm.GeneticAlgorithm.NSGA2.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Collections.Immutable" Version="1.*" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+
+</Project>
