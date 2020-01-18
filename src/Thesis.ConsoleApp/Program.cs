@@ -21,18 +21,15 @@ namespace Thesis.ConsoleApp
     {
         static async Task Main(string[] args)
         {
-            int population;
-            int evolution;
-            int db;
-            if (!int.TryParse(args.ElementAtOrDefault(0), out population))
+            if (!int.TryParse(args.ElementAtOrDefault(0), out var population))
             {
                 population = 28;
             }
-            if (!int.TryParse(args.ElementAtOrDefault(1), out evolution))
+            if (!int.TryParse(args.ElementAtOrDefault(1), out var evolution))
             {
                 evolution = 50;
             }
-            if (!int.TryParse(args.ElementAtOrDefault(2), out db))
+            if (!int.TryParse(args.ElementAtOrDefault(2), out var db))
             {
                 db = 1;
             }
