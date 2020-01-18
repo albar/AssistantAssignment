@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using AssistantAssignment.Data.Abstractions;
 using AssistantAssignment.Data.Types;
 
 namespace AssistantAssignment.Data.Repository

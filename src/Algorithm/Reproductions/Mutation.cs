@@ -4,8 +4,9 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using EvolutionaryAlgorithm.Abstraction;
+using AssistantAssignment.Data.Abstractions;
 using AssistantAssignment.Data.Types;
+using EvolutionaryAlgorithm.Abstraction;
 
 namespace AssistantAssignment.Algorithm.Reproductions
 {
@@ -32,7 +33,9 @@ namespace AssistantAssignment.Algorithm.Reproductions
             return await Task.WhenAll(tasks);
         }
 
-        private async Task<Chromosome> MutateAsync(Chromosome parent, CancellationToken token)
+        private async Task<Chromosome> MutateAsync(
+            Chromosome parent,
+            CancellationToken token)
         {
             var tasks = parent.Phenotype.Select((phenotype, scheduleId) =>
                 Task.Run(() =>

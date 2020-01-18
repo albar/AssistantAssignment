@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\Data\Types\AssistantAssignment.Data.Types.csproj" />
     <ProjectReference Include="..\..\libs\ea\src\GeneticAlgorithm.NSGA2\EvolutionaryAlgorithm.GeneticAlgorithm.NSGA2.csproj" />
+    <ProjectReference Include="..\Data\Abstractions\AssistantAssignment.Data.Abstractions.csproj" />
   </ItemGroup>
 
   <ItemGroup>

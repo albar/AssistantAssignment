@@ -2,9 +2,9 @@ using System;
 using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
-using EvolutionaryAlgorithm.GeneticAlgorithm.NSGA2;
 using AssistantAssignment.Algorithm;
 using AssistantAssignment.WebApp.Services.GeneticAlgorithmRunnerService.Abstractions;
+using EvolutionaryAlgorithm.GeneticAlgorithm.NSGA2;
 
 namespace AssistantAssignment.WebApp.Services.GeneticAlgorithmRunnerService
 {

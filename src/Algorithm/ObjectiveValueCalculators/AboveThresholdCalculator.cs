@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using AssistantAssignment.Data.Abstractions;
 using AssistantAssignment.Data.Types;
 
 namespace AssistantAssignment.Algorithm.ObjectiveValueCalculators
@@ -29,12 +30,17 @@ namespace AssistantAssignment.Algorithm.ObjectiveValueCalculators
 
         public override Optimum Optimum { get; } = Optimum.Maximum;
 
-        public override async Task<double> CalculateAsync(Chromosome chromosome, CancellationToken token)
+        public override async Task<double> CalculateAsync(
+            Chromosome chromosome,
+            CancellationToken token)
         {
-            var tasks = chromosome.Phenotype.Select((phenotype, scheduleId) => Task.Run(() =>
+            var tasks = chromosome.Phenotype.Select((phenotype, scheduleId) =>
+            {
+                return Task.Run(() =>
                     _thresholds[_schedulesCourse[scheduleId]].All(assesment =>
                         phenotype.AssesmentsValues[assesment.Key] >= assesment.Value),
-                token));
+                    token);
+            });
 
             var result = await Task.WhenAll(tasks);
             return result.Count(isAbove => isAbove);

@@ -4,8 +4,8 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using EvolutionaryAlgorithm.Abstraction;
 using AssistantAssignment.Algorithm.ObjectiveValueCalculators;
+using EvolutionaryAlgorithm.Abstraction;
 
 namespace AssistantAssignment.Algorithm
 {
@@ -21,25 +21,33 @@ namespace AssistantAssignment.Algorithm
             _calculators = calculators;
         }
 
-        public async Task EvaluateAsync(IEnumerable<Chromosome> chromosomes, CancellationToken token)
+        public async Task EvaluateAsync(
+            IEnumerable<Chromosome> chromosomes,
+            CancellationToken token)
         {
             await ResolvePhenotypeAsync(chromosomes, token);
             await CalculateFitnessAsync(chromosomes, token);
         }
 
-        private async Task ResolvePhenotypeAsync(IEnumerable<Chromosome> chromosomes, CancellationToken token)
+        private async Task ResolvePhenotypeAsync(
+            IEnumerable<Chromosome> chromosomes,
+            CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
-            var tasks = chromosomes.Where(chromosome => chromosome.Phenotype == null)
-            .Select(async chromosome =>
-            {
-                chromosome.Phenotype = await _resolver.ResolveAsync(chromosome.Genotype, token);
-            });
+            var tasks = chromosomes
+                .Where(chromosome => chromosome.Phenotype == null)
+                .Select(async chromosome =>
+                {
+                    chromosome.Phenotype = await _resolver
+                        .ResolveAsync(chromosome.Genotype, token);
+                });
 
             await Task.WhenAll(tasks);
         }
 
-        private async Task CalculateFitnessAsync(IEnumerable<Chromosome> chromosomes, CancellationToken token)
+        private async Task CalculateFitnessAsync(
+            IEnumerable<Chromosome> chromosomes,
+            CancellationToken token)
         {
             await CalculateOriginalObjectivesValueAsync(chromosomes, token);
             await CalculateNormalizedObjectivesValuesAsync(chromosomes, token);
@@ -81,7 +89,9 @@ namespace AssistantAssignment.Algorithm
                 calculator => Task.Run(() =>
                 {
                     return new KeyValuePair<Objectives, Func<double, double>>(
-                        calculator.Objective, GenerateObjectiveValueNormalizer(calculator, chromosomes));
+                        calculator.Objective,
+                        GenerateObjectiveValueNormalizer(
+                            calculator, chromosomes));
                 }, token));
 
             var normalizers = await Task.WhenAll(normalizersTasks);
@@ -100,7 +110,8 @@ namespace AssistantAssignment.Algorithm
         }
 
         private Func<double, double> GenerateObjectiveValueNormalizer(
-            ObjectiveValueCalculatorBase calculator, IEnumerable<Chromosome> chromosomes)
+            ObjectiveValueCalculatorBase calculator,
+            IEnumerable<Chromosome> chromosomes)
         {
             if (!calculator.NeedToBeNormalized)
             {

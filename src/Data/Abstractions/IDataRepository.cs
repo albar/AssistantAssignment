@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
+using AssistantAssignment.Data.Types;
 
-namespace AssistantAssignment.Data.Types
+namespace AssistantAssignment.Data.Abstractions
 {
     public interface IDataRepository
     {

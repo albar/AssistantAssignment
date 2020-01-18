@@ -1,7 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using AssistantAssignment.Data.Types;
+using AssistantAssignment.Data.Abstractions;
 using AssistantAssignment.WebApp.Repositories;
 using AssistantAssignment.WebApp.Services.GeneticAlgorithmBuilderService.Abstractions;
 

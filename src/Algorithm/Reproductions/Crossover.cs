@@ -4,8 +4,9 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using EvolutionaryAlgorithm.Abstraction;
+using AssistantAssignment.Data.Abstractions;
 using AssistantAssignment.Data.Types;
+using EvolutionaryAlgorithm.Abstraction;
 
 namespace AssistantAssignment.Algorithm.Reproductions
 {
@@ -37,7 +38,8 @@ namespace AssistantAssignment.Algorithm.Reproductions
             return Enumerable.Range(0, count)
                 .Select(_ =>
                 {
-                    var selected = parents.OrderBy(__ => _random.Next()).Take(2).ToArray();
+                    var selected = parents.OrderBy(__ =>
+                        _random.Next()).Take(2).ToArray();
                     parents = parents.Except(selected);
 
                     return (selected[0], selected[1]);

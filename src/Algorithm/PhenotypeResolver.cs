@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
+using AssistantAssignment.Data.Abstractions;
 using AssistantAssignment.Data.Types;
 
 namespace AssistantAssignment.Algorithm

@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using AssistantAssignment.Data.Types;
-using AssistantAssignment.WebApp.Services.GeneticAlgorithmRunnerService.Abstractions;
 
 namespace AssistantAssignment.WebApp.Repositories
 {

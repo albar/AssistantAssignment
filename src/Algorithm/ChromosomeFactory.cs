@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using AssistantAssignment.Data.Abstractions;
 using AssistantAssignment.Data.Types;
 
 namespace AssistantAssignment.Algorithm
@@ -20,15 +21,18 @@ namespace AssistantAssignment.Algorithm
                 course => course.AssistantsIds);
         }
 
-        public async Task<ImmutableHashSet<Chromosome>> CreateAsync(int count, CancellationToken token)
+        public async Task<ImmutableHashSet<Chromosome>> CreateAsync(int count,
+            CancellationToken token)
         {
             var builder = ImmutableHashSet.CreateBuilder<Chromosome>();
-            while (builder.Count < count)
+            do
             {
-                var tasks = Enumerable.Range(0, count - builder.Count).Select(_ => CreateAsync(token));
+                var tasks = Enumerable.Range(0, count - builder.Count)
+                    .Select(_ => CreateAsync(token));
                 var result = await Task.WhenAll(tasks);
                 builder.UnionWith(result);
-            }
+            } while (builder.Count < count);
+
             return builder.ToImmutable();
         }
 

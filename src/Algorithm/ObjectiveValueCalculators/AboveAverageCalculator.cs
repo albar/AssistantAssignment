@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -10,18 +9,13 @@ namespace AssistantAssignment.Algorithm.ObjectiveValueCalculators
 {
     public class AboveAverageCalculator : ObjectiveValueCalculatorBase
     {
-        private readonly ImmutableArray<Schedule> _schedules;
-
-        public AboveAverageCalculator(IDataRepository repository)
-        {
-            _schedules = repository.Schedules;
-        }
-
         public override Objectives Objective { get; } = Objectives.AboveAverage;
         public override bool NeedToBeNormalized { get; } = true;
         public override Optimum Optimum { get; } = Optimum.Maximum;
 
-        public override async Task<double> CalculateAsync(Chromosome chromosome, CancellationToken token)
+        public override async Task<double> CalculateAsync(
+            Chromosome chromosome,
+            CancellationToken token)
         {
             var averages = AssesmentsExtensions.AllAssessments.ToDictionary(
                 assesment => assesment,
@@ -32,7 +26,8 @@ namespace AssistantAssignment.Algorithm.ObjectiveValueCalculators
             var tasks = chromosome.Phenotype.Select(phenotype =>
                 Task.Run(() =>
                 {
-                    var isAbove = AboveAverage(averages, phenotype.AssesmentsValues);
+                    var isAbove = AboveAverage(
+                        averages, phenotype.AssesmentsValues);
                     phenotype.IsAboveThreshold = isAbove;
                     return isAbove;
                 }, token));

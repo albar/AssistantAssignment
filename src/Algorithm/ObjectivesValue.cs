@@ -4,14 +4,17 @@ using System.Collections.Generic;
 
 namespace AssistantAssignment.Algorithm
 {
-    public class ObjectivesValue : IReadOnlyDictionary<Objectives, double>, IComparable<ObjectivesValue>
+    public class ObjectivesValue :
+        IReadOnlyDictionary<Objectives, double>,
+        IComparable<ObjectivesValue>
     {
-        public static readonly IComparer<ObjectivesValue> ObjectivesValueComparer =
+        public static readonly IComparer<ObjectivesValue> DefaultComparer =
             new Comparer();
 
         private readonly IReadOnlyDictionary<Objectives, double> _values;
 
-        public ObjectivesValue(IReadOnlyDictionary<Objectives, double> objectiveValues)
+        public ObjectivesValue(
+            IReadOnlyDictionary<Objectives, double> objectiveValues)
         {
             _values = objectiveValues;
         }
@@ -24,7 +27,7 @@ namespace AssistantAssignment.Algorithm
 
         public int CompareTo(ObjectivesValue other)
         {
-            return ObjectivesValueComparer.Compare(this, other);
+            return DefaultComparer.Compare(this, other);
         }
 
         public bool ContainsKey(Objectives key)

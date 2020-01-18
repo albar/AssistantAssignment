@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Database\AssistantAssignment.Data.Database.csproj" />
+    <ProjectReference Include="..\Abstractions\AssistantAssignment.Data.Abstractions.csproj" />
   </ItemGroup>
 
   <ItemGroup>

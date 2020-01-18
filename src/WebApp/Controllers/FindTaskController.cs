@@ -1,4 +1,3 @@
-using System;
 using Microsoft.AspNetCore.Mvc;
 using AssistantAssignment.WebApp.Repositories;
 

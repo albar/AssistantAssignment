@@ -1,5 +1,5 @@
-using Microsoft.Extensions.DependencyInjection;
 using AssistantAssignment.WebApp.Services.GeneticAlgorithmBuilderService.Abstractions;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AssistantAssignment.WebApp.Services.GeneticAlgorithmBuilderService
 {

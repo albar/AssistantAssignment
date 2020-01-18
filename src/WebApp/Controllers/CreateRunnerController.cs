@@ -1,7 +1,6 @@
-using System;
-using Microsoft.AspNetCore.Mvc;
 using AssistantAssignment.WebApp.Repositories;
 using AssistantAssignment.WebApp.Services.GeneticAlgorithmRunnerService.Abstractions;
+using Microsoft.AspNetCore.Mvc;
 
 namespace AssistantAssignment.WebApp.Controllers
 {

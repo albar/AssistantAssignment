@@ -2,19 +2,18 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using AssistantAssignment.Data.Repository;
-using AssistantAssignment.Data.Types;
+using AssistantAssignment.Data.Abstractions;
 using AssistantAssignment.Data.Database;
 using AssistantAssignment.WebApp.Repositories;
 using AssistantAssignment.WebApp.Services.GeneticAlgorithmBuilderService.Abstractions;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace AssistantAssignment.WebApp.Services.GeneticAlgorithmBuilderService
 {
     public class HostedBuilderService : BackgroundService
     {
-        private IServiceProvider _provider;
+        private readonly IServiceProvider _provider;
         private readonly IGeneticAlgorithmBuilderQueue _queue;
         private readonly IGeneticAlgorithmTaskRepository _repository;
         private readonly IDictionary<int, IDataRepository> _cachedDataRepositories

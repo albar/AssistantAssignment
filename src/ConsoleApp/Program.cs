@@ -5,15 +5,15 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using EvolutionaryAlgorithm.GeneticAlgorithm.NSGA2;
-using EvolutionaryAlgorithm.GeneticAlgorithm.NSGA2.OffspringSelectors;
-using Microsoft.EntityFrameworkCore;
 using AssistantAssignment.Algorithm;
 using AssistantAssignment.Algorithm.ObjectiveValueCalculators;
 using AssistantAssignment.Algorithm.Reproductions;
+using AssistantAssignment.Data.Abstractions;
 using AssistantAssignment.Data.Database;
 using AssistantAssignment.Data.Repository;
-using AssistantAssignment.Data.Types;
+using EvolutionaryAlgorithm.GeneticAlgorithm.NSGA2;
+using EvolutionaryAlgorithm.GeneticAlgorithm.NSGA2.OffspringSelectors;
+using Microsoft.EntityFrameworkCore;
 
 namespace AssistantAssignment.ConsoleApp
 {
@@ -43,7 +43,7 @@ namespace AssistantAssignment.ConsoleApp
             var calculators = new ObjectiveValueCalculatorBase[]
             {
                 new SchedulesCollisionCalculator(repository),
-                new AboveAverageCalculator(repository),
+                new AboveAverageCalculator(),
                 new AboveThresholdCalculator(repository),
                 new NormalizedAssessmentsValuesCalculator(),
             }.ToImmutableHashSet();
@@ -52,7 +52,7 @@ namespace AssistantAssignment.ConsoleApp
                 Enum.GetValues(typeof(Objectives)).Cast<Objectives>(),
                 new ObjectivesValueMapper());
             var reinsertion = new NSGAReinsertion<Chromosome, ObjectivesValue>(
-                ObjectivesValue.ObjectivesValueComparer, selector);
+                ObjectivesValue.DefaultComparer, selector);
             var factory = new ChromosomeFactory(repository);
             var ga = new NSGA2<Chromosome, Objectives>(
                 crossover,
@@ -109,11 +109,14 @@ namespace AssistantAssignment.ConsoleApp
                 Console.WriteLine($"\nFront {fronCount}");
                 foreach (var chromosome in front.OrderByDescending(chr => chr.Fitness.Values.Average()))
                 {
-                    Console.Write($"Exists Count = {existenceCount[chromosome.GetHashCode()]}, ");
-                    Console.Write("Original = ");
-                    Console.Write(string.Join(", ", chromosome.OriginalObjectivesValue.Values));
-                    Console.Write(". Normalized = ");
-                    Console.WriteLine(string.Join(", ", chromosome.Fitness.Values));
+                    // Console.Write($"Exists Count = {existenceCount[chromosome.GetHashCode()]}, ");
+                    // Console.Write("Original = ");
+                    Console.Write(string.Join(", ",
+                        chromosome.OriginalObjectivesValue.
+                            Select(objective => $"{objective.Key}: {objective.Value}")));
+                    // Console.Write(". Normalized = ");
+                    // Console.Write(string.Join(", ", chromosome.Fitness.Values));
+                    Console.WriteLine();
                 }
             }
             Console.ReadKey();
