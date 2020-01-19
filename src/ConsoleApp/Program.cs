@@ -54,7 +54,7 @@ namespace AssistantAssignment.ConsoleApp
             var reinsertion = new NSGAReinsertion<Chromosome, ObjectivesValue>(
                 ObjectivesValue.DefaultComparer, selector);
             var factory = new ChromosomeFactory(repository);
-            var ga = new NSGA2<Chromosome, Objectives>(
+            var ga = new NSGA2<Chromosome>(
                 crossover,
                 mutation,
                 evaluator,

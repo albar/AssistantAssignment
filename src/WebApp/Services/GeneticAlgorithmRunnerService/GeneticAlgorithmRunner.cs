@@ -10,7 +10,7 @@ namespace AssistantAssignment.WebApp.Services.GeneticAlgorithmRunnerService
 {
     public class GeneticAlgorithmRunner : IGeneticAlgorithmRunner
     {
-        private readonly NSGA2<Chromosome, Objectives> _nsga;
+        private readonly NSGA2<Chromosome> _nsga;
         private readonly IGeneticAlgorithmRunnerEventHandler _eventHandler;
         private readonly ChromosomeEvaluator _evaluator;
         private readonly ChromosomeFactory _factory;
@@ -21,7 +21,7 @@ namespace AssistantAssignment.WebApp.Services.GeneticAlgorithmRunnerService
         private int _generation;
 
         public GeneticAlgorithmRunner(ChromosomeFactory factory,
-            NSGA2<Chromosome, Objectives> nsga,
+            NSGA2<Chromosome> nsga,
             ChromosomeEvaluator evaluator,
             IGeneticAlgorithmRunnerEventHandler eventHandler,
             int size)

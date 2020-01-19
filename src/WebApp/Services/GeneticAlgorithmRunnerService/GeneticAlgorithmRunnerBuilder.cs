@@ -76,7 +76,7 @@ namespace AssistantAssignment.WebApp.Services.GeneticAlgorithmRunnerService
             return this;
         }
 
-        private NSGA2<Chromosome, Objectives> BuildNsga2()
+        private NSGA2<Chromosome> BuildNsga2()
         {
             var selector = new NSGA2LastFrontOffspringSelector<Chromosome, Objectives, ObjectivesValue>(
                 Enum.GetValues(typeof(Objectives)).Cast<Objectives>(),
@@ -85,7 +85,7 @@ namespace AssistantAssignment.WebApp.Services.GeneticAlgorithmRunnerService
                 ObjectivesValue.DefaultComparer,
                 selector);
 
-            return new NSGA2<Chromosome, Objectives>(
+            return new NSGA2<Chromosome>(
                 new Crossover(_repository),
                 _mutation,
                 _evaluator,
