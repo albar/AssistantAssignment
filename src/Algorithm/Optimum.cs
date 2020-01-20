@@ -1,6 +1,6 @@
 namespace AssistantAssignment.Algorithm
 {
-    public enum Optimum
+    public enum Optimum : sbyte
     {
         Minimum = -1,
         Maximum = 1,
